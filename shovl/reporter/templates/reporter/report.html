@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>shovl - Security Report</title>
+    <style>
+        body {
+            font-family: Helvetica, sans-serif;
+            color: #111;
+            padding: 40px;
+            font-size: 13px;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #007a6e;
+            margin-bottom: 4px;
+        }
+
+        .meta {
+            color: #555;
+            font-size: 11px;
+            margin-bottom: 32px;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 24px;
+        }
+
+        .CRITICAL { background: #ff4444; color: white; }
+        .HIGH { background: #ff8800; color: white; }
+        .MEDIUM { background: #ffcc00; color: white; }
+        .LOW { background: #44BB44; color: white; }
+
+        .summary {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .summary-box {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px 20px;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .summary-box .count {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .summary-box .label {
+            font-size: 10px;
+            color: #777;
+            text-transform: uppercase;
+        }
+
+        .finding {
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .finding-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .finding-title {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .severity {
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        .detail-item {
+            font-size: 12px;
+            color: #333;
+            margin: 4px 0;
+        }
+
+        .raw-block {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+
+        .footer {
+            margin-top: 48px;
+            font-size: 10px;
+            color: #aaa;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>shovl</h1>
+
+    <div class="meta">
+        Target: {{ report.meta.target }} &middot;
+        Scanned: {{ report.meta.scanned_at }} &middot;
+        Checks run: {{ report.meta.total_checks }}
+    </div>
+
+    <div class="risk-badge {{ report.meta.risk_score }}">
+        Overall Risk: {{ report.meta.risk_score }}
+    </div>
+
+    <!-- Summary counts -->
+    <div class="summary">
+        {% for severity, count in report.summary.items() %}
+        <div class="summary-box">
+            <div class="count">{{ count }}</div>
+            <div class="label">{{ severity }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Individual findings -->
+    {% for finding in report.findings %}
+    <div class="finding">
+        <div class="finding-header">
+            <span class="finding-title">{{ finding.id }} - {{ finding.check }}</span>
+            <span class="severity {{ finding.severity }}">{{ finding.severity }}</span>
+        </div>
+
+        {% for item in finding.detail %}
+        <div class="detail-item">→ {{ item }}</div>
+        {% endfor %}
+
+        {% if report.meta.verbose and finding.raw %}
+        <div class="raw-block">{{ finding.raw }}</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <div class="footer">
+        shovl &middot; {{ report.meta.scanned_at }} &middot; dig deeper
+    </div>
+    
+</body>
+</html>
