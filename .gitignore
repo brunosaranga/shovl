@@ -1,0 +1,9 @@
+'EOF'
+shovl-venv/
+__oycache__/
+*.pyc
+db.sqlite3
+shovl_report.pdf
+.env
+reports/
+EOF
