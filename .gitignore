@@ -1,9 +1,28 @@
-'EOF'
-shovl-venv/
-__oycache__/
-*.pyc
-db.sqlite3
-shovl_report.pdf
-.env
-reports/
-EOF
+# 'EOF'
+# shovl-venv/
+# __oycache__/
+# *.pyc
+# db.sqlite3
+# shovl_report.pdf
+# .env
+# reports/
+# EOF
+
+
+# Backend
+backend/shovl-venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/db.sqlite3
+backend/reports/
+backend/.env
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# General
+.DS_Store
+*.log
