@@ -1,0 +1,59 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800&display=swap');
+@import './variables.css';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-display);
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: var(--font-display);
+  cursor: pointer;
+  border: none;
+}
+
+input {
+  font-family: var(--font-display);
+  outline: none;
+}
+
+a { text-decoration: none; color: inherit; } */
+
+
+/* Import both native Google Fonts correctly */
+@import url('https://fonts.googleapis.com/css2?family=Arbutus&family=Inter:wght@400;700;900&display=swap');
+@import './variables.css';
+
+:root {
+  --color-bg: #ffffff;
+  --color-text: #0E0018;
+  --color-muted: #666666;
+  --color-accent: #4AFF00; /* Neon Green */
+  --color-border: #111111;
+
+  /* Typography Tokens */
+  --font-display: 'Arbutus', serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', Courier, monospace; /* Your great URL input font */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}

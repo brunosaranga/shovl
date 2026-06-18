@@ -8,6 +8,8 @@
 - sign in button border lights up green after valid inputs detected
 - REMEMBER TO MAKE SOME CHANGES TO VERBOSE
 
+- engine.py still needs to be refactored
+
 
 [ !!! CRITICAL ]  — red fill or red text
 [ !!  HIGH     ]  — orange
