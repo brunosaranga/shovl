@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Landing from './pages/Landing'
+import Auth from './pages/Auth'
 // import SignIn from './pages/SignIn'
 // import Register from './pages/Register'
 // import Dashboard from  './pages/Dashboard'
@@ -7,7 +8,7 @@ import Landing from './pages/Landing'
 // import ScanRunning from './pages/ScanRunning'
 // import Report from './pages/Report'
 // import Settings from './pages/Settings'
-// import DomainVerification from './pages/DomainVerification'
+import DomainVerification from './pages/DomainVerification'
 // import ProtectedRoute from './components/auth/ProtectedRoute'
 
 // 1. Import the AuthProvider context wrapper
@@ -20,7 +21,8 @@ export default function App() {
         <Routes>
           {/* Public routes */}
           <Route path="/"                    element={<Landing />} />
-          {/* <Route path="/signin"              element={<SignIn />} /> */}
+          <Route path="/verify"              element={<DomainVerification />} />
+          <Route path="/signin"              element={<Auth />} />
           {/* <Route path="/register"            element={<Register />} /> */}
 
           {/* Protected Routes */}

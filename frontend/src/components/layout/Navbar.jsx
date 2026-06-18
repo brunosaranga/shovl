@@ -1,62 +1,123 @@
-import { useAuth } from '../../context/AuthContext'
+import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import shovlLogo from '../../assets/shovl-logo.svg'
+import userAvatarIcon from '../../assets/UserAvatar.svg'
 
-export default function Navbar({ title, children }) {
-    // const { user, logout } = useAuth()
-    const { user } = useAuth()
+export default function Navbar({ 
+    urlValue, 
+    onUrlChange, 
+    onSearchSubmit, 
+    isAuthenticated = false, 
+    showUrlInput = true 
+}) {
     const navigate = useNavigate()
 
     return (
         <nav style={{
-            display: 'flex',
+            display: 'flex', 
             alignItems: 'center',
             justifyContent: 'space-between',
-            height: '64px',
+            height: '64px', 
             padding: '0 40px',
-            borderBottom: '1px solid var(--color-border)',
-            position: 'relative',
-            zIndex: 10,
+            position: 'relative', 
+            zIndex: 10, 
             background: 'white',
+            width: '100%',
         }}>
-            <div
+
+            {/* Brand Logo Asset / Home Navigation */}
+            <div 
                 onClick={() => navigate('/')}
-                style={{ cursor: 'pointer', width: '40px' }}
+                role="button"
+                tabIndex={0}
+                aria-label="shovl home"
+                onKeyDown={(e) => e.key === 'Enter' && navigate('/')}
+                style={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '40px',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    outline: 'none',
+                    transition: 'transform 0.1s ease'
+                }}
+                onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.97)'}
+                onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-                {/* shovl hand icon */}
-                <span style={{ fontSize: '24px' }}>🖕</span>
+                <img 
+                    src={shovlLogo} 
+                    alt="shovl logo" 
+                    style={{ 
+                        height: '40px', 
+                        width: 'auto',
+                        pointerEvents: 'none'
+                    }} 
+                />
             </div>
 
-            {title && (
-                <h1 style={{
-                    fontWeight: 800,
-                    fontSize: '28px',
-                    position: 'absolute',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                }}>
-                    {title}
-                </h1>
-            )}
-
-            {children}
-
-            {user && (
+            {/* Central URL Input Module (Can be hidden on pages like /signin via showUrlInput={false}) */}
+            {showUrlInput && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontWeight: 700 }}>[ {user.email }]</span>
-                    <div
-                        onClick={() => navigate('/settings')}
+                    <span style={{ 
+                        fontFamily: 'var(--font-display)', 
+                        fontWeight: 900, 
+                        fontSize: '14px' 
+                    }}>
+                        URL:
+                    </span>
+                    <input
+                        value={urlValue || ''}
+                        onChange={e => onUrlChange && onUrlChange(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && onSearchSubmit && onSearchSubmit()}
+                        placeholder="paste your API URL..."
                         style={{
-                            width: '40px', height: '40px',
-                            borderRadius: '50%',
-                            border: '2px solid var(--color-text)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            cursor: 'pointer',
+                            width: '320px', 
+                            height: '38px',
+                            color: 'var(--color-text)',
+                            border: '1px solid var(--color-text)',
+                            padding: '0 20px',
+                            fontFamily: 'var(--font-mono)', 
+                            fontSize: '13px',
+                            outline: 'none'
                         }}
-                    >
-                        👤
-                    </div>
+                    />
                 </div>
             )}
+
+            {/* Account Icon Layer (Adapts action dynamically based on Auth state) */}
+            <div
+                onClick={() => {
+                    if (isAuthenticated) {
+                        navigate('/dashboard') // Or /settings once authenticated
+                    } else {
+                        navigate('/signin')
+                    }
+                }}
+                style={{
+                    width: '40px', 
+                    height: '40px', 
+                    borderRadius: '50%',
+                    border: '2px solid #111',
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    overflow: 'hidden',
+                    background: '#fff',
+                    transition: 'transform 0.1s ease',
+                    // Visual indicator change for authenticated profiles if desired
+                    boxShadow: isAuthenticated ? '0 0 0 2px var(--color-accent)' : 'none'
+                }}
+                onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+                onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+                <img 
+                    src={userAvatarIcon} 
+                    alt="account menu" 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                />
+            </div>
         </nav>
     )
 }
