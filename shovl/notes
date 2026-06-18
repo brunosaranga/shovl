@@ -5,6 +5,15 @@
     - 
 - CI/CD pipeline integration: GitHub actions: scans everytime you push code
 - the logo could be the cursor
+- sign in button border lights up green after valid inputs detected
+- REMEMBER TO MAKE SOME CHANGES TO VERBOSE
+
+
+[ !!! CRITICAL ]  — red fill or red text
+[ !!  HIGH     ]  — orange
+[ !   MEDIUM   ]  — yellow
+[     LOW      ]  — green
+[     PASS     ]  — grey
 
 AUDIO
 - Background: Wind like ambiance

@@ -6,7 +6,8 @@ from reporter.generator import generate_pdf
 
 # Run the scan
 raw = run_scan(
-    target_url="https://httpbin.org/get",
+    # target_url="https://httpbin.org/get",
+    target_url="https://httpbin.org/status/429",
     verbose=True,
     suggest_fix=False
 )
