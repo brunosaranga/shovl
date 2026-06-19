@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PageShell from '../components/layout/PageShell'
 import shovlLogo from '../assets/shovl-logo.svg' // Assuming this has the hand included, or import hand separately
+// import PageTitle from '../components/common/PageTitle'
 
 export default function Auth() {
     const navigate = useNavigate()

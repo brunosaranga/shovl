@@ -52,7 +52,7 @@
 // frontend/src/components/layout/GroundCanvas.jsx
 import groundImage from '../../assets/ground.png'
 
-export default function GroundCanvas({ height = 260 }) {
+export default function GroundCanvas() {
   return (
     <div
       style={{
@@ -60,10 +60,10 @@ export default function GroundCanvas({ height = 260 }) {
         bottom: 0,
         left: 0,
         width: '100%',
-        height: `${height}px`,
+        height: '300px',
         backgroundImage: `url(${groundImage})`,
         backgroundSize: 'cover',
-        backgroundPosition: 'bottom',
+        backgroundPosition: 'bottom center',
         backgroundRepeat: 'no-repeat',
         pointerEvents: 'none', // Allows clicks through the background
         zIndex: 1,
