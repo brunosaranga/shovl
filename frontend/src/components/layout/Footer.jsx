@@ -14,7 +14,7 @@ export default function AppFooter() {
             zIndex: 4,
             pointerEvents: 'none'
         }}>
-            © 2026 Baxigu Dynama. All Rights Reserved
+            © 2026 Hinajuju Dynama. All Rights Reserved
         </div>
     )
 }

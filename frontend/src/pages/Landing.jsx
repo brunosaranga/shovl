@@ -15,16 +15,23 @@ export default function Landing() {
     const { accessToken } = useAuth()
     const navigate = useNavigate()
 
+    // first it goes to domain verification where it verifies if user owns domain, examining the passed in URL
     const handleScan = () => {
         if (!accessToken) {
-            navigate('/signin', { state: { pendingScan: { url, verbose, generateReport, suggestFix } } })
+            navigate('/verify', { state: { pendingScan: { url, verbose, generateReport, suggestFix } } })
             return
         }
+        // if authenticated, and the same verified domain is examined, proceed to begin the scan
         navigate('/scan/new', { state: { url, verbose, generateReport, suggestFix} })
     }
 
     return (
-        <PageShell title="landing" isLanding={true}>
+        <PageShell 
+        title="landing"
+        isLanding={true}
+        urlValue={url}
+        onUrlChange={setUrl}
+        onSearchSubmit={handleScan}>
             <div style={{ 
                 position: 'absolute', 
                 inset: 0, // Pins this container to top:0, left:0, right:0, bottom:0
@@ -68,7 +75,7 @@ export default function Landing() {
                 {/* Wordmark Layout Title Section */}
                 <div style={{
                     position: 'absolute',
-                    bottom: '220px',
+                    bottom: '260px',
                     left: '50%',
                     transform: 'translateX(-50%)',
                     textAlign: 'center',
