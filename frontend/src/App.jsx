@@ -4,8 +4,7 @@ import Auth from './pages/Auth'
 // import SignIn from './pages/SignIn'
 // import Register from './pages/Register'
 // import Dashboard from  './pages/Dashboard'
-// import NewScan from './pages/NewScan'
-// import ScanRunning from './pages/ScanRunning'
+import ScanRunning from './pages/ScanRunning'
 // import Report from './pages/Report'
 // import Settings from './pages/Settings'
 import DomainVerification from './pages/DomainVerification'
@@ -23,6 +22,7 @@ export default function App() {
           <Route path="/"                    element={<Landing />} />
           <Route path="/verify"              element={<DomainVerification />} />
           <Route path="/signin"              element={<Auth />} />
+          <Route path="/scan/running"  element={<ScanRunning />} />
           {/* <Route path="/register"            element={<Register />} /> */}
 
           {/* Protected Routes */}

@@ -32,7 +32,7 @@ export default function DomainVerification() {
             // Fake success state for frontend testing
             setStatus('verified')
             // Auto-route to the active scan screen after success
-            setTimeout(() => navigate('/scan/active', { state: location.state }), 1500)
+            setTimeout(() => navigate('/scan/running', { state: location.state }), 1500)
         }, 2500)
     }
 
@@ -178,7 +178,7 @@ export default function DomainVerification() {
                             <img src={shovlLogo} alt="verifying" style={{
                                 width: '100%',
                                 height: '100%',
-                                animation: 'spinLogo .5s linear infinite'
+                                animation: 'spinLogo .8s steps(8, end)  infinite'
                             }} />
                         </div>
                     )}
