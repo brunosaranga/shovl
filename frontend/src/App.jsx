@@ -1,9 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Landing from './pages/Landing'
 import Auth from './pages/Auth'
+import Dashboard from  './pages/Dashboard'
 // import SignIn from './pages/SignIn'
 // import Register from './pages/Register'
-// import Dashboard from  './pages/Dashboard'
+
 import ScanRunning from './pages/ScanRunning'
 // import Report from './pages/Report'
 // import Settings from './pages/Settings'
@@ -23,17 +24,18 @@ export default function App() {
           <Route path="/verify"              element={<DomainVerification />} />
           <Route path="/signin"              element={<Auth />} />
           <Route path="/scan/running"  element={<ScanRunning />} />
+          <Route path="/dashboard"         element={<Dashboard />} />
           {/* <Route path="/register"            element={<Register />} /> */}
 
-          {/* Protected Routes */}
-          {/* <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard"         element={<Dashboard />} />
-            <Route path="/scan/new"          element={<NewScan />} />
+          {/* Protected Routes - routes only accessed when authenticated */}
+          {/* <Route element={<ProtectedRoute />}> */}
+            {/* <Route path="/dashboard"         element={<Dashboard />} /> */}
+            {/* <Route path="/scan/new"          element={<NewScan />} />
             <Route path="/scan/:id/running"  element={<ScanRunning />} />
             <Route path="/scan/:id/report"   element={<Report />} />
             <Route path="/verify"              element={<DomainVerification />} />
-            <Route path="/settings"          element={<Settings />} />
-          </Route> */}
+            <Route path="/settings"          element={<Settings />} /> */}
+          {/* </Route> */}
 
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />

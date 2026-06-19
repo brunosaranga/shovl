@@ -36,8 +36,15 @@ a { text-decoration: none; color: inherit; } */
   --color-bg: #ffffff;
   --color-text: #0E0018;
   --color-muted: #666666;
-  --color-accent: #4AFF00; /* Neon Green */
+  --color-accent: #4AFF00; /* Neon Green - accent and success */
   --color-border: #111111;
+  --color-errors: #FD3737;
+  --color-sev-critical: #FF0000;
+  --color-sev-high: #FD8C00;
+  --color-sev-medium: #FDC500;
+  --color-sev-low: #00AC46;
+  --color-sev-pass: #CCCCCC;
+  --color-sev-pass: #CCCCCC;
 
   /* Typography Tokens */
   --font-display: 'Arbutus', serif;

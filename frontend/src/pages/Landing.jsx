@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 
 import KnobToggle from '../components/scan/KnobToggle'
 import PageShell from '../components/layout/PageShell'
+import URLInput from '../components/scan/URLInput'
 
 import shovlGraphic from '../assets/ShovelGraphic.svg'
 
@@ -17,6 +18,7 @@ export default function Landing() {
 
     // first it goes to domain verification where it verifies if user owns domain, examining the passed in URL
     const handleScan = () => {
+        if (!url) return // prevent empty submissions
         if (!accessToken) {
             navigate('/verify', { state: { pendingScan: { url, verbose, generateReport, suggestFix } } })
             return
@@ -25,19 +27,31 @@ export default function Landing() {
         navigate('/scan/new', { state: { url, verbose, generateReport, suggestFix} })
     }
 
+    // Wrap the decoupled landing input component to pass into centerElement
+    const centerInputSlot = (
+        <URLInput 
+            url={url} 
+            setUrl={setUrl} 
+            onSearchSubmit={handleScan} 
+        />
+    )
+
     return (
         <PageShell 
         title="landing"
         isLanding={true}
-        urlValue={url}
-        onUrlChange={setUrl}
-        onSearchSubmit={handleScan}>
+        centerElement={centerInputSlot}
+        >
             <div style={{ 
-                position: 'absolute', 
-                inset: 0, // Pins this container to top:0, left:0, right:0, bottom:0
-                overflow: 'hidden',
+                position: 'relative',
+                width: '100%',
+                minHeight: '100%',
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingTop: '40px',
+                boxSizing: 'border-box'
             }}>
                 
                 {/* Toggles Row */}

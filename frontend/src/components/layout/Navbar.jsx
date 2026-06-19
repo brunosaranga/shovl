@@ -4,11 +4,8 @@ import shovlLogo from '../../assets/shovl-logo.svg'
 import userAvatarIcon from '../../assets/UserAvatar.svg'
 
 export default function Navbar({ 
-    urlValue, 
-    onUrlChange, 
-    onSearchSubmit, 
+    centerElement, // Highly flexible prop to inject text, inputs, or headers dynamically
     isAuthenticated = false, 
-    showUrlInput = true 
 }) {
     const navigate = useNavigate()
 
@@ -56,40 +53,16 @@ export default function Navbar({
                 />
             </div>
 
-            {/* Central URL Input Module (Can be hidden on pages like /signin via showUrlInput={false}) */}
-            {showUrlInput && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ 
-                        fontFamily: 'var(--font-display)', 
-                        fontWeight: 900, 
-                        fontSize: '14px' 
-                    }}>
-                        URL:
-                    </span>
-                    <input
-                        value={urlValue || ''}
-                        onChange={e => onUrlChange && onUrlChange(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && onSearchSubmit && onSearchSubmit()}
-                        placeholder="paste your API URL..."
-                        style={{
-                            width: '320px', 
-                            height: '38px',
-                            color: 'var(--color-text)',
-                            border: '1px solid var(--color-text)',
-                            padding: '0 20px',
-                            fontFamily: 'var(--font-mono)', 
-                            fontSize: '13px',
-                            outline: 'none'
-                        }}
-                    />
-                </div>
-            )}
+            {/* Decoupled Middle Slot */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {centerElement}
+            </div>
 
-            {/* Account Icon Layer (Adapts action dynamically based on Auth state) */}
+            {/* Account Icon Layer */}
             <div
                 onClick={() => {
                     if (isAuthenticated) {
-                        navigate('/dashboard') // Or /settings once authenticated
+                        navigate('/dashboard')
                     } else {
                         navigate('/signin')
                     }
@@ -98,7 +71,6 @@ export default function Navbar({
                     width: '40px', 
                     height: '40px', 
                     borderRadius: '50%',
-                    border: '2px solid #111',
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'center',
@@ -106,8 +78,6 @@ export default function Navbar({
                     overflow: 'hidden',
                     background: '#fff',
                     transition: 'transform 0.1s ease',
-                    // Visual indicator change for authenticated profiles if desired
-                    boxShadow: isAuthenticated ? '0 0 0 2px var(--color-accent)' : 'none'
                 }}
                 onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
                 onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import PageShell from '../components/layout/PageShell'
+import PageTitle from '../components/common/PageTitle'
 
 import shovlLogo from '../assets/shovl-logo.svg'
 
@@ -37,7 +38,7 @@ export default function DomainVerification() {
     }
 
     return (
-        <PageShell title="verify domain">
+        <PageShell centerElement={<PageTitle>domain verification</PageTitle>}>
             <div style={{
                 maxWidth: '800px',
                 margin: '0 auto',

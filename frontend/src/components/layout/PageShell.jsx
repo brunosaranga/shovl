@@ -2,24 +2,22 @@ import GroundCanvas from "./GroundCanvas";
 import Navbar from "./Navbar";
 import AppFooter from "./Footer";
 
-export default function PageShell({ title, children, isLanding = false, urlValue, onUrlChange, onSearchSubmit }) {
+export default function PageShell({ children, isLanding = false, centerElement }) {
     return (
         <div style={{ 
             position: 'relative', 
             height: '100vh', 
             width: '100vw',
-            overflow: 'hidden',
+            // overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
-            background: '#fff'
+            background: '#fff',
+            boxSizing: 'border-box',
         }}>
-            {/* Forwarding the URL state and handlers to the Navbar */}
+            {/* Navbar dynamically receives the dynamic page title and custom center elements */}
             <Navbar 
-                variant="app" 
-                title={title} 
-                urlValue={urlValue}
-                onUrlChange={onUrlChange}
-                onSearchSubmit={onSearchSubmit}
+                isAuthenticated={true} 
+                centerElement={centerElement} 
             />
             
             <div style={{ 
