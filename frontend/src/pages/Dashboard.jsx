@@ -1,19 +1,13 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import PageTitle from '../components/common/PageTitle'
 import PageShell from '../components/layout/PageShell'
-import { PrimaryButton } from '../components/layout/Buttons'
 import ScanList from '../components/dashboard/ScanList.jsx'
 import ScanStats from '../components/dashboard/ScansStats.jsx'
-
-
-import getRiskColor from '../components/common/RiskColors.jsx'
-import scans from '../components/common/MockScans.jsx'
+import Pagination from '../components/layout/Pagination.jsx'
 
 
 export default function Dashboard() {
-    const navigate = useNavigate()
     const [expandedScanId, setExpandedScanId] = useState(null)
     const [scanProgress, setScanProgress] = useState(60) // <--- Added missing state definition
 
@@ -26,6 +20,7 @@ export default function Dashboard() {
                 {/* Scan stats */}
                 <ScanStats />
 
+
                 {/* Scan Items / Queue */}
                 <ScanList
                     scanProgress={scanProgress} 
@@ -34,12 +29,9 @@ export default function Dashboard() {
                     setExpandedScanId={setExpandedScanId}
                 />
 
+
                 {/* Pagination */}
-                <div className="pagination-container">
-                    <span className="pagination-page active-page">1</span>
-                    <span className="pagination-page">2</span>
-                    <span className="pagination-page">3</span>
-                </div>
+                <Pagination />
 
             </div>
         </PageShell>
