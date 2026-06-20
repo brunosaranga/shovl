@@ -2,12 +2,13 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Landing from './pages/Landing'
 import Auth from './pages/Auth'
 import Dashboard from  './pages/Dashboard'
+import Settings from './pages/Settings'
 // import SignIn from './pages/SignIn'
 // import Register from './pages/Register'
 
 import ScanRunning from './pages/ScanRunning'
 // import Report from './pages/Report'
-// import Settings from './pages/Settings'
+
 import DomainVerification from './pages/DomainVerification'
 // import ProtectedRoute from './components/auth/ProtectedRoute'
 
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/signin"              element={<Auth />} />
           <Route path="/scan/running"  element={<ScanRunning />} />
           <Route path="/dashboard"         element={<Dashboard />} />
+          <Route path="/settings"          element={<Settings />} />
           {/* <Route path="/register"            element={<Register />} /> */}
 
           {/* Protected Routes - routes only accessed when authenticated */}

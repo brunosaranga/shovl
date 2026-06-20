@@ -54,13 +54,14 @@ UI Utilities
 /* CONTAINS Navbar, Pageshell Content, GroundCanvas and Footer */
 .pageshell {
   position: relative;
-  height: 100vh; 
+  min-height: 100vh; 
   width: 100vw;
-  /* // overflow: 'hidden', */
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   background: var(--color-bg);
   box-sizing: border-box;
+  overscroll-behavior-y: none;
 }
 
 
@@ -875,4 +876,184 @@ UI Utilities
   width: 100%;
   height: 100%;
   animation: spinLogo .8s steps(8, end) infinite;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ==========================================================================
+   Settings Page Styles
+   ========================================================================== */
+
+.settings-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding-top: 150px; /* Aligns with Dashboard layout */
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  font-family: var(--font-mono);
+  padding-bottom: 340px; /* Room for the GroundCanvas mountain asset */
+}
+
+/* Section Card Layouts */
+.settings-section-card {
+  border: 3px solid var(--color-text);
+  background: #fff;
+  box-shadow: 6px 6px 0px var(--color-text);
+}
+
+.settings-section-header {
+  background: var(--color-text);
+  color: #fff;
+  padding: 12px 24px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 900;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+.settings-section-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Grid Rows for Data alignment */
+.settings-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+}
+
+.settings-label {
+  font-weight: 700;
+}
+
+.settings-value {
+  color: var(--color-text);
+}
+
+/* Neon Green Utilities matching Figma */
+.badge-verified {
+  color: var(--color-accent);
+  font-weight: bold;
+}
+
+/* Specialized Neo-brutalist Button Variants */
+.btn-neon-sm {
+  background: var(--color-accent);
+  color: var(--color-text);
+  border: 2px solid var(--color-text);
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: 12px;
+  padding: 4px 12px;
+  cursor: pointer;
+  border-radius: 0;
+  box-shadow: 2px 2px 0px var(--color-text);
+}
+
+.btn-neon-sm:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--color-text);
+}
+
+.btn-danger-sm {
+  background: var(--color-errors);
+  color: #fff;
+  border: 2px solid var(--color-text);
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: 12px;
+  padding: 4px 12px;
+  cursor: pointer;
+  border-radius: 0;
+  box-shadow: 2px 2px 0px var(--color-text);
+}
+
+.btn-danger-sm:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--color-text);
+}
+
+.btn-neon-action {
+  align-self: flex-start;
+  margin-top: 8px;
+}
+
+/* Specific alignments for Danger Zone text spacing */
+.danger-zone-text {
+  font-weight: 700;
 }
