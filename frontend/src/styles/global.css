@@ -1,33 +1,3 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800&display=swap');
-@import './variables.css';
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: var(--font-display);
-  color: var(--color-text);
-  background: var(--color-bg);
-  -webkit-font-smoothing: antialiased;
-}
-
-button {
-  font-family: var(--font-display);
-  cursor: pointer;
-  border: none;
-}
-
-input {
-  font-family: var(--font-display);
-  outline: none;
-}
-
-a { text-decoration: none; color: inherit; } */
-
-
 /* Import both native Google Fonts correctly */
 @import url('https://fonts.googleapis.com/css2?family=Arbutus&family=Inter:wght@400;700;900&display=swap');
 @import './variables.css';
@@ -63,4 +33,264 @@ body {
   color: var(--color-text);
   background: var(--color-bg);
   -webkit-font-smoothing: antialiased;
+}
+
+
+/* reused components */
+/* 
+Buttons
+Navbar
+PageTitle
+PageShell
+UI Utilities
+  Buttons
+  Cards
+  etc
+*/
+
+
+
+/* PageShell */
+/* CONTAINS Navbar, Pageshell Content, GroundCanvas and Footer */
+.pageshell {
+  position: relative;
+  height: 100vh; 
+  width: 100vw;
+  /* // overflow: 'hidden', */
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  box-sizing: border-box;
+}
+
+
+/* Pageshell content container */
+.pageshell-content-container {
+  /* flex-grow: 1; */
+  position: absolute;
+  /* top: 64px; */
+  min-height: 100%;
+  min-width: 100%;
+  display: flex;
+  /* height: 800px; */
+  /* border-bottom: 2px solid black; */
+  z-index: 10;
+}
+
+
+
+
+/* PageTitle */
+.page-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 900;
+  margin: 0;
+  letter-spacing: -1.5px;
+  color: var(--color-text);
+  text-transform: lowercase;
+}
+
+
+
+
+
+/* Navbar */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px; 
+  padding: 0 40px;
+  position: fixed;
+  z-index: 20;
+  background: white;
+  width: 100%;
+}
+
+
+
+
+/* Knob toggles */
+.knob-toggle-container {
+
+}
+
+
+
+
+
+
+
+
+
+/* Buttons */
+.button-primary {
+  background: var(--color-accent);
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 16px;
+  padding: 10px 20px; 
+  border: 2px solid #111;
+  border-radius: 0px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0px var(--color-text);
+  transition: all 0.1s ease;
+  text-transform: lowercase;
+}
+
+.button-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--color-text);
+}
+
+/* URL input error feedback (empty submit on landing) */
+.url-input-error {
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+
+
+
+
+/* URLInput */
+
+
+
+
+
+
+
+
+/* GroundCanvas */
+.groundCanvasDiv {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 300px;
+  background-size: cover;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 20;
+}
+
+
+
+
+/* Footer */
+.footer {
+  position: absolute;
+  bottom: 10px;
+  width: 100%; 
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-bg);
+  z-index: 24;
+  pointer-events: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* now treat content of specific pages
+  Landing
+  Dashboard
+  etc
+*/
+
+/* Landing */
+.landing {
+  position: relative;
+  width: 100%;
+  /* min-height: 100%; */
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  justify-content: space-between;
+  /* padding-top: 90px; */
+  box-sizing: border-box;
+}
+
+/* Toogle row */
+.toggle-row-container {
+  width: 100%;
+  max-width: 900px;
+  top: 80px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 60px 0 0;
+  position: relative;
+  z-index: 5;
+}
+
+
+
+
+/* Graphic container */
+.shovel-graphic-container {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 19;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+}
+
+.shovel-graphic {
+  height: 480px;
+  width: auto;
+  opacity: 0.85;
+}
+
+
+/* Brand wordmark */
+.brand-wordmark-container {
+  position: absolute;
+  bottom: 260px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 25;
+}
+
+.brand-wordmark {
+  font-family: var(--font-display);
+  font-size: 120px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -6px;
+  user-select: none;
+  color: var(--color-text);
+}
+
+.primary-action-button-container {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
 }

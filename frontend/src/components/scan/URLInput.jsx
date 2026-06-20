@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { forwardRef } from 'react'
 
-export default function URLInput({ url, setUrl, onSearchSubmit }) {
+const URLInput = forwardRef(function URLInput({ url, setUrl, onSearchSubmit, hasError = false }, ref) {
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ 
@@ -12,16 +12,18 @@ export default function URLInput({ url, setUrl, onSearchSubmit }) {
                 URL:
             </span>
             <input
+                ref={ref}
                 type="text"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && onSearchSubmit()}
-                placeholder="paste your API URL..."
+                placeholder={hasError ? 'enter a URL first' : 'paste your API URL...'}
+                className={hasError ? 'url-input-error' : ''}
                 style={{
                     width: '320px', 
                     height: '38px',
                     color: 'var(--color-text)',
-                    border: '2px solid var(--color-text)',
+                    border: hasError ? '2px solid var(--severity-critical)' : '2px solid var(--color-text)',
                     padding: '0 20px',
                     fontFamily: 'var(--font-mono)', 
                     fontSize: '13px',
@@ -30,4 +32,6 @@ export default function URLInput({ url, setUrl, onSearchSubmit }) {
             />
         </div>
     )
-}
+})
+
+export default URLInput

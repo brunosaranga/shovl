@@ -39,7 +39,8 @@ export default function KnobToggle({ label, active, onChange, offsetY = 0 }) {
   const currentRotation = active ? config.onAngle : config.offAngle;
 
   return (
-    <div 
+    <div
+      className='knob-toggle-container'
       onClick={() => onChange(!active)}
       style={{
         display: 'flex',
@@ -57,8 +58,8 @@ export default function KnobToggle({ label, active, onChange, offsetY = 0 }) {
         src={currentAsset} 
         alt={label}
         style={{
-          width: '100px',
-          height: '100px',
+          width: '124px',
+          height: '124px',
           // adds a shadow
           // filter: 'drop-shadow(3px 3px 0px #111111)',
           
@@ -77,13 +78,14 @@ export default function KnobToggle({ label, active, onChange, offsetY = 0 }) {
       <span 
         style={{
           marginTop: '4px',
+          display: 'block',
           fontFamily: 'var(--font-display)',
           fontWeight: '300',
           fontSize: '22px',
           color: 'var(--color-text)',
           textAlign: 'center',
           textTransform: 'lowercase',
-          whiteSpace: 'nowrap'
+          whiteSpace: 'wrap'
         }}
       >
         {label}
