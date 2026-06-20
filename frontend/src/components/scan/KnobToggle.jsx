@@ -43,23 +43,16 @@ export default function KnobToggle({ label, active, onChange, offsetY = 0 }) {
       className='knob-toggle-container'
       onClick={() => onChange(!active)}
       style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        cursor: 'pointer',
-        userSelect: 'none',
-        width: '140px',
         transform: `translateY(${offsetY}px)`,
         // transition: 'transform 0.2s ease-in-out'
       }}
     >
       {/* The Figma Vector Engine + CSS Mechanical Snap */}
       <img 
+        className='knob'
         src={currentAsset} 
         alt={label}
         style={{
-          width: '124px',
-          height: '124px',
           // adds a shadow
           // filter: 'drop-shadow(3px 3px 0px #111111)',
           
@@ -75,19 +68,7 @@ export default function KnobToggle({ label, active, onChange, offsetY = 0 }) {
         onMouseUp={(e) => e.currentTarget.style.transform = `rotate(${currentRotation}) scale(1)`}
       />
 
-      <span 
-        style={{
-          marginTop: '4px',
-          display: 'block',
-          fontFamily: 'var(--font-display)',
-          fontWeight: '300',
-          fontSize: '22px',
-          color: 'var(--color-text)',
-          textAlign: 'center',
-          textTransform: 'lowercase',
-          whiteSpace: 'wrap'
-        }}
-      >
+      <span className='knob-label'>
         {label}
       </span>
     </div>
