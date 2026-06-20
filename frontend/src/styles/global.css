@@ -604,7 +604,7 @@ UI Utilities
   padding: 12px;
   font-size: 12px;
   font-family: var(--font-mono);
-  maxHeight: 120px;
+  max-height: 120px;
   overflow-y: auto;
   border: 2px solid var(--color-text);
 }
