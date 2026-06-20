@@ -3,7 +3,7 @@ import Navbar from "./Navbar";
 import AppFooter from "./Footer";
 
 // what is isLanding for?
-export default function PageShell({ children, isLanding = false, centerElement }) {
+export default function PageShell({ children, centerElement }) {
     return (
         <div className="pageshell">
 
