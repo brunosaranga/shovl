@@ -1,55 +1,20 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import PageShell from '../components/layout/PageShell'
+
 import PageTitle from '../components/common/PageTitle'
+import PageShell from '../components/layout/PageShell'
+import { PrimaryButton } from '../components/layout/Buttons'
+
+
+import getRiskColor from '../components/common/RiskColors.jsx'
+import scans from '../components/common/MockScans.jsx'
+
 
 export default function Dashboard() {
     const navigate = useNavigate()
     const [expandedScanId, setExpandedScanId] = useState(null)
     const [scanProgress, setScanProgress] = useState(60) // <--- Added missing state definition
 
-    // Mock collection of scans for the workspace dashboard
-    const scans = [
-        {
-            id: 'scan-01',
-            target: 'https://api.example.com',
-            status: 'scanning',
-            progress: 60,
-            risk: 'CRITICAL',
-            date: 'Jun 14 2026',
-            logs: [
-                '>> [14:48:01] initializing shovl engine...',
-                '>> [14:48:03] establishing secure tunnel...',
-                '>> [14:48:05] analyzing endpoint routing tables...',
-                '>> [14:48:12] probing https://api.example.com for auth bypass...'
-            ]
-        },
-        {
-            id: 'scan-02',
-            target: 'https://api.secure-bank.com',
-            status: 'completed',
-            progress: 100,
-            risk: 'HIGH',
-            date: 'Jun 14 2026'
-        },
-        {
-            id: 'scan-03',
-            target: 'https://internal.dev.system',
-            status: 'completed',
-            progress: 100,
-            risk: 'MED',
-            date: 'Jun 14 2026'
-        }
-    ]
-
-    const getRiskColor = (risk) => {
-        switch (risk) {
-            case 'CRITICAL': return '#ff4d4f'
-            case 'HIGH': return '#ff9f43'
-            case 'MED': return '#ffdd59'
-            default: return '#111'
-        }
-    }
 
     return (
         <PageShell centerElement={<PageTitle>dashboard</PageTitle>}>

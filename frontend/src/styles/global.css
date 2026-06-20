@@ -113,7 +113,30 @@ UI Utilities
 
 /* Knob toggles */
 .knob-toggle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  width: 140px;
+  /* padding: 0 70px; */
+}
 
+.knob {
+  width: 124px;
+  height: 124px;
+}
+
+.knob-label {
+  margin-top: 4px;
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 24px;
+  color: var(--color-text);
+  text-align: center;
+  text-transform: lowercase;
+  white-space: wrap;
 }
 
 
@@ -196,7 +219,7 @@ UI Utilities
   font-size: 13px;
   font-weight: 700;
   color: var(--color-bg);
-  z-index: 24;
+  z-index: 21;
   pointer-events: none;
 }
 
@@ -263,7 +286,7 @@ UI Utilities
 .shovel-graphic {
   height: 480px;
   width: auto;
-  opacity: 0.85;
+  /* opacity: 0.85; */
 }
 
 
@@ -274,7 +297,7 @@ UI Utilities
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
-  z-index: 25;
+  z-index: 22;
 }
 
 .brand-wordmark {
@@ -292,5 +315,5 @@ UI Utilities
   bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 25;
+  z-index: 21;
 }
