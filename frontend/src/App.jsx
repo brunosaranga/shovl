@@ -7,7 +7,7 @@ import Settings from './pages/Settings'
 // import Register from './pages/Register'
 
 import ScanRunning from './pages/ScanRunning'
-// import Report from './pages/Report'
+import Report from './pages/Report'
 
 import DomainVerification from './pages/DomainVerification'
 // import ProtectedRoute from './components/auth/ProtectedRoute'
@@ -27,6 +27,7 @@ export default function App() {
           <Route path="/scan/running"  element={<ScanRunning />} />
           <Route path="/dashboard"         element={<Dashboard />} />
           <Route path="/settings"          element={<Settings />} />
+          <Route path="/report"   element={<Report />} />
           {/* <Route path="/register"            element={<Register />} /> */}
 
           {/* Protected Routes - routes only accessed when authenticated */}
