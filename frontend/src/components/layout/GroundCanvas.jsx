@@ -55,19 +55,10 @@ import groundImage from '../../assets/ground.png'
 export default function GroundCanvas() {
   return (
     <div
-      style={{
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        width: '100%',
-        height: '300px',
-        backgroundImage: `url(${groundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'bottom center',
-        backgroundRepeat: 'no-repeat',
-        pointerEvents: 'none', // Allows clicks through the background
-        zIndex: 1,
-      }}
+    className='groundCanvasDiv'
+    style={{
+      backgroundImage: `url(${groundImage})`,
+    }}
     />
   )
 }

@@ -10,17 +10,7 @@ export default function Navbar({
     const navigate = useNavigate()
 
     return (
-        <nav style={{
-            display: 'flex', 
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            height: '64px', 
-            padding: '0 40px',
-            position: 'relative', 
-            zIndex: 10, 
-            background: 'white',
-            width: '100%',
-        }}>
+        <nav className='navbar'>
 
             {/* Brand Logo Asset / Home Navigation */}
             <div 
