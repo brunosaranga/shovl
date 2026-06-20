@@ -49,8 +49,6 @@ export default function Landing() {
 
     return (
         <PageShell
-            title="landing"
-            isLanding={true}
             centerElement={centerInputSlot}
         >
             <div className='landing'>
