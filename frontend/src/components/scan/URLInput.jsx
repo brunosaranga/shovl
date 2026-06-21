@@ -2,7 +2,7 @@ import React, { forwardRef } from 'react'
 
 const URLInput = forwardRef(function URLInput({ url, setUrl, onSearchSubmit, hasError = false }, ref) {
     return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className='url-input-container' style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ 
                 fontFamily: 'var(--font-display)', 
                 fontWeight: 900, 
@@ -18,7 +18,7 @@ const URLInput = forwardRef(function URLInput({ url, setUrl, onSearchSubmit, has
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && onSearchSubmit()}
                 placeholder={hasError ? 'enter a URL first' : 'paste your API URL...'}
-                className={hasError ? 'url-input-error' : ''}
+                className={hasError ? 'url-input-error' : 'url-input'}
                 style={{
                     width: '320px', 
                     height: '38px',

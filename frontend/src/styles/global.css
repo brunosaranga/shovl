@@ -64,6 +64,7 @@ UI Utilities
   background: var(--color-bg);
   box-sizing: border-box;
   overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
 }
 
 
@@ -110,6 +111,16 @@ UI Utilities
   background: white;
   width: 100%;
 }
+
+@media (max-width: 768px) {
+  /* Navbar */
+  .navbar {
+    position: fixed;
+    bottom: 0;
+    padding: 0;
+  }
+}
+
 
 
 
@@ -187,6 +198,22 @@ UI Utilities
 
 
 /* URLInput */
+.url-input-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.url-input {
+  width: 320px;
+  height: 38px;
+  color: var(--color-text);
+  border: 2px solid var(--color-text);
+  padding: 0 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  outline: none;
+}
 
 
 
@@ -273,7 +300,6 @@ UI Utilities
 
 
 
-
 /* Graphic container */
 .shovel-graphic-container {
   position: absolute;
@@ -313,12 +339,26 @@ UI Utilities
   color: var(--color-text);
 }
 
+
 .primary-action-button-container {
   position: absolute;
   bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 21;
+}
+
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  /* Navbar */
+
+}
+
+
+/* Tablets */
+@media (max-width: 1024px) {
+  
 }
 
 
