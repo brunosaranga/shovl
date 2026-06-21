@@ -19,16 +19,6 @@ const URLInput = forwardRef(function URLInput({ url, setUrl, onSearchSubmit, has
                 onKeyDown={(e) => e.key === 'Enter' && onSearchSubmit()}
                 placeholder={hasError ? 'enter a URL first' : 'paste your API URL...'}
                 className={hasError ? 'url-input-error' : 'url-input'}
-                style={{
-                    width: '320px', 
-                    height: '38px',
-                    color: 'var(--color-text)',
-                    border: hasError ? '2px solid var(--severity-critical)' : '2px solid var(--color-text)',
-                    padding: '0 20px',
-                    fontFamily: 'var(--font-mono)', 
-                    fontSize: '13px',
-                    outline: 'none'
-                }}
             />
         </div>
     )

@@ -119,6 +119,18 @@ UI Utilities
     bottom: 0;
     padding: 0;
   }
+
+  .shovl-logo-container {
+    visibility: hidden;
+    height: 0;
+    width: 0;
+  }
+
+  .acc-icon-container {
+    visibility: hidden;
+    height: 0;
+    width: 0;
+  }
 }
 
 
@@ -215,6 +227,17 @@ UI Utilities
   outline: none;
 }
 
+@media (max-width: 768px) {
+
+.url-input-container {
+    width: 100%;
+  }
+
+  .url-input {
+    width: 150px;
+  }
+}
+
 
 
 
@@ -234,6 +257,12 @@ UI Utilities
   background-repeat: no-repeat;
   pointer-events: none;
   z-index: 20;
+}
+
+@media (max-width: 768px) {
+  .groundCanvasDiv {
+    bottom: 64px;
+  }
 }
 
 
@@ -351,7 +380,32 @@ UI Utilities
 
 /* Mobile devices */
 @media (max-width: 768px) {
-  /* Navbar */
+  /* wordmark */
+  .brand-wordmark-container {
+    position: fixed;
+    top: 0;
+    width: 100%;
+  }
+
+  .brand-wordmark {
+    font-size: 50px;
+  }
+
+  .shovel-graphic-container {
+    bottom: 30px;
+  }
+
+  .shovel-graphic {
+    height: 250px;
+    width: auto;
+  }
+
+
+  .primary-action-button-container {
+    visibility: hidden;
+  }
+
+  
 
 }
 
