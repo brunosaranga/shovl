@@ -13,7 +13,8 @@ export default function Navbar({
         <nav className='navbar'>
 
             {/* Brand Logo Asset / Home Navigation */}
-            <div 
+            <div
+                className='shovl-logo-container' 
                 onClick={() => navigate('/')}
                 role="button"
                 tabIndex={0}
@@ -34,7 +35,8 @@ export default function Navbar({
             >
                 <img 
                     src={shovlLogo} 
-                    alt="shovl logo" 
+                    alt="shovl logo"
+                    className='shovl-logo' 
                     style={{ 
                         height: '40px', 
                         width: 'auto',
@@ -50,6 +52,7 @@ export default function Navbar({
 
             {/* Account Icon Layer */}
             <div
+                className='acc-icon-container'
                 onClick={() => {
                     if (isAuthenticated) {
                         navigate('/dashboard')
