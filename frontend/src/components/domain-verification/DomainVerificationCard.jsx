@@ -1,7 +1,10 @@
+import { useState } from 'react'
 import CopyToClipboard from './CopyToClipboard'
 import TriggerVerification from './TriggerVerification'
 
 export default function DomainVerificationCard({ targetUrl, verificationToken, onVerified }) {
+    const [failed, setFailed] = useState(false)
+
     return (
         <div className="domain-verification-container">
 
@@ -28,7 +31,23 @@ export default function DomainVerificationCard({ targetUrl, verificationToken, o
                 </div>
             </div>
 
-            <TriggerVerification onVerified={onVerified} />
+            {/* Failed state panel - rendered only after a failed attempt */}
+            {failed && (
+                <div className='verification-failed-panel'>
+                    <span className='verification-failed-label'>verification failed.</span>
+                    <ul className='verification-failed-reasons'>
+                        <li>DNS propagation can take up to 24 hours — wait a few minutes and retry.</li>
+                        <li>Make sure the record type is <strong>TXT</strong>, not CNAME or A.</li>
+                        <li>Check for typos in the token — copy it again using the button above.</li>
+                    </ul>
+
+                </div>
+            )}
+
+            <TriggerVerification
+            onVerified={onVerified}
+            onFailed={() => setFailed(true)}
+            />
 
         </div>
     )
