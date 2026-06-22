@@ -10,9 +10,9 @@ export default function ToggleRow({
 }) {
     return (
         <div className='toggle-row-container'>
-            <KnobToggle label="verbose" active={verbose} onChange={setVerbose} offsetY={0} />
-            <KnobToggle label="generate report" active={generateReport} onChange={setGenerateReport} offsetY={40} />
-            <KnobToggle label="suggest fix" active={suggestFix} onChange={setSuggestFix} offsetY={80} />
+            <KnobToggle label="verbose" active={verbose} onChange={setVerbose} />
+            <KnobToggle label="generate report" active={generateReport} onChange={setGenerateReport} />
+            <KnobToggle label="suggest fix" active={suggestFix} onChange={setSuggestFix} />
         </div>
     )
 }

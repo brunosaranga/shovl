@@ -20,16 +20,6 @@ export default function Navbar({
                 tabIndex={0}
                 aria-label="shovl home"
                 onKeyDown={(e) => e.key === 'Enter' && navigate('/')}
-                style={{ 
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '40px',
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                    outline: 'none',
-                    transition: 'transform 0.1s ease'
-                }}
                 onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.97)'}
                 onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
@@ -59,18 +49,6 @@ export default function Navbar({
                     } else {
                         navigate('/signin')
                     }
-                }}
-                style={{
-                    width: '40px', 
-                    height: '40px', 
-                    borderRadius: '50%',
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    overflow: 'hidden',
-                    background: '#fff',
-                    transition: 'transform 0.1s ease',
                 }}
                 onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
                 onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
