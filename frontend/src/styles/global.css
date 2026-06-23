@@ -113,6 +113,11 @@ UI Utilities
   width: 100%;
 }
 
+.acc-icon-container {
+  height: 40px;
+  width: 40px;
+}
+
 @media (max-width: 768px) {
   /* Navbar */
   .navbar {
@@ -191,6 +196,13 @@ UI Utilities
   gap: 12px;
 }
 
+.url-label {
+  font-family: var(--font-display); 
+  font-weight: 900;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
 .url-input {
   width: 320px;
   height: 38px;
@@ -200,6 +212,18 @@ UI Utilities
   font-family: var(--font-mono);
   font-size: 13px;
   outline: none;
+}
+
+.url-input-error {
+  width: 320px;
+  height: 38px;
+  color: var(--color-text);
+  border: 2px solid var(--color-text);
+  padding: 0 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  outline: none;
+  border: solid 1px var(--color-errors);
 }
 
 @media (max-width: 768px) {
@@ -305,6 +329,7 @@ UI Utilities
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
+  padding: 70px 0;
   /* align-items: center; */
   /* padding: 60px; */
   position: relative;
@@ -407,16 +432,16 @@ UI Utilities
   position: relative;
   display: flex;
   justify-content: center;
-  top: 80px;
-  /* left: 50%; */
-  /* transform: translateX(-50%); */
+  bottom: 60px;
+  /* left: 50%;
+  transform: translateX(-50%); */
   z-index: 21;
 }
 
-
-/* Mobile devices */
+/*
+Mobile devices
 @media (max-width: 768px) {
-  /* wordmark */
+  /* wordmark
   .brand-wordmark-container {
     position: fixed;
     top: 0;
@@ -446,11 +471,12 @@ UI Utilities
 }
 
 
-/* Tablets */
+Tablets
 @media (max-width: 1024px) {
   
 }
-
+ */
+ 
 
 
 
@@ -618,6 +644,7 @@ UI Utilities
   font-size: 12px;
   transition: all 0.1s ease;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 .dns-copy-button.is-copied {
@@ -823,12 +850,16 @@ UI Utilities
    ========================================================================== */
 
 .scan-running-container {
-  max-width: 960px;
+  max-width: 800px;
   margin: 0 auto;
-  padding-top: 20px;
+  padding: 0 24px;
+  padding-top: 40px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 40px;
+  width: 100%;
+  position: relative;
+  top: 64px;
 }
 
 

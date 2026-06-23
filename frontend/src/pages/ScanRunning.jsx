@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import PageShell from '../components/layout/PageShell'
 import ScanHeader from '../components/scan-running/ScanHeader'
 import ScanProgressBar from '../components/scan-running/ScanProgressBar'
 import ScanTerminal from '../components/scan-running/ScanTerminal'
 
 export default function ScanRunning() {
+    const { scanId } = useParams()
     const location = useLocation()
     const navigate = useNavigate()
     const targetUrl = location.state?.url || 'api.target-system.com'
@@ -48,10 +49,10 @@ export default function ScanRunning() {
     // Redirect to report once scan completes
     useEffect(() => {
         if (scanProgress === 100) {
-            const timer = setTimeout(() => navigate('/report', { state: location.state }), 2000)
+            const timer = setTimeout(() => navigate('/scan/${scanId}/report', { state: location.state }), 2000)
             return () => clearTimeout(timer)
         }
-    }, [scanProgress, navigate, location.state])
+    }, [scanProgress, scanId, navigate, location.state])
 
     return (
         <PageShell title="scan running">

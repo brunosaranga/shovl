@@ -3,12 +3,9 @@ import React, { forwardRef } from 'react'
 const URLInput = forwardRef(function URLInput({ url, setUrl, onSearchSubmit, hasError = false }, ref) {
     return (
         <div className='url-input-container' style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ 
-                fontFamily: 'var(--font-display)', 
-                fontWeight: 900, 
-                fontSize: '14px',
-                color: 'var(--color-text)' 
-            }}>
+            <span 
+            className='url-label'
+            >
                 URL:
             </span>
             <input

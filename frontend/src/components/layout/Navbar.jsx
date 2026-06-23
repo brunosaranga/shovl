@@ -56,7 +56,7 @@ export default function Navbar({
                 <img 
                     src={userAvatarIcon} 
                     alt="account menu" 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    style={{ width: '100%', height: '100%' }} 
                 />
             </div>
         </nav>

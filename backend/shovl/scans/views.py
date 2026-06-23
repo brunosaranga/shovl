@@ -2,7 +2,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.http import StreamingHttpResponse, FileReponse
+from django.http import StreamingHttpResponse, FileResponse
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from urllib.parse import urlparse

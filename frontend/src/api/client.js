@@ -1,16 +1,40 @@
+// src/api/client.js
+// Central axios instance — every API call in the app goes through this.
+// Base URL reads from your .env so it points to localhost in dev
+// and your real domain in production without changing any component code.
+
 import axios from 'axios'
 
 const client = axios.create({
-    baseURL: 'http://localhost:8000/api',
-    headers: { 'Content-Type': 'application/json'}
+    baseURL: import.meta.env.VITE_API_BASE_URL, // e.g. http://localhost:8000
+    headers: {
+        'Content-Type': 'application/json',
+    },
 })
 
-// Attach token to every request
-client.interceptors.request.use(config => {
-    const token = localStorage.getItem('access_token')
-    if (token) config.headers.Authorization = `Bearer ${token}`
+// Attach the JWT access token to every outgoing request automatically.
+// Components never manually set Authorization headers.
+client.interceptors.request.use((config) => {
+    const token = localStorage.getItem('accessToken')
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+    }
     return config
 })
+
+// If the backend returns 401, the token has expired.
+// Clear storage and bounce the user to login.
+client.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('accessToken')
+            localStorage.removeItem('refreshToken')
+            window.location.href = '/login'
+        }
+        return Promise.reject(error)
+    }
+)
 
 export const authAPI = {
     login:    (data) => client.post('/accounts/login/', data),
@@ -19,10 +43,10 @@ export const authAPI = {
 }
 
 export const domainsAPI = {
-    list:   ()       => client.get('/domains/'),
-    add:    (data)   => client.post('/domains/', data),
-    verify: (id)     => client.post(`/domains/${id}/verify/`),
-    remove: (id)     => client.delete(`/domains/${id}/`),
+    list:   ()     => client.get('/domains/'),
+    add:    (data) => client.post('/domains/', data),
+    verify: (id)   => client.post(`/domains/${id}/verify/`),
+    remove: (id)   => client.delete(`/domains/${id}/`),
 }
 
 export default client
