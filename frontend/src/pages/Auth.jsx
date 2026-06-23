@@ -1,14 +1,17 @@
 import { authAPI } from '../api/client'
 import { useAuth } from '../hooks/useAuth'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import PageShell from '../components/layout/PageShell'
 import shovlLogo from '../assets/shovl-logo.svg' // Assuming this has the hand included, or import hand separately
+import { isPracticeTarget } from '../api/targets'
 // import PageTitle from '../components/common/PageTitle'
 
 export default function Auth() {
     const navigate = useNavigate()
+    const location = useLocation()
     const { login } = useAuth()
+    const pendingScan = location.state?.pendingScan || null
 
     // SPA Toggle State: 'signin' | 'register'
     const [view, setView] = useState('signin') 
@@ -40,7 +43,12 @@ export default function Auth() {
             const meRes = await authAPI.me(token)
             login({ access: token }, meRes.data)
         }
-            navigate('/dashboard')
+            if (pendingScan) {
+                const dest = isPracticeTarget(pendingScan.url) ? '/scan/running' : '/verify'
+                navigate(dest, { state: pendingScan, replace: true })
+            } else {
+                navigate('/dashboard')
+}
         } catch (err) {
             setError(
                 err.response?.data?.detail ||

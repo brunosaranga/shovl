@@ -6,7 +6,7 @@
 import axios from 'axios'
 
 const client = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL, // e.g. http://localhost:8000
+    baseURL: import.meta.env.VITE_API_BASE_URL, // e.g. http://localhost:8000/api
     headers: {
         'Content-Type': 'application/json',
     },
@@ -14,24 +14,27 @@ const client = axios.create({
 
 // Attach the JWT access token to every outgoing request automatically.
 // Components never manually set Authorization headers.
+// NOTE: the key here MUST match what AuthContext writes ('access_token').
 client.interceptors.request.use((config) => {
-    const token = localStorage.getItem('accessToken')
+    const token = localStorage.getItem('access_token')
     if (token) {
         config.headers.Authorization = `Bearer ${token}`
     }
     return config
 })
 
-// If the backend returns 401, the token has expired.
-// Clear storage and bounce the user to login.
+// If the backend returns 401, the token has expired or is missing.
+// Clear storage and bounce the user to login — unless this was the
+// login/register attempt itself (a 401 there just means bad credentials).
 client.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            const isAuthEndpoint = error.config.url.includes('/accounts/login/') ||
-                                   error.config.url.includes('/accounts/register/')
+            const url = error.config?.url || ''
+            const isAuthEndpoint =
+                url.includes('/accounts/login/') ||
+                url.includes('/accounts/register/')
 
-            // Only bounce to signin if this was NOT a login/register attempt
             if (!isAuthEndpoint) {
                 localStorage.removeItem('access_token')
                 localStorage.removeItem('user')
@@ -52,9 +55,30 @@ export const authAPI = {
 
 export const domainsAPI = {
     list:   ()     => client.get('/domains/'),
-    add:    (data) => client.post('/domains/', data),
+    add:    (data) => client.post('/domains/', data),     // { hostname }
     verify: (id)   => client.post(`/domains/${id}/verify/`),
+    // NOTE: backend has no DELETE route for /domains/<id>/ yet — remove() will 404
+    // until you add a DestroyAPIView. Left here so callers don't break on import.
     remove: (id)   => client.delete(`/domains/${id}/`),
+}
+
+export const scansAPI = {
+    list:   ()     => client.get('/scans/'),
+    create: (data) => client.post('/scans/create/', data), // { target_url, verbose, suggest_fix } — BLOCKING
+    detail: (id)   => client.get(`/scans/${id}/`),
+}
+
+// The scan stream is an SSE endpoint. We can't use the axios client (and native
+// EventSource can't send the Authorization header), so callers consume it with
+// fetch() + a stream reader. This just builds the URL from the same base.
+export function scanStreamUrl({ target_url, verbose = false, suggest_fix = false }) {
+    const base = import.meta.env.VITE_API_BASE_URL
+    const params = new URLSearchParams({
+        target_url,
+        verbose: String(verbose),
+        suggest_fix: String(suggest_fix),
+    })
+    return `${base}/scans/stream/?${params.toString()}`
 }
 
 export default client

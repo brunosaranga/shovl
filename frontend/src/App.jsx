@@ -24,7 +24,7 @@ export default function App() {
                         <Route path="/verify"                  element={<DomainVerification />} />
                         <Route path="/dashboard"               element={<Dashboard />} />
                         <Route path="/settings"                element={<Settings />} />
-                        <Route path="/scan/:scanId/running"    element={<ScanRunning />} />
+                        <Route path="/scan/running"            element={<ScanRunning />} />
                         <Route path="/scan/:scanId/report"     element={<Report />} />
                     </Route>
 

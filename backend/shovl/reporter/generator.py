@@ -75,13 +75,13 @@ def generate_pdf(report: dict, output_path: str) -> str:
     # Ensure output directory exists
     output_dir = os.path.dirname(output_path)
     if output_dir:
-        os.makedirs(output_dir, exists_ok=True)
+        os.makedirs(output_dir, exist_ok=True)
 
     doc = SimpleDocTemplate(
         output_path,
         pagesize=A4,
         leftMargin=20*mm, rightMargin=20*mm,
-        topMargin=20*mm, bottomMArgin=20*mm,
+        topMargin=20*mm, bottomMargin=20*mm,
     )
 
     meta     = report["meta"]
@@ -130,7 +130,7 @@ def generate_pdf(report: dict, output_path: str) -> str:
         # Title row with severity badge
         header = Table([[
             Paragraph(f"<b>{finding['id']} - {finding['check']}</b>", body_style),
-            _severity_badge("severity"),
+            _severity_badge(finding['severity']),
         ]], colWidths=[120*mm, 40*mm])
         header.setStyle(TableStyle([
             ("VALIGN",       (0, 0), (-1, -1), "MIDDLE"),

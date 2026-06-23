@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.http import StreamingHttpResponse, FileResponse
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import JSONRenderer
+from .renderers import ServerSentEventRenderer
 from django.utils import timezone
 from urllib.parse import urlparse
 import json, os
@@ -41,7 +43,8 @@ class ScanCreateView(APIView):
         parsed = urlparse(target_url)
         if not parsed.scheme or not parsed.netloc:
             return Response(
-                {"error": "Invalied URL format. Include http:// or https://"}
+                {"error": "Invalid URL format. Include http:// or https://"},
+                status=status.HTTP_400_BAD_REQUEST
             )
         
         # Check ToS agreement
@@ -64,7 +67,7 @@ class ScanCreateView(APIView):
                 return Response({
                     "error": "Domain not verified.",
                     "detail": "Please verify ownership of this domain before scanning."
-                })
+                }, status=status.HTTP_403_FORBIDDEN)
             
         # Create scan record
         scan = Scan.objects.create(
@@ -101,7 +104,7 @@ class ScanCreateView(APIView):
             )
         
 class ScanDetailView(generics.RetrieveAPIView):
-    serializers_class = ScanSerializer
+    serializer_class = ScanSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -120,16 +123,17 @@ class ScanPDFView(APIView):
         if not scan.pdf_path or not os.path.exists(scan.pdf_path):
             return Response({'error': 'PDF not available.'}, status=404)
         
-        response = FileReponse(
+        response = FileResponse(
             open(scan.pdf_path, 'rb'),
             content_type='application/pdf'
         )
-        response['Content-Disposition'] = f'attachment; filename="shovl_report={pk}.pdf'
-        return Response
+        response['Content-Disposition'] = f'attachment; filename="shovl_report_{pk}.pdf"'
+        return response
     
 
 class ScanStreamView(APIView):
     permission_classes = [IsAuthenticated]
+    renderer_classes = [ServerSentEventRenderer, JSONRenderer]
 
     def get(self, request):
         target_url = request.query_params.get('target_url')
@@ -138,7 +142,33 @@ class ScanStreamView(APIView):
         suggest_fix = request.query_params.get('suggest_fix', 'false') == 'true'
 
         if not target_url:
-            return Response({'error': 'target_url required'}, status=400)
+            # Same guards the blocking create endpoint enforces, applied before we
+            # start streaming. Failures return a normal (non-stream) Response.
+            parsed = urlparse(target_url)
+            if not parsed.scheme or not parsed.netloc:
+                return Response(
+                    {'error': 'Invalid URL format. Include http:// or https://'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            if not request.user.tos_agreed:
+                return Response(
+                    {'error': 'You must agree to the terms of service before scanning.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            if not is_practice_target(target_url):
+                hostname = parsed.hostname
+                owns_verified_domain = Domain.objects.filter(
+                    user=request.user,
+                    hostname=hostname,
+                    verified=True
+                ).exists()
+                if not owns_verified_domain:
+                    return Response({
+                        'error': 'Domain not verified.',
+                        'detail': 'Please verify ownership of this domain before scanning.'
+                    }, status=status.HTTP_403_FORBIDDEN)
         
         total = len(CHECKS)
 
@@ -149,14 +179,14 @@ class ScanStreamView(APIView):
                     module = importlib.import_module(module_path)
                     check_name = module_path.split('.')[-1]
 
-                    # Running event
-                    yield f"data: {json.dumps({'status': 'result', 'check': check_name, 'progress': i, 'total': total})}\n\n"
+                    # Running event (check started)
+                    yield f"data: {json.dumps({'status': 'running', 'check': check_name, 'progress': i, 'total': total})}\n\n"
 
                     result = module.run(target_url, token, verbose)
                     results.append(result)
 
-                    # Result event
-                    yield f"data: {json.dumps({'status': 'running', 'check': check_name, 'severity': result['severity'], 'detail': result['detail'], 'progress': i + 1, 'total': total})}\n\n"
+                    # Result event (check finished)
+                    yield f"data: {json.dumps({'status': 'result', 'check': check_name, 'severity': result['severity'], 'detail': result['detail'], 'progress': i + 1, 'total': total})}\n\n"
 
                 except Exception as e:
                     yield f"data: {json.dumps({'status': 'error', 'check': module_path, 'message': str(e)})}\n\n"

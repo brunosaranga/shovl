@@ -853,13 +853,12 @@ Tablets
   max-width: 800px;
   margin: 0 auto;
   padding: 0 24px;
-  padding-top: 40px;
+  padding-top: 150px;    /* clear the fixed navbar, matches Dashboard/Report */
+  padding-bottom: 340px; /* room for the GroundCanvas floor graphic */
   display: flex;
   flex-direction: column;
   gap: 40px;
   width: 100%;
-  position: relative;
-  top: 64px;
 }
 
 
@@ -989,7 +988,8 @@ Tablets
   font-size: 13px;
   line-height: 1.6;
   height: 320px;
-  overflow-y: hidden;
+  /* overflow-y: hidden; */
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1878,4 +1878,92 @@ Tablets
   padding-left: 12px;
   font-size: 13px;
   color: var(--color-text);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ============================================================
+   Wiring phase additions — account menu, DNS record rows,
+   finding detail list. Matches the neo-brutalist system.
+   ============================================================ */
+
+/* Account dropdown */
+.acc-dropdown {
+  display: flex;
+  flex-direction: column;
+}
+.acc-dropdown-item {
+  appearance: none;
+  border: none;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 2px solid var(--color-text);
+}
+.acc-dropdown-item:last-child {
+  border-bottom: none;
+}
+.acc-dropdown-item:hover {
+  background: var(--color-accent);
+}
+.acc-dropdown-item.is-danger:hover {
+  background: var(--color-errors);
+  color: var(--color-bg);
+}
+
+/* DNS record rows on the verification card */
+.dns-record-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+  flex-wrap: wrap;
+}
+.dns-record-label {
+  font-weight: 700;
+  text-transform: lowercase;
+  min-width: 90px;
+}
+.dns-record-value {
+  background: var(--color-text);
+  color: var(--color-bg);
+  padding: 4px 8px;
+  font-family: monospace;
+  word-break: break-all;
+}
+
+/* Finding detail list (multiple detail strings per finding) */
+.finding-detail-list {
+  margin: 0 0 12px 0;
+  padding-left: 18px;
+}
+.finding-detail-list .finding-description-para {
+  margin: 4px 0;
+  list-style: disc;
 }

@@ -2,8 +2,19 @@ import { useState } from 'react'
 import CopyToClipboard from './CopyToClipboard'
 import TriggerVerification from './TriggerVerification'
 
-export default function DomainVerificationCard({ targetUrl, verificationToken, onVerified }) {
+export default function DomainVerificationCard({
+    hostname,
+    targetUrl,
+    domainId,
+    verificationToken,
+    onVerified,
+}) {
     const [failed, setFailed] = useState(false)
+
+    // The exact TXT record the backend checks for (domains/verification.py):
+    //   host:  _shovl-verify.<hostname>
+    //   value: <verification_token>
+    const recordName = `_shovl-verify.${hostname}`
 
     return (
         <div className="domain-verification-container">
@@ -24,7 +35,20 @@ export default function DomainVerificationCard({ targetUrl, verificationToken, o
                     1. Add this TXT record to your DNS configuration:
                 </div>
 
-                <CopyToClipboard token={verificationToken} />
+                <div className="dns-record-row">
+                    <span className="dns-record-label">host / name:</span>
+                    <code className="dns-record-value">{recordName}</code>
+                </div>
+
+                <div className="dns-record-row">
+                    <span className="dns-record-label">type:</span>
+                    <code className="dns-record-value">TXT</code>
+                </div>
+
+                <div className="dns-record-row">
+                    <span className="dns-record-label">value:</span>
+                    <CopyToClipboard token={verificationToken} />
+                </div>
 
                 <div className="dns-propagation-note">
                     Note: DNS propagation may take a few minutes. Make sure the record is active before verifying.
@@ -38,15 +62,16 @@ export default function DomainVerificationCard({ targetUrl, verificationToken, o
                     <ul className='verification-failed-reasons'>
                         <li>DNS propagation can take up to 24 hours — wait a few minutes and retry.</li>
                         <li>Make sure the record type is <strong>TXT</strong>, not CNAME or A.</li>
-                        <li>Check for typos in the token — copy it again using the button above.</li>
+                        <li>Make sure the host is exactly <strong>{recordName}</strong>.</li>
+                        <li>Check for typos in the value — copy it again using the button above.</li>
                     </ul>
-
                 </div>
             )}
 
             <TriggerVerification
-            onVerified={onVerified}
-            onFailed={() => setFailed(true)}
+                domainId={domainId}
+                onVerified={onVerified}
+                onFailed={() => setFailed(true)}
             />
 
         </div>

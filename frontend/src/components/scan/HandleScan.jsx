@@ -1,6 +1,14 @@
-// rename file to useScan.js
+// useScan — decides where the "dig deeper" action sends the user.
+//
+// Flow:
+//   no url           -> shake the input
+//   not signed in    -> /signin (scanning needs an account; ToS captured at register)
+//   practice target  -> /scan/running directly (httpbin, postman-echo, localhost,
+//                       127.0.0.1 need no ownership proof — skip /verify entirely)
+//   real domain      -> /verify, carrying the scan options
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import { normalizeTargetUrl, isPracticeTarget } from '../../api/targets'
 
 export default function useScan() {
     const { accessToken } = useAuth()
@@ -13,11 +21,27 @@ export default function useScan() {
             setTimeout(() => setUrlError(false), 1500)
             return
         }
-        if (!accessToken) {
-            navigate('/verify', { state: { pendingScan: { url, verbose, generateReport, suggestFix } } })
+
+        const target = normalizeTargetUrl(url)
+        const scanState = {
+            url: target,
+            verbose: Boolean(verbose),
+            suggest_fix: Boolean(suggestFix),
+            generate_report: Boolean(generateReport),
+        }
+
+        if (!accessToken && !localStorage.getItem('access_token')) {
+            navigate('/signin', { state: { pendingScan: scanState } })
             return
         }
-        navigate('/scan/new', { state: { url, verbose, generateReport, suggestFix } })
+
+        // Practice targets skip ownership verification entirely.
+        if (isPracticeTarget(target)) {
+            navigate('/scan/running', { state: scanState })
+            return
+        }
+
+        navigate('/verify', { state: scanState })
     }
 
     return { startScan }
