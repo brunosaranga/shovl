@@ -29,15 +29,17 @@ export default function Auth() {
 
         try {
             if (view === 'signin') {
-                const res = await authAPI.login({ email, password })
-                const meRes = await authAPI.me()
-                login({ access: res.data.access }, meRes.data)
-            } else {
-                await authAPI.register({ email, password })
-                const res = await authAPI.login({ email, password })
-                const meRes = await authAPI.me()
-                login({ access: res.data.access }, meRes.data)
-            }
+            const res = await authAPI.login({ email, password })
+            const token = res.data.access
+            const meRes = await authAPI.me(token)
+            login({ access: token }, meRes.data)
+        } else {
+            await authAPI.register({ email, password, tos_agreed: true })
+            const res = await authAPI.login({ email, password })
+            const token = res.data.access
+            const meRes = await authAPI.me(token)
+            login({ access: token }, meRes.data)
+        }
             navigate('/dashboard')
         } catch (err) {
             setError(

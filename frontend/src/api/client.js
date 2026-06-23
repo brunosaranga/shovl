@@ -28,9 +28,15 @@ client.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            localStorage.removeItem('accessToken')
-            localStorage.removeItem('refreshToken')
-            window.location.href = '/login'
+            const isAuthEndpoint = error.config.url.includes('/accounts/login/') ||
+                                   error.config.url.includes('/accounts/register/')
+
+            // Only bounce to signin if this was NOT a login/register attempt
+            if (!isAuthEndpoint) {
+                localStorage.removeItem('access_token')
+                localStorage.removeItem('user')
+                window.location.href = '/signin'
+            }
         }
         return Promise.reject(error)
     }
@@ -39,7 +45,9 @@ client.interceptors.response.use(
 export const authAPI = {
     login:    (data) => client.post('/accounts/login/', data),
     register: (data) => client.post('/accounts/register/', data),
-    me:       ()     => client.get('/accounts/me/'),
+    me:       (token) => client.get('/accounts/me/', {
+        headers: { Authorization: `Bearer ${token}` }
+    }),
 }
 
 export const domainsAPI = {
