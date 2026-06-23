@@ -1,6 +1,6 @@
 # from django.shortcuts import render
 from rest_framework import generics, permissions
-
+from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from .serializers import RegisterSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -25,7 +25,7 @@ class MeView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        from rest_framework.response import response
+        from rest_framework.response import Response
         return Response({
             'id': request.user.id,
             'email': request.user.email,
