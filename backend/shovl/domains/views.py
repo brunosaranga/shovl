@@ -40,5 +40,5 @@ class DomainVerifyView(APIView):
         
         return Response(
             {"status": "failed", "detail": "Verification record not found."},
-            status=status.HTTP_404_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST
         )

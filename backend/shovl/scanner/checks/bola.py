@@ -18,7 +18,7 @@ def run(target_url: str, token: str = None, verbose: bool = False) -> dict:
 
         for probe_id in PROBE_IDS:
             probe_url = f"{target_url.rstrip('/')}/{probe_id}"
-            r = requests.get(probe_url, headers+headers, timeout=5)
+            r = requests.get(probe_url, headers=headers, timeout=5)
 
             if verbose:
                 result["raw"].append({

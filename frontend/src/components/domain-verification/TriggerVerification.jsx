@@ -1,35 +1,35 @@
 import { useState } from 'react'
 import shovlLogo from '../../assets/shovl-logo.svg'
+import { domainsAPI } from '../../api/client'
 
-// Owns the verify button's state machine and the busy spinner.
-// Calls onVerified once the (currently simulated) check succeeds, so the
-// parent page can handle navigation.
-export default function TriggerVerification({ onVerified, onFailed }) {
+// Owns the verify button's state machine + spinner, and now makes the REAL call:
+//   POST /api/domains/<id>/verify/  ->  { status: 'verified' }            (success)
+//                                       { status: 'failed', detail }      (no record yet)
+// On success it calls onVerified so the parent page can navigate to the scan.
+export default function TriggerVerification({ domainId, onVerified, onFailed }) {
     const [status, setStatus] = useState('idle') // 'idle' | 'verifying' | 'verified' | 'failed'
 
-    const handleTrigger = () => {
+    const handleTrigger = async () => {
         setStatus('verifying')
-
-        // Simulate backend DNS lookup delay (wire to real verification later)
-        setTimeout(() => {
-            const success = true
-
-            if (success) {
+        try {
+            const res = await domainsAPI.verify(domainId)
+            if (res.data?.status === 'verified') {
                 setStatus('verified')
-                setTimeout(() => onVerified?.(), 1500)
+                setTimeout(() => onVerified?.(), 1200)
             } else {
                 setStatus('failed')
                 onFailed?.()
             }
-        }, 2500)
+        } catch {
+            // Backend returns 400 when the TXT record isn't found yet.
+            setStatus('failed')
+            onFailed?.()
+        }
     }
 
-    const handleRetry = () => {
-        setStatus('idle')
-    }
+    const handleRetry = () => setStatus('idle')
 
     const isBusy = status === 'verifying' || status === 'verified'
-
 
     const buttonClassName = [
         'verification-submit-button',
@@ -51,7 +51,6 @@ export default function TriggerVerification({ onVerified, onFailed }) {
                 {status === 'failed' && 'retry'}
             </button>
 
-            {/* Spinner only when actively checking */}
             {status === 'verifying' && (
                 <div className="verification-spinner-wrapper">
                     <img src={shovlLogo} alt="verifying" className="verification-spinner-image" />

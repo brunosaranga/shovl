@@ -1,58 +1,59 @@
 import { useState, useEffect } from 'react'
-import { useParams, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import PageShell from '../components/layout/PageShell'
 import ScanHeader from '../components/scan-running/ScanHeader'
 import ScanProgressBar from '../components/scan-running/ScanProgressBar'
 import ScanTerminal from '../components/scan-running/ScanTerminal'
+import useScanStream from '../hooks/useScanStream'
 
+// Drives the live scan via the backend SSE stream. No scanId in the route here —
+// the backend only mints the Scan record (and its id) once every check is done,
+// so we receive it in the final 'complete' event and navigate to the report then.
 export default function ScanRunning() {
-    const { scanId } = useParams()
     const location = useLocation()
     const navigate = useNavigate()
-    const targetUrl = location.state?.url || 'api.target-system.com'
 
-    const [scanProgress, setScanProgress] = useState(0)
+    const targetUrl = location.state?.url
+    const verbose = location.state?.verbose ?? false
+    const suggestFix = location.state?.suggest_fix ?? false
+
     const [isPaused, setIsPaused] = useState(false)
-    const [logs, setLogs] = useState([
-        '>> initializing shovl engine...',
-        '>> establishing secure tunnel...',
-        '>> analyzing endpoint routing tables...'
-    ])
 
+    const { progress, logs, scanId, isComplete, error, setPaused, stop } = useScanStream({
+        targetUrl,
+        verbose,
+        suggestFix,
+        enabled: Boolean(targetUrl),
+    })
+
+    // If someone lands here without a target (e.g. refresh, deep link), bounce home.
     useEffect(() => {
-        if (isPaused) return
+        if (!targetUrl) navigate('/', { replace: true })
+    }, [targetUrl, navigate])
 
-        const logInterval = setInterval(() => {
-            setLogs(prev => {
-                const newLog = `>> [${new Date().toLocaleTimeString()}] probing ${targetUrl} for auth bypass...`
-                if (prev.length > 12) return [...prev.slice(1), newLog]
-                return [...prev, newLog]
-            })
-        }, 800)
-
-        const progressInterval = setInterval(() => {
-            setScanProgress(prev => {
-                if (prev >= 100) {
-                    clearInterval(progressInterval)
-                    return 100
-                }
-                return prev + 2
-            })
-        }, 200)
-
-        return () => {
-            clearInterval(logInterval)
-            clearInterval(progressInterval)
-        }
-    }, [targetUrl, isPaused])
-
-    // Redirect to report once scan completes
+    // Once the stream reports completion with a real scan id, go to the report.
     useEffect(() => {
-        if (scanProgress === 100) {
-            const timer = setTimeout(() => navigate('/scan/${scanId}/report', { state: location.state }), 2000)
+        if (isComplete && scanId) {
+            const timer = setTimeout(
+                () => navigate(`/scan/${scanId}/report`, { state: { url: targetUrl } }),
+                1500
+            )
             return () => clearTimeout(timer)
         }
-    }, [scanProgress, scanId, navigate, location.state])
+    }, [isComplete, scanId, navigate, targetUrl])
+
+    const handleTogglePause = () => {
+        setIsPaused((p) => {
+            const next = !p
+            setPaused(next) // freezes the visible log; the stream keeps running underneath
+            return next
+        })
+    }
+
+    const handleStop = () => {
+        stop()
+        navigate('/dashboard')
+    }
 
     return (
         <PageShell title="scan running">
@@ -60,11 +61,14 @@ export default function ScanRunning() {
                 <ScanHeader
                     targetUrl={targetUrl}
                     isPaused={isPaused}
-                    onTogglePause={() => setIsPaused(p => !p)}
-                    onStop={() => console.log('Scan manually stopped by user.')}
+                    onTogglePause={handleTogglePause}
+                    onStop={handleStop}
                 />
-                <ScanProgressBar progress={scanProgress} />
-                <ScanTerminal logs={logs} isComplete={scanProgress === 100} />
+                <ScanProgressBar progress={progress} />
+                <ScanTerminal
+                    logs={error ? [...logs, `>> ${error}`] : logs}
+                    isComplete={isComplete}
+                />
             </div>
         </PageShell>
     )
