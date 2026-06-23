@@ -9,7 +9,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["email", "username", "password", "tos_agreed"]
+        fields = ["email", "password", "tos_agreed"]
 
     def validate_tos_agreed(self, value):
         if not value:
@@ -20,7 +20,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         user = User.objects.create_user(
-            username=validated_data["username"],
             email=validated_data["email"],
             password=validated_data["password"],
             tos_agreed=True,

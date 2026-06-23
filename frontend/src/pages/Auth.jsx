@@ -1,3 +1,5 @@
+import { authAPI } from '../api/client'
+import { useAuth } from '../hooks/useAuth'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PageShell from '../components/layout/PageShell'
@@ -6,6 +8,8 @@ import shovlLogo from '../assets/shovl-logo.svg' // Assuming this has the hand i
 
 export default function Auth() {
     const navigate = useNavigate()
+    const { login } = useAuth()
+
     // SPA Toggle State: 'signin' | 'register'
     const [view, setView] = useState('signin') 
     
@@ -13,14 +17,37 @@ export default function Auth() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [consent, setConsent] = useState(false)
+    const [error, setError] = useState(null)
+    const [loading, setLoading] = useState(false)
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        if (view === 'register' && !consent) return // Guard clause for the security checkbox
-        
-        console.log(`Executing ${view} for:`, email)
-        // Wire this to your actual auth backend, then navigate:
-        // navigate('/scan/new')
+        if (view === 'register' && !consent) return
+
+        setError(null)
+        setLoading(true)
+
+        try {
+            if (view === 'signin') {
+                const res = await authAPI.login({ email, password })
+                const meRes = await authAPI.me()
+                login({ access: res.data.access }, meRes.data)
+            } else {
+                await authAPI.register({ email, password })
+                const res = await authAPI.login({ email, password })
+                const meRes = await authAPI.me()
+                login({ access: res.data.access }, meRes.data)
+            }
+            navigate('/dashboard')
+        } catch (err) {
+            setError(
+                err.response?.data?.detail ||
+                err.response?.data?.email?.[0] ||
+                'something went wrong. try again.'
+            )
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -32,7 +59,9 @@ export default function Auth() {
                 display: 'flex',
                 gap: '80px',
                 alignItems: 'center',
-                minHeight: '50vh'
+                minHeight: '50vh',
+                zIndex: 21,
+
             }}>
                 
                 {/* Left Column: Marketing & Imagery */}
@@ -43,7 +72,7 @@ export default function Auth() {
                         fontWeight: 900,
                         lineHeight: 1.1,
                         color: 'var(--color-text)',
-                        margin: 0
+                        margin: 0,
                     }}>
                         Securing your APIs from commit to production.
                     </h1>
@@ -95,7 +124,7 @@ export default function Auth() {
                             fontWeight: 900 
                         }}>
                             <button 
-                                onClick={() => setView('signin')}
+                                onClick={() => { setView('signin'); setError(null) }}
                                 style={{
                                     background: 'none', border: 'none', cursor: 'pointer',
                                     color: 'var(--color-text)',
@@ -109,7 +138,7 @@ export default function Auth() {
                                 sign in
                             </button>
                             <button 
-                                onClick={() => setView('register')}
+                                onClick={() => { setView('register'); setError(null)}}
                                 style={{
                                     background: 'none', border: 'none', cursor: 'pointer',
                                     color: 'var(--color-text)',
@@ -190,6 +219,14 @@ export default function Auth() {
                             </div>
                         )}
 
+                        {/* Step 5 — error message */}
+                        {error && (
+                            <p style={{ color: 'red', fontFamily: 'var(--font-mono)', fontSize: '13px', margin: 0 }}>
+                                {error}
+                            </p>
+                        )}
+                        
+
                         <button 
                             type="submit"
                             disabled={view === 'register' && !consent}
@@ -207,7 +244,7 @@ export default function Auth() {
                                 transition: 'background 0.2s ease'
                             }}
                         >
-                            {view === 'signin' ? 'Sign In' : 'Register'}
+                            {loading ? 'loading...' : view === 'signin' ? 'Sign In' : 'Register'}
                         </button>
 
                         {view === 'signin' && (

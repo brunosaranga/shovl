@@ -64,7 +64,7 @@ export default function KnobToggle({ label, active, onChange, offsetY = 0 }) {
           // transition: 'transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.1s ease'
         }}
         // Click feel: slightly shrinks the asset on click pressure
-        onMouseDown={(e) => e.currentTarget.style.transform = `rotate(${currentRotation}) scale(0.92)`}
+        onMouseDown={(e) => e.currentTarget.style.transform = `rotate(${currentRotation}) scale(0.97)`}
         onMouseUp={(e) => e.currentTarget.style.transform = `rotate(${currentRotation}) scale(1)`}
       />
 

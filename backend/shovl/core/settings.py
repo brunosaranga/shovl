@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "accounts", # Phase 3
     "domains", # Phase 3
     "scans", # Phase 3
+    "corsheaders",
 ]
 
 REST_FRAMEWORK = {
@@ -61,6 +62,7 @@ CORS_ALLOWED_ORIGINS = [
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "USERNAME_FIELD": "email" # use email for login
 }
 
 # Auth user model
@@ -69,6 +71,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
