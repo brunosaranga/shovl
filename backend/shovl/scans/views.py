@@ -14,7 +14,7 @@ from .models import Scan
 from .serializers import ScanSerializer
 from domains.models import Domain
 from domains.verification import is_practice_target
-from scanner.engine import run_scan, CHECKS
+from scanner.engine import run_scan, CHECKS, _calculate_risk
 from scanner.report import format_report
 from reporter.generator import generate_pdf
 import importlib
@@ -34,6 +34,7 @@ class ScanCreateView(APIView):
         target_url = request.data.get("target_url")
         verbose = request.data.get("verbose", False)
         suggest_fix = request.data.get("suggest_fix", False)
+        generate_report = request.data.get("generate_report", True)
 
         # Validate URL provided
         if not target_url:
@@ -79,18 +80,22 @@ class ScanCreateView(APIView):
         )
 
         try:
-            raw = run_scan(target_url, verbose=verbose, suggest_fix=suggest_fix)
+            raw = run_scan(target_url, verbose=verbose, suggest_fix=suggest_fix, generate_report=generate_report)
             report = format_report(raw)
-
-            pdf_path = f"reports/scan_{scan.id}.pdf"
-            os.makedirs("reports", exist_ok=True)
-            generate_pdf(report, pdf_path)
 
             scan.status = "complete"
             scan.risk_score = report["meta"]["risk_score"]
             scan.results = report
-            scan.pdf_path = pdf_path
             scan.completed_at = timezone.now()
+
+            # Only spend the time/IO building a PDF when the user asked for one.
+            # When skipped, pdf_path stays blank and ScanPDFView correctly 404s.
+            if generate_report:
+                pdf_path = f"reports/scan_{scan.id}.pdf"
+                os.makedirs("reports", exist_ok=True)
+                generate_pdf(report, pdf_path)
+                scan.pdf_path = pdf_path
+
             scan.save()
 
             return Response(ScanSerializer(scan).data, status=201)
@@ -140,35 +145,42 @@ class ScanStreamView(APIView):
         token = request.query_params.get('token')
         verbose = request.query_params.get('verbose', 'false') == 'true'
         suggest_fix = request.query_params.get('suggest_fix', 'false') == 'true'
+        generate_report = request.query_params.get('generate_report', 'true') == 'true'
 
+        # target_url is required before any other check can run.
         if not target_url:
-            # Same guards the blocking create endpoint enforces, applied before we
-            # start streaming. Failures return a normal (non-stream) Response.
-            parsed = urlparse(target_url)
-            if not parsed.scheme or not parsed.netloc:
-                return Response(
-                    {'error': 'Invalid URL format. Include http:// or https://'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+            return Response(
+                {'error': 'target_url is required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-            if not request.user.tos_agreed:
-                return Response(
-                    {'error': 'You must agree to the terms of service before scanning.'},
-                    status=status.HTTP_403_FORBIDDEN
-                )
+        # Same guards the blocking create endpoint enforces, applied before we
+        # start streaming. Failures return a normal (non-stream) Response.
+        parsed = urlparse(target_url)
+        if not parsed.scheme or not parsed.netloc:
+            return Response(
+                {'error': 'Invalid URL format. Include http:// or https://'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-            if not is_practice_target(target_url):
-                hostname = parsed.hostname
-                owns_verified_domain = Domain.objects.filter(
-                    user=request.user,
-                    hostname=hostname,
-                    verified=True
-                ).exists()
-                if not owns_verified_domain:
-                    return Response({
-                        'error': 'Domain not verified.',
-                        'detail': 'Please verify ownership of this domain before scanning.'
-                    }, status=status.HTTP_403_FORBIDDEN)
+        if not request.user.tos_agreed:
+            return Response(
+                {'error': 'You must agree to the terms of service before scanning.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if not is_practice_target(target_url):
+            hostname = parsed.hostname
+            owns_verified_domain = Domain.objects.filter(
+                user=request.user,
+                hostname=hostname,
+                verified=True
+            ).exists()
+            if not owns_verified_domain:
+                return Response({
+                    'error': 'Domain not verified.',
+                    'detail': 'Please verify ownership of this domain before scanning.'
+                }, status=status.HTTP_403_FORBIDDEN)
         
         total = len(CHECKS)
 
@@ -201,8 +213,9 @@ class ScanStreamView(APIView):
                 'total_checks': len(results),
                 'verbose': verbose,
                 'suggest_fix': suggest_fix,
+                'generate_report': generate_report,
                 'findings': results,
-                'risk_score': 'HIGH',
+                'risk_score': _calculate_risk(results),
             }
             report = format_report(raw)
 
@@ -218,10 +231,11 @@ class ScanStreamView(APIView):
             )
 
             pdf_path = f'reports/scan_{scan.id}.pdf'
-            os.makedirs('reports', exist_ok=True)
-            generate_pdf(report, pdf_path)
-            scan.pdf_path = pdf_path
-            scan.save()
+            if generate_report:
+                os.makedirs('reports', exist_ok=True)
+                generate_pdf(report, pdf_path)
+                scan.pdf_path = pdf_path
+                scan.save()
 
             yield f"data: {json.dumps({'status': 'complete', 'scan_id': scan.id, 'risk_score': report['meta']['risk_score']})}\n\n"
 

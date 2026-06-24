@@ -6,9 +6,6 @@ import ScanProgressBar from '../components/scan-running/ScanProgressBar'
 import ScanTerminal from '../components/scan-running/ScanTerminal'
 import useScanStream from '../hooks/useScanStream'
 
-// Drives the live scan via the backend SSE stream. No scanId in the route here —
-// the backend only mints the Scan record (and its id) once every check is done,
-// so we receive it in the final 'complete' event and navigate to the report then.
 export default function ScanRunning() {
     const location = useLocation()
     const navigate = useNavigate()
@@ -16,6 +13,7 @@ export default function ScanRunning() {
     const targetUrl = location.state?.url
     const verbose = location.state?.verbose ?? false
     const suggestFix = location.state?.suggest_fix ?? false
+    const generateReport = location.state?.generate_report ?? true
 
     const [isPaused, setIsPaused] = useState(false)
 
@@ -23,15 +21,14 @@ export default function ScanRunning() {
         targetUrl,
         verbose,
         suggestFix,
+        generateReport,
         enabled: Boolean(targetUrl),
     })
 
-    // If someone lands here without a target (e.g. refresh, deep link), bounce home.
     useEffect(() => {
         if (!targetUrl) navigate('/', { replace: true })
     }, [targetUrl, navigate])
 
-    // Once the stream reports completion with a real scan id, go to the report.
     useEffect(() => {
         if (isComplete && scanId) {
             const timer = setTimeout(
@@ -45,7 +42,7 @@ export default function ScanRunning() {
     const handleTogglePause = () => {
         setIsPaused((p) => {
             const next = !p
-            setPaused(next) // freezes the visible log; the stream keeps running underneath
+            setPaused(next)
             return next
         })
     }
@@ -65,10 +62,16 @@ export default function ScanRunning() {
                     onStop={handleStop}
                 />
                 <ScanProgressBar progress={progress} />
-                <ScanTerminal
-                    logs={error ? [...logs, `>> ${error}`] : logs}
-                    isComplete={isComplete}
-                />
+
+                {/* Verbose is the live-output knob: only stream the terminal when it's on. */}
+                {verbose ? (
+                    <ScanTerminal
+                        logs={error ? [...logs, `>> ${error}`] : logs}
+                        isComplete={isComplete}
+                    />
+                ) : (
+                    error && <p className="report-meta-line">{`>> ${error}`}</p>
+                )}
             </div>
         </PageShell>
     )

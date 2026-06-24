@@ -13,7 +13,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate_tos_agreed(self, value):
         if not value:
-            raise serializers.ValidateError(
+            raise serializers.ValidationError(
                 "You must agree to the terms of service to use shovl."
             )
         return value

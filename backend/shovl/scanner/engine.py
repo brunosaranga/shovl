@@ -15,7 +15,8 @@ def run_scan(
     target_url: str,
     token: str = None,
     verbose: bool = False,
-    suggest_fix: bool = False
+    suggest_fix: bool = False,
+    generate_report: bool = True,
 ) -> dict:
     results = []
 
@@ -37,13 +38,14 @@ def run_scan(
         "total_checks": len(results),
         "verbose": verbose,
         "suggest_fix": suggest_fix,
+        "generate_report": generate_report,
         "findings": results,
         "risk_score": _calculate_risk(results),
     }
 
 
 def _calculate_risk(findings: list) -> str:
-    severity_map = {"HIGH": 3, "MEDIUM": 2, "LOW": 1, "PASS": 0}
+    severity_map = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1, "PASS": 0}
     score = sum(severity_map.get(f['severity'], 0) for f in findings)
 
     if score >= 7: return "CRITICAL"
