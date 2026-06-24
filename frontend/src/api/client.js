@@ -71,12 +71,13 @@ export const scansAPI = {
 // The scan stream is an SSE endpoint. We can't use the axios client (and native
 // EventSource can't send the Authorization header), so callers consume it with
 // fetch() + a stream reader. This just builds the URL from the same base.
-export function scanStreamUrl({ target_url, verbose = false, suggest_fix = false }) {
+export function scanStreamUrl({ target_url, verbose = false, suggest_fix = false, generate_report = true }) {
     const base = import.meta.env.VITE_API_BASE_URL
     const params = new URLSearchParams({
         target_url,
         verbose: String(verbose),
         suggest_fix: String(suggest_fix),
+        generate_report: String(generate_report),
     })
     return `${base}/scans/stream/?${params.toString()}`
 }

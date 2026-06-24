@@ -18,7 +18,7 @@ import { scanStreamUrl } from '../api/client'
 //
 // Returns live progress (0..100), a rolling log array, the final scanId, and an
 // error string if the connection itself failed.
-export default function useScanStream({ targetUrl, verbose = false, suggestFix = false, enabled = true }) {
+export default function useScanStream({ targetUrl, verbose = false, suggestFix = false, generateReport = true, enabled = true }) {
     const [progress, setProgress] = useState(0)
     const [logs, setLogs] = useState([
         '>> initializing shovl engine...',
@@ -70,7 +70,7 @@ export default function useScanStream({ targetUrl, verbose = false, suggestFix =
         const run = async () => {
             try {
                 const token = localStorage.getItem('access_token')
-                const res = await fetch(scanStreamUrl({ target_url: targetUrl, verbose, suggest_fix: suggestFix }), {
+                const res = await fetch(scanStreamUrl({ target_url: targetUrl, verbose, suggest_fix: suggestFix, generate_report: generateReport }), {
                     method: 'GET',
                     headers: {
                         Authorization: token ? `Bearer ${token}` : '',
@@ -126,7 +126,7 @@ export default function useScanStream({ targetUrl, verbose = false, suggestFix =
 
         run()
         return () => controller.abort()
-    }, [targetUrl, verbose, suggestFix, enabled])
+    }, [targetUrl, verbose, suggestFix, generateReport, enabled])
 
     return { progress, logs, scanId, isComplete, error, setPaused, stop }
 }
