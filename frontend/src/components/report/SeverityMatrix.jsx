@@ -7,7 +7,7 @@ const TIERS = [
     { key: 'MEDIUM', label: 'Medium', color: 'var(--color-sev-high)' },
     { key: 'LOW',    label: 'Low',    color: 'var(--color-sev-medium)' },
     { key: 'PASS',   label: 'Passed', color: 'var(--color-sev-low)' },
-    { key: 'ERROR',  label: 'Errors', color: 'var(--color-sev-low)' },
+    { key: 'ERROR',  label: 'Errors', color: '#8395a7' },
 ]
 
 export default function SeverityMatrix({ summary = {} }) {
