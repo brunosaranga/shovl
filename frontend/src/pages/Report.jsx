@@ -78,6 +78,7 @@ export default function Report() {
                     <>
                         <ReportMetaCard
                             meta={report.meta}
+                            summary={report.summary}
                             targetUrl={scan.target_url}
                             onReRun={() =>
                                 navigate('/scan/running', {
