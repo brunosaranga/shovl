@@ -26,7 +26,9 @@ SECRET_KEY = 'django-insecure-)3!l4x$_jvnw=nfmf)7av1lymcq!k^$td+ubtb-@^&(f@b(1-t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+]
 
 
 # Application definition
@@ -58,6 +60,10 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173", # Vite dev server
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),

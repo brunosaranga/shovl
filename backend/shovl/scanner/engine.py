@@ -23,7 +23,7 @@ def run_scan(
     for module_path in CHECKS:
         try:
             module = importlib.import_module(module_path) # loads each check dynamically
-            result = module.run(target_url, token)
+            result = module.run(target_url, token, verbose)
         except Exception as e:
             result = {
                 "check": module_path,

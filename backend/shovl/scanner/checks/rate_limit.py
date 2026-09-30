@@ -33,7 +33,7 @@ def run(target_url: str, token: str = None, verbose: bool = False) -> dict:
         else:
             result["detail"].append("Rate limiting is active (429 received)")
 
-    except requests.exception.RequestException as e:
+    except requests.exceptions.RequestException as e:
         result["severity"] = "ERROR"
         result["detail"].append(str(e))
 

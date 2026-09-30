@@ -142,7 +142,9 @@ class ScanStreamView(APIView):
 
     def get(self, request):
         target_url = request.query_params.get('target_url')
-        token = request.query_params.get('token')
+        # Target-API tokens are deliberately NOT read from the query string:
+        # URLs end up in proxy and access logs. Scans run unauthenticated for now.
+        token = None
         verbose = request.query_params.get('verbose', 'false') == 'true'
         suggest_fix = request.query_params.get('suggest_fix', 'false') == 'true'
         generate_report = request.query_params.get('generate_report', 'true') == 'true'
