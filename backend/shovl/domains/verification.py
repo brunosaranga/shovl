@@ -2,8 +2,8 @@ import dns.resolver
 import requests
 from urllib.parse import urlparse
 
+# Keep in sync with PRACTICE_TARGETS in frontend/src/api/targets.js.
 ALLOWED_PRACTICE_TARGETS = [
-    "httpbin.org",
     "postman-echo.com",
     "localhost",
     "127.0.0.1",
