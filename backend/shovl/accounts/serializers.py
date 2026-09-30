@@ -42,7 +42,7 @@ class UpgradeSerializer(serializers.Serializer):
     The view passes the request in the serializer context, and calls upgrade(user) once is_valid() has passed.
     """
     email = serializers.EmailField()
-    password = serializers.CharField(writse_only=True)
+    password = serializers.CharField(write_only=True)
     tos_agreed = serializers.BooleanField()
 
     def validate_tos_agreed(self, value):
