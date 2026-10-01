@@ -5,6 +5,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.utils import timezone
+from accounts.permissions import IsRegisteredUser
 from .models import Domain
 from .serializers import DomainSerializer
 from .verification import verify_dns, verify_file, is_practice_target
@@ -12,9 +13,15 @@ from .verification import verify_dns, verify_file, is_practice_target
 class DomainListCreateView(generics.ListCreateAPIView):
     serializer_class = DomainSerializer
 
+    def get_permissions(self):
+        # Adding a domain needs a registered account. Listing stays open to guests: they simply get an empty list.
+        if self.request.method == 'POST':
+            return [IsRegisteredUser()]
+        return super().get_permissions()
+
     def get_queryset(self):
         return Domain.objects.filter(user=self.request.user)
-    
+
     def perform_create(self, serializer):
         try:
             serializer.save(user=self.request.user)
@@ -23,6 +30,8 @@ class DomainListCreateView(generics.ListCreateAPIView):
             raise ValidationError({"hostname": ["You have already added this domain."]})
 
 class DomainVerifyView(APIView):
+    permission_classes = [IsRegisteredUser]
+    
     def post(self, request, pk):
         try:
             domain = Domain.objects.get(pk=pk, user=request.user)
