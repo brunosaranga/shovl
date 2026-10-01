@@ -11,6 +11,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+from scans.limits import scans_remaining
+
 from .serializers import RegisterSerializer, UpgradeSerializer, LoginSerializer
 
 
@@ -18,6 +20,7 @@ User = get_user_model()
 
 # Guests only get an access token (the frontend doesn't store a refresh token), so it has to last long enough for them to come back to their dashboard
 GUEST_TOKEN_LIKETIME = timedelta(days=30)
+# GUEST_TOKEN_LIFETIME is mispelled here - change if necessary but has to be across the board
 
 
 
@@ -117,4 +120,6 @@ class MeView(generics.RetrieveAPIView):
             'id': request.user.id,
             'email': request.user.email,
             'is_guest': request.user.is_guest,
+            # {"limit", "used", "remaining", "period"}, or null for accounts with no limit.
+            'allowance': scans_remaining(request.user),
         })

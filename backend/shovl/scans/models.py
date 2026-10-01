@@ -9,6 +9,8 @@ class Scan(models.Model):
         ("running", "Running"),
         ("complete", "Complete"),
         ("failed", "Failed"),
+        # The browser closed (or the scan was abandoned) before it finished.
+        ("interrupted", "Interrupted"),
     ]
 
     user = models.ForeignKey(
