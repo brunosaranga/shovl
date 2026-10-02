@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils import timezone
 from rest_framework import generics, permissions, status
+from rest_framework.exceptions import Throttled
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -14,6 +15,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from scans.limits import scans_remaining
 
 from .serializers import RegisterSerializer, UpgradeSerializer, LoginSerializer
+from .throttles import GuestCreationThrottle
 
 
 User = get_user_model()
@@ -38,6 +40,20 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
 
 
+class TooManySessions(Throttled):
+    """
+    A429 with a friendly message and a code the frontend can act on.
+    """
+
+    def __init__(self, wait=None):
+        super().__init__(wait=wait)
+        self.detail = {
+            'detail': 'Too many new sessions from your network. Try again later, or create a free account.',
+            'code': 'too_many_sessions',
+            'retry_after': self.wait,
+        }
+
+
 class GuestSessionView(APIView):
     """
     POST /api/accounts/guest/   body: {"tos_agreed": true}
@@ -48,6 +64,12 @@ class GuestSessionView(APIView):
     permission_classes = [permissions.AllowAny]
     # No authentication on purpose. An old or expired token in the request header would otherwise be rejected with a 401 before this view runs.
     authentication_classes = []
+
+    # Stops anyone creating endless guests to get around the scan allowance.
+    throttle_classes = [GuestCreationThrottle]
+
+    def throttled(self, request, wait):
+        raise TooManySessions(wait=wait)
 
     def post(self, request):
         data = request.data if isinstance(request.data, dict) else {}
