@@ -1,5 +1,7 @@
 import requests
 
+from .. import http
+
 # Extra fields a client should never be able to set
 INJECTED_FIELDS = {
     "is_admin": True,
@@ -8,7 +10,7 @@ INJECTED_FIELDS = {
     "balance": 99999,
 }
 
-def run(target_url: str, token: str = None, verbose: bool = False) -> dict:
+def run(target_url: str, token: str = None, verbose: bool = False, budget=None) -> dict:
     result = {
         "check": "Mass Assignment",
         "id": "API6",
@@ -21,12 +23,13 @@ def run(target_url: str, token: str = None, verbose: bool = False) -> dict:
         headers = {"Authorization": f"Bearer {token}"} if token else {}
         headers["Content-Type"] = "application/json"
 
-        r = requests.post(
+        r = http.post(
             target_url,
             json=INJECTED_FIELDS,
             headers=headers,
-            timeout=5
+            budget=budget,
         )
+        http.require_complete(r)      # a response cut short by the size cap cannot be analysed
 
         if verbose:
             result["raw"] = {
@@ -45,7 +48,7 @@ def run(target_url: str, token: str = None, verbose: bool = False) -> dict:
 
         if accepted:
             result["severity"] = "HIGH"
-            result["detail"].append(f"Server accpeted privileged fields: {accepted}")
+            result["detail"].append(f"Server accepted privileged fields: {accepted}")
         elif r.status_code in [200, 201]:
             result["severity"] = "MEDIUM"
             result["detail"].append("POST accepted but injected fields not confirmed in response")
@@ -54,6 +57,7 @@ def run(target_url: str, token: str = None, verbose: bool = False) -> dict:
 
     except requests.exceptions.RequestException as e:
         result["severity"] = "ERROR"
+        result["reason"] = getattr(e, "reason", "error")
         result["detail"].append(str(e))
 
     return result

@@ -17,7 +17,7 @@ class GuestCreationThrottle(AnonRateThrottle):
         # DRF's own version trusts the whole X-Forwarded-For header when no proxy count is configured, so a script could send a new fake address with evry request and never be counted. Use the real connection address unless we are told how many trusted proxies sit in front of us.
         proxies = getattr(settings, 'GUEST_THROTTLE_PROXIES', 0)
         remote_addr = request.META.get('REMOTE_ADDR')
-        forwarded = request.META.GET('HTTP_X_FORWARDED_FOR')
+        forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
 
         if proxies == 0 or not forwarded:
             return remote_addr

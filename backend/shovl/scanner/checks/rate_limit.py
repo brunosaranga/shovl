@@ -1,10 +1,12 @@
 import requests
 import time
 
+from .. import config, http
+
 BURST_COUNT = 15
 BURST_INTERVAL = 0.1 # seconds between requests
 
-def run(target_url: str, token: str = None, verbose: bool = False) -> dict:
+def run(target_url: str, token: str = None, verbose: bool = False, budget=None) -> dict:
     result = {
         "check": "Rate Limiting Absence",
         "id": "API4",
@@ -18,7 +20,7 @@ def run(target_url: str, token: str = None, verbose: bool = False) -> dict:
         status_codes = []
 
         for _ in range(BURST_COUNT):
-            r = requests.get(target_url, headers=headers, timeout=5)
+            r = http.get(target_url, headers=headers, budget=budget, timeout=config.RATE_LIMIT_TIMEOUT)
             status_codes.append(r.status_code)
             time.sleep(BURST_INTERVAL)
 
@@ -35,6 +37,7 @@ def run(target_url: str, token: str = None, verbose: bool = False) -> dict:
 
     except requests.exceptions.RequestException as e:
         result["severity"] = "ERROR"
+        result["reason"] = getattr(e, "reason", "error")
         result["detail"].append(str(e))
 
     return result

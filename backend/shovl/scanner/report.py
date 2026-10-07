@@ -53,12 +53,19 @@ def format_report(raw: dict) -> dict:
                 if fix:
                     f["remediation"] = fix
 
+    # A check that came back as ERROR did not run. When some did and some did not, the report is "partial": the risk score only reflects the checks that ran.
+    checks_failed = sum(1 for f in findings if (f.get("severity") or "").upper() == "ERROR")
+    checks_run = len(findings) - checks_failed
+
     return {
         "meta": {
             "target": raw["target"],
             "scanned_at": datetime.now(timezone.utc).isoformat(),
             "risk_score": raw["risk_score"],
             "total_checks": raw["total_checks"],
+            "checks_run": checks_run,
+            "checks_failed": checks_failed,
+            "partial": checks_run > 0 and checks_failed > 0,
             "verbose": raw.get("verbose", False),
             "suggest_fix": suggest_fix,
             "generate_report": raw.get("generate_report", True),

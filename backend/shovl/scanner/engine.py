@@ -1,5 +1,11 @@
 # loads each check dynamically
 import importlib
+import inspect
+import logging
+
+from .http import MESSAGES, ScanRequestError, TimeBudget, get as http_get
+
+logger = logging.getLogger(__name__)
 
 # A list of module paths
 CHECKS = [
@@ -11,6 +17,109 @@ CHECKS = [
     "scanner.checks.mass_assignment",
 ]
 
+# (name, id) of each check, used when a check cannot run and has no result of its own.
+CHECK_INFO = {
+    "scanner.checks.misconfig": ("Security Misconfiguration", "API5"),
+    "scanner.checks.rate_limit": ("Rate Limiting Absence", "API4"),
+    "scanner.checks.bola": ("Broken Object Level Authorization", "API1"),
+    "scanner.checks.auth": ("Broken Authentication", "API2"),
+    "scanner.checks.data_exposure": ("Excessive Data Exposure", "API3"),
+    "scanner.checks.mass_assignment": ("Mass Assignment", "API6"),
+}
+
+
+class ScanFailed(Exception):
+    """
+    The scan could not produce a usable result. `reason` is a short code and
+    `message` is plain language that is safe to show to the user.
+    """
+
+    def __init__(self, reason, message):
+        super().__init__(message)
+        self.reason = reason
+        self.message = message
+
+
+def preflight(target_url, budget=None):
+    """
+    One request to confirm the target can be reached at all, before any check
+    runs. Any HTTP answer counts as reachable, even a 404 or a 500: those are
+    answers the checks may find real problems in. Raises ScanFailed when we
+    cannot connect, or the target never answers.
+    """
+    try:
+        # Headers only: we do not need the body to know the target answers.
+        http_get(target_url, budget=budget, read_body=False)
+    except ScanRequestError as e:
+        raise ScanFailed(e.reason, e.message)
+
+
+def run_check(module_path, target_url, token=None, verbose=False, budget=None):
+    """
+    Run one check and return its finding. Never raises: a check that cannot run
+    comes back as an ERROR finding with a message that is safe to show.
+    """
+    if budget is not None and budget.expired:
+        return _error_finding(module_path, MESSAGES["time_limit"], "time_limit")
+
+    try:
+        module = importlib.import_module(module_path)  # loads the check dynamically
+        kwargs = {}
+        # Checks that know about the time budget get it; older ones still work.
+        if budget is not None and "budget" in inspect.signature(module.run).parameters:
+            kwargs["budget"] = budget
+        return module.run(target_url, token, verbose, **kwargs)
+    except ScanRequestError as e:
+        return _error_finding(module_path, e.message, e.reason)
+    except Exception:
+        # A bug in a check. Keep the details in the log, not in the report.
+        logger.exception("Check %s crashed", module_path)
+        return _error_finding(
+            module_path, "This check hit an unexpected problem and could not finish.", "check_error"
+        )
+
+
+def _error_finding(module_path, message, reason):
+    name, check_id = CHECK_INFO.get(module_path, (module_path, "UNKNOWN"))
+    return {
+        "check": name,
+        "id": check_id,
+        "severity": "ERROR",
+        "detail": [message],
+        "reason": reason,
+    }
+
+
+def ensure_usable(findings):
+    """
+    Raise ScanFailed when no check produced a real result. A scan like that has
+    told the user nothing, so it is saved as failed and does not count against
+    their allowance.
+    """
+    if any(f.get("severity") != "ERROR" for f in findings):
+        return
+
+    first = findings[0] if findings else {}
+    detail = first.get("detail") or []
+    raise ScanFailed(
+        first.get("reason", "no_results"),
+        detail[0] if detail else "None of the checks could produce a result.",
+    )
+
+
+def build_raw(target_url, findings, verbose=False, suggest_fix=False, generate_report=True):
+    """The raw scan result that format_report turns into the report."""
+    return {
+        "target": target_url,
+        "total_checks": len(findings),
+        "verbose": verbose,
+        "suggest_fix": suggest_fix,
+        "generate_report": generate_report,
+        "findings": findings,
+        "risk_score": _calculate_risk(findings),
+    }
+
+
 def run_scan(
     target_url: str,
     token: str = None,
@@ -18,30 +127,18 @@ def run_scan(
     suggest_fix: bool = False,
     generate_report: bool = True,
 ) -> dict:
-    results = []
+    budget = TimeBudget()
 
-    for module_path in CHECKS:
-        try:
-            module = importlib.import_module(module_path) # loads each check dynamically
-            result = module.run(target_url, token, verbose)
-        except Exception as e:
-            result = {
-                "check": module_path,
-                "id": "UNKNOWN",
-                "severity": "ERROR",
-                "detail": [f"Check failed to run: {str(e)}"]
-            }
-        results.append(result)
+    preflight(target_url, budget=budget)
 
-    return {
-        "target": target_url,
-        "total_checks": len(results),
-        "verbose": verbose,
-        "suggest_fix": suggest_fix,
-        "generate_report": generate_report,
-        "findings": results,
-        "risk_score": _calculate_risk(results),
-    }
+    results = [
+        run_check(module_path, target_url, token, verbose, budget=budget)
+        for module_path in CHECKS
+    ]
+
+    ensure_usable(results)
+
+    return build_raw(target_url, results, verbose, suggest_fix, generate_report)
 
 
 def _calculate_risk(findings: list) -> str:

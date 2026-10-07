@@ -1,9 +1,11 @@
 import requests
 
+from .. import http
+
 # BOLA: swap object IDs in URL to check if another user's data is returned
 PROBE_IDS = [1, 2, 3, 99, 100]
 
-def run(target_url: str, token: str = None, verbose: bool = False) -> dict:
+def run(target_url: str, token: str = None, verbose: bool = False, budget=None) -> dict:
     result = {
         "check": "Broken Object Level Authorization",
         "id": "API1",
@@ -18,7 +20,7 @@ def run(target_url: str, token: str = None, verbose: bool = False) -> dict:
 
         for probe_id in PROBE_IDS:
             probe_url = f"{target_url.rstrip('/')}/{probe_id}"
-            r = requests.get(probe_url, headers=headers, timeout=5)
+            r = http.get(probe_url, headers=headers, budget=budget)
 
             if verbose:
                 result["raw"].append({
@@ -40,6 +42,7 @@ def run(target_url: str, token: str = None, verbose: bool = False) -> dict:
 
     except requests.exceptions.RequestException as e:
         result["severity"] = "ERROR"
+        result["reason"] = getattr(e, "reason", "error")
         result["detail"].append(str(e))
 
     return result

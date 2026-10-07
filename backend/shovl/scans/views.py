@@ -16,14 +16,32 @@ from .models import Scan
 from .serializers import ScanSerializer
 from domains.models import Domain
 from domains.verification import is_practice_target
-from scanner.engine import run_scan, CHECKS, _calculate_risk
+from scanner.engine import CHECKS, ScanFailed, build_raw, ensure_usable, preflight, run_check, run_scan
+from scanner.http import TimeBudget
 from scanner.report import format_report
 from reporter.generator import generate_pdf
-import importlib
-
 
 logger = logging.getLogger(__name__)
 
+# Reasons that mean "we could not reach the target", as opposed to a scan that
+# ran but produced nothing usable.
+UNREACHABLE_REASONS = {
+    'dns', 'refused', 'connection', 'timeout', 'tls', 'redirects', 'redirect_offsite', 'private',
+    'bad_response', 'invalid_url',
+}
+
+
+def sse(payload):
+    """One server-sent-events frame."""
+    return f"data: {json.dumps(payload)}\n\n"
+
+
+def mark_failed(scan, reason, message):
+    """Save a failed scan with the reason, so the dashboard and report can say why. Failed scans do not count."""
+    scan.status = 'failed'
+    scan.results = {'error': {'reason': reason, 'message': message}}
+    scan.completed_at = timezone.now()
+    scan.save(update_fields=['status', 'results', 'completed_at'])
 
 
 # Create your views here.
@@ -112,11 +130,20 @@ class ScanCreateView(APIView):
 
             return Response(ScanSerializer(scan).data, status=201)
         
-        except Exception as e:
-            scan.status = "failed"
-            scan.save()
+        except ScanFailed as e:
+            mark_failed(scan, e.reason, e.message)
+            code = 'target_unreachable' if e.reason in UNREACHABLE_REASONS else 'scan_failed'
             return Response(
-                {"error": f"Scan failed: {str(e)}"},
+                {'detail': e.message, 'code': code, 'reason': e.reason},
+                status=status.HTTP_502_BAD_GATEWAY
+            )
+
+        except Exception:
+            logger.exception('Scan %s crashed', scan.id)
+            message = 'The scan hit an unexpected problem.'
+            mark_failed(scan, 'scan_error', message)
+            return Response(
+                {'detail': message, 'code': 'scan_failed'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         
@@ -217,39 +244,55 @@ class ScanStreamView(APIView):
 
         total = len(CHECKS)
 
-
         def event_stream():
             finished = False
+
+            def fail(reason, message):
+                """Mark the scan failed and tell the browser. The old 'error' event is sent too, so it shows in the log."""
+                mark_failed(scan, reason, message)
+                yield sse({'status': 'error', 'check': 'scan', 'message': message})
+                yield sse({'status': 'failed', 'scan_id': scan.id, 'reason': reason, 'message': message})
+
             try:
-                results = []
+                budget = TimeBudget()
+
+                # Can we reach the target at all? Announced first, so the screen
+                # is not silent while we wait.
+                yield sse({'status': 'running', 'check': 'reachability', 'progress': 0, 'total': total})
+                try:
+                    preflight(target_url, budget=budget)
+                except ScanFailed as e:
+                    finished = True
+                    yield from fail(e.reason, e.message)
+                    return
+
+                findings = []
                 for i, module_path in enumerate(CHECKS):
-                    try:
-                        module = importlib.import_module(module_path)
-                        check_name = module_path.split('.')[-1]
+                    check_name = module_path.split('.')[-1]
 
-                        # Running event (check started)
-                        yield f"data: {json.dumps({'status': 'running', 'check': check_name, 'progress': i, 'total': total})}\n\n"
+                    # Running event (check started)
+                    yield sse({'status': 'running', 'check': check_name, 'progress': i, 'total': total})
 
-                        result = module.run(target_url, token, verbose)
-                        results.append(result)
+                    # Never raises: a check that cannot run comes back as an ERROR finding.
+                    result = run_check(module_path, target_url, token, verbose, budget=budget)
+                    findings.append(result)
 
-                        # Result event (check finished)
-                        yield f"data: {json.dumps({'status': 'result', 'check': check_name, 'severity': result['severity'], 'detail': result['detail'], 'progress': i + 1, 'total': total})}\n\n"
+                    # Result event (check finished)
+                    yield sse({
+                        'status': 'result', 'check': check_name, 'severity': result['severity'],
+                        'detail': result['detail'], 'progress': i + 1, 'total': total,
+                    })
 
-                    except Exception as e:
-                        yield f"data: {json.dumps({'status': 'error', 'check': module_path, 'message': str(e)})}\n\n"
-
+                # If no check produced a real result, the scan fails and does not count.
+                try:
+                    ensure_usable(findings)
+                except ScanFailed as e:
+                    finished = True
+                    yield from fail(e.reason, e.message)
+                    return
 
                 try:
-                    raw = {
-                        'target': target_url,
-                        'total_checks': len(results),
-                        'verbose': verbose,
-                        'suggest_fix': suggest_fix,
-                        'generate_report': generate_report,
-                        'findings': results,
-                        'risk_score': _calculate_risk(results),
-                    }
+                    raw = build_raw(target_url, findings, verbose, suggest_fix, generate_report)
                     report = format_report(raw)
 
                     scan.status = 'complete'
@@ -261,23 +304,21 @@ class ScanStreamView(APIView):
                     if generate_report:
                         try:
                             os.makedirs('reports', exist_ok=True)
-                            pdf_path = f"reports/scan_{scan.id}.pdf"
+                            pdf_path = f'reports/scan_{scan.id}.pdf'
                             generate_pdf(report, pdf_path)
                             scan.pdf_path = pdf_path
                         except Exception:
                             logger.exception('PDF generation failed for scan %s', scan.id)
 
                     scan.save()
-                except Exception as e:
-                    # Failed scans do not count against the allowance.
-                    scan.status = 'failed'
-                    scan.save(update_fields=['status'])
+                except Exception:
+                    logger.exception('Building the report failed for scan %s', scan.id)
                     finished = True
-                    yield f"data: {json.dumps({'status': 'error', 'check': 'report', 'message': str(e)})}\n\n"
+                    yield from fail('report_error', 'We could not build the report for this scan.')
                     return
 
                 finished = True
-                yield f"data: {json.dumps({'status': 'complete', 'scan_id': scan.id, 'risk_score': report['meta']['risk_score']})}\n\n"
+                yield sse({'status': 'complete', 'scan_id': scan.id, 'risk_score': report['meta']['risk_score']})
 
             finally:
                 # The browser went away before the scan finished.
@@ -291,66 +332,3 @@ class ScanStreamView(APIView):
             event_stream(),
             content_type='text/event-stream'
         )
-
-
-        # total = len(CHECKS)
-
-        # def event_stream():
-        #     results = []
-        #     for i, module_path in enumerate(CHECKS):
-        #         try:
-        #             module = importlib.import_module(module_path)
-        #             check_name = module_path.split('.')[-1]
-
-        #             # Running event (check started)
-        #             yield f"data: {json.dumps({'status': 'running', 'check': check_name, 'progress': i, 'total': total})}\n\n"
-
-        #             result = module.run(target_url, token, verbose)
-        #             results.append(result)
-
-        #             # Result event (check finished)
-        #             yield f"data: {json.dumps({'status': 'result', 'check': check_name, 'severity': result['severity'], 'detail': result['detail'], 'progress': i + 1, 'total': total})}\n\n"
-
-        #         except Exception as e:
-        #             yield f"data: {json.dumps({'status': 'error', 'check': module_path, 'message': str(e)})}\n\n"
-
-        #     # Create scan record and generate PDF
-        #     from scanner.report import format_report
-        #     from reporter.generator import generate_pdf
-        #     from .models import Scan
-
-        #     raw = {
-        #         'target': target_url,
-        #         'total_checks': len(results),
-        #         'verbose': verbose,
-        #         'suggest_fix': suggest_fix,
-        #         'generate_report': generate_report,
-        #         'findings': results,
-        #         'risk_score': _calculate_risk(results),
-        #     }
-        #     report = format_report(raw)
-
-        #     scan = Scan.objects.create(
-        #         user=request.user,
-        #         target_url=target_url,
-        #         verbose=verbose,
-        #         suggest_fix=suggest_fix,
-        #         status='complete',
-        #         risk_score=report['meta']['risk_score'],
-        #         results=report,
-        #         completed_at=timezone.now()
-        #     )
-
-        #     pdf_path = f'reports/scan_{scan.id}.pdf'
-        #     if generate_report:
-        #         os.makedirs('reports', exist_ok=True)
-        #         generate_pdf(report, pdf_path)
-        #         scan.pdf_path = pdf_path
-        #         scan.save()
-
-        #     yield f"data: {json.dumps({'status': 'complete', 'scan_id': scan.id, 'risk_score': report['meta']['risk_score']})}\n\n"
-
-        # return StreamingHttpResponse(
-        #     event_stream(),
-        #     content_type='text/event-stream'
-        # )

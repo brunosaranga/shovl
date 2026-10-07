@@ -29,7 +29,7 @@ USER_SCANS_PER_DAY = 5
 
 # ---------- hard ceilings, failed and interrupted attempts included -----------------------
 GUEST_ATTEMPTS_TOTAL = 6
-USRE_ATTEMPTS_PER_DAY = 10
+USER_ATTEMPTS_PER_DAY = 10
 
 DAY = timedelta(hours=24)
 
@@ -131,7 +131,7 @@ def start_scan(user, **fields):
         if user.is_guest:
             allowance, ceiling = GUEST_SCANS_TOTAL, GUEST_ATTEMPTS_TOTAL
         else:
-            allowance, ceiling = USER_SCANS_PER_DAY, USRE_ATTEMPTS_PER_DAY
+            allowance, ceiling = USER_SCANS_PER_DAY, USER_ATTEMPTS_PER_DAY
 
         if _counted(scans, now).count() >= allowance:
             if user.is_guest:
@@ -144,6 +144,7 @@ def start_scan(user, **fields):
                 "daily_limit_reached",
                 429,
                 f"You've used today's {allowance} scans. Try again once the next one frees up.",
+                retry_after=_frees_up_at(_counted(scans, now)),
             )
 
         if scans.count() >= ceiling:

@@ -19,61 +19,60 @@ REPORTS_DIR = Path('reports')
 
 
 class Command(BaseCommand):
-    hrlp = (
-        'Delete guest accounts older than --days (default 30), with their scans and PDF fildes. Registered users are never touched. Run it daily.'
+    help = (
+        'Delete guest accounts older than --days (default 30), with their scans and PDF files. Registered users are never touched. Run it daily.'
     )
 
     def add_arguments(self, parser):
         parser.add_argument('--days', type=int, default=30, help='Delete guests created more than this many days ago (default 30).')
         parser.add_argument('--dry-run', action='store_true', help='Show what would be deleted without deleting anything.')
 
-        def handle(self, *args, **options):
-            days = options['days']
-            dry_run = options['dry_run']
+    def handle(self, *args, **options):
+        days = options['days']
+        dry_run = options['dry_run']
 
-            if days < 1:
-                raise CommandError('--days must be at least 1.')
+        if days < 1:
+            raise CommandError('--days must be at least 1.')
 
-            now = timezone.now()
-            cutoff = now - timedelta(days=days)
+        now = timezone.now()
+        cutoff = now - timedelta(days=days)
 
-            guests = guests_to_delete(cutoff, now)
-            guest_count = scan_count = pdf_count = 0
+        guests = guests_to_delete(cutoff, now)
+        guest_count = scan_count = pdf_count = 0
 
-            if dry_run:
-                guest_count = guests.count()
-                scans = Scan.objects.filter(user__in=guests)
-                scan_count = scans.count()
-                pdf_count = sum(1 for p in scans.exclude(pdf_path='').values_list('pdf_path', flat=True) if safe_pdf(p))
-            else:
-                last_pk = 0
-                while True:
-                    # Walk forward by primary key, so a batch can never be picked twice.
-                    ids = list(
-                        guests.filter(pf__gt=last_pk).order_by('pk').values_list('pk', flat=True)[:BATCH_SIZE]
-                    )
-                    if not ids:
-                        break
-                    last_pk = ids[-1]
+        if dry_run:
+            guest_count = guests.count()
+            scans = Scan.objects.filter(user__in=guests)
+            scan_count = scans.count()
+            pdf_count = sum(1 for p in scans.exclude(pdf_path='').values_list('pdf_path', flat=True) if safe_pdf(p))
+        else:
+            last_pk = 0
+            while True:
+                # Walk forward by primary key, so a batch can never be picked twice.
+                ids = list(
+                    guests.filter(pk__gt=last_pk).order_by('pk').values_list('pk', flat=True)[:BATCH_SIZE]
+                )
+                if not ids:
+                    break
+                last_pk = ids[-1]
 
-                    guests_deleted, scans_deleted, pdf_paths = delete_batch(ids, cutoff, now)
-                    guest_count += guests_deleted
-                    scan_count += scans_deleted
+                guests_deleted, scans_deleted, pdf_paths = delete_batch(ids, cutoff, now)
+                guest_count += guests_deleted
+                scan_count += scans_deleted
 
-                    # Files go after the database rows, If this fails, a harmless file is left behind, never a record pointing at a missing file.
-                    for path in pdf_paths:
-                        pdf = safe_pdf(path)
-                        if pdf:
-                            try:
-                                pdf.unlink()
-                                pdf_count += 1
-                            except OSError as exc:
-                                self.stderr.write(f'Could not remove {pdf}: {exc}')
+                # Files go after the database rows, If this fails, a harmless file is left behind, never a record pointing at a missing file.
+                for path in pdf_paths:
+                    pdf = safe_pdf(path)
+                    if pdf:
+                        try:
+                            pdf.unlink()
+                            pdf_count += 1
+                        except OSError as exc:
+                            self.stderr.write(f'Could not remove {pdf}: {exc}')
 
-
-            verb = 'Would delete' if dry_run else 'Deleted'
-            self.stdout.write(f'Cutoff: guests createed before {cutoff:%Y-%m-%d %H:%M} UTC')
-            self.stdout.write(f'{verb} {guest_count} gusets, {scan_count} scans, {pdf_count} PDF files')
+        verb = 'Would delete' if dry_run else 'Deleted'
+        self.stdout.write(f'Cutoff: guests created before {cutoff:%Y-%m-%d %H:%M} UTC')
+        self.stdout.write(f'{verb} {guest_count} guests, {scan_count} scans, {pdf_count} PDF files')
 
 
 
@@ -82,7 +81,7 @@ def guests_to_delete(cutoff, now):
     Guest accounts created before the cutoff, minus any wuth a scan that is genuinely in progress right now (a scan "running" for longer than STALE_AFTER is treated as abandoned, the same rule the allowance uses.)
     """
     busy = Scan.objects.filter(
-        status__in=IN_PROGRESS, creaqted_at__gte=now - STALE_AFTER
+        status__in=IN_PROGRESS, created_at__gte=now - STALE_AFTER
     ).values('user')
 
     return User.objects.filter(is_guest=True, date_joined__lt=cutoff).exclude(pk__in=busy)

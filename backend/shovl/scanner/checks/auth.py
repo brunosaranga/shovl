@@ -1,6 +1,8 @@
 import requests
 
-def run(target_url: str, token: str = None, verbose: bool = False) -> dict:
+from .. import http
+
+def run(target_url: str, token: str = None, verbose: bool = False, budget=None) -> dict:
     result = {
         "check": "Broken Authentication",
         "id": "API2",
@@ -11,11 +13,11 @@ def run(target_url: str, token: str = None, verbose: bool = False) -> dict:
 
     try:
         # Test 1: access without any token
-        r_no_auth = requests.get(target_url, timeout=5)
+        r_no_auth = http.get(target_url, budget=budget)
 
         # Test 2: access with a malformed token
         bad_headers = {"Authorization": f"Bearer invalidtoken123"}
-        r_bad_auth = requests.get(target_url, headers=bad_headers, timeout=5)
+        r_bad_auth = http.get(target_url, headers=bad_headers, budget=budget)
 
         if verbose:
             result["raw"] = {
@@ -36,6 +38,7 @@ def run(target_url: str, token: str = None, verbose: bool = False) -> dict:
 
     except requests.exceptions.RequestException as e:
         result["severity"] = "ERROR"
+        result["reason"] = getattr(e, "reason", "error")
         result["detail"].append(str(e))
 
     return result

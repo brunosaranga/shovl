@@ -94,7 +94,7 @@ class LoginSerializer(TokenObtainPairSerializer):
         data = super().validate(attrs)
 
         # A missing, expired or unusable token just means nothing to transfer.
-        transfer_guest_scans(self.initial_data_get('guest_token'), self.user)
+        transfer_guest_scans(self.initial_data.get('guest_token'), self.user)
 
         return data
 
