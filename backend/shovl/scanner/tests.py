@@ -377,11 +377,36 @@ class TlsPinningTests(SimpleTestCase):
         super().setUpClass()
         cls.dir = tempfile.mkdtemp()
         run = lambda *args, **kw: subprocess.run(args, cwd=cls.dir, check=True, capture_output=True, **kw)
+        # Python 3.13 and later check certificates strictly by default: a CA
+        # certificate must say it may sign certificates, and the server
+        # certificate must say who issued it. So the test certificates carry
+        # the standard extensions, as real ones do.
+        with open(os.path.join(cls.dir, "ca.cnf"), "w") as f:
+            f.write(
+                "[req]\n"
+                "distinguished_name = dn\n"
+                "prompt = no\n"
+                "x509_extensions = v3_ca\n"
+                "[dn]\n"
+                "CN = Shovl Test CA\n"
+                "[v3_ca]\n"
+                "subjectKeyIdentifier = hash\n"
+                "authorityKeyIdentifier = keyid:always\n"
+                "basicConstraints = critical, CA:TRUE\n"
+                "keyUsage = critical, keyCertSign, cRLSign\n"
+            )
         run("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-keyout", "ca.key", "-out", "ca.pem",
-            "-days", "2", "-subj", "/CN=Shovl Test CA")
+            "-days", "2", "-config", "ca.cnf")
         run("openssl", "req", "-newkey", "rsa:2048", "-nodes", "-keyout", "srv.key", "-out", "srv.csr", "-subj", "/CN=pinned.test")
         with open(os.path.join(cls.dir, "ext.cnf"), "w") as f:
-            f.write("subjectAltName=DNS:pinned.test\n")
+            f.write(
+                "subjectAltName = DNS:pinned.test\n"
+                "basicConstraints = critical, CA:FALSE\n"
+                "keyUsage = critical, digitalSignature, keyEncipherment\n"
+                "extendedKeyUsage = serverAuth\n"
+                "subjectKeyIdentifier = hash\n"
+                "authorityKeyIdentifier = keyid:always\n"
+            )
         run("openssl", "x509", "-req", "-in", "srv.csr", "-CA", "ca.pem", "-CAkey", "ca.key", "-CAcreateserial",
             "-out", "srv.pem", "-days", "2", "-extfile", "ext.cnf")
         cls.ca = os.path.join(cls.dir, "ca.pem")

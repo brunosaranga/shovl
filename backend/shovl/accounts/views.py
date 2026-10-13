@@ -8,7 +8,6 @@ from rest_framework import generics, permissions, status
 from rest_framework.exceptions import Throttled
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -16,6 +15,7 @@ from scans.limits import scans_remaining
 
 from .serializers import RegisterSerializer, UpgradeSerializer, LoginSerializer
 from .throttles import GuestCreationThrottle
+from .tokens import issue_tokens
 
 
 User = get_user_model()
@@ -85,12 +85,10 @@ class GuestSessionView(APIView):
             tos_agreed_at=timezone.now(),
         )
 
-        refresh = RefreshToken.for_user(user)
-        access = refresh.access_token
-        access.set_exp(lifetime=GUEST_TOKEN_LIKETIME)
+        access, refresh = issue_tokens(user, access_lifetime=GUEST_TOKEN_LIKETIME)
 
         return Response(
-            {'access': str(access), 'refresh': str(refresh), 'is_guest': True},
+            {'access': access, 'refresh': refresh, 'is_guest': True},
             status=status.HTTP_201_CREATED,
         )
 
@@ -124,9 +122,11 @@ class UpgradeView(APIView):
             serializer.is_valid(raise_exception=True)
             serializer.upgrade(user)
 
-        refresh = RefreshToken.for_user(user)
+        # The upgrade raised the account's token version, so the guest token no
+        # longer works. These are the only tokens that do.
+        access, refresh = issue_tokens(user)
         return Response(
-            {'access': str(refresh.access_token), 'refresh': str(refresh), 'is_guest': False},
+            {'access': access, 'refresh': refresh, 'is_guest': False},
             status=status.HTTP_200_OK,
         )
 

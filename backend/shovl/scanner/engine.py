@@ -28,6 +28,20 @@ CHECK_INFO = {
 }
 
 
+# Checks that SEND data to the target (a POST that can create records), not just
+# read from it. They run only when the caller passes allow_writes=True, which
+# the views do for practice targets and nothing else. Real domains are skipped
+# until there is an explicit opt-in from the user (planned after the beta).
+# Anything added here is skipped by default, so a call site that forgets the
+# flag fails safe.
+WRITE_CHECKS = {"scanner.checks.mass_assignment"}
+
+NOT_RUN_MESSAGE = (
+    "Not run on your own domains yet: this check sends test data to your API. "
+    "It will return as an opt-in."
+)
+
+
 class ScanFailed(Exception):
     """
     The scan could not produce a usable result. `reason` is a short code and
@@ -54,11 +68,17 @@ def preflight(target_url, budget=None):
         raise ScanFailed(e.reason, e.message)
 
 
-def run_check(module_path, target_url, token=None, verbose=False, budget=None):
+def run_check(module_path, target_url, token=None, verbose=False, budget=None, allow_writes=False):
     """
     Run one check and return its finding. Never raises: a check that cannot run
     comes back as an ERROR finding with a message that is safe to show.
+
+    A check in WRITE_CHECKS sends data to the target, so it is skipped (an ERROR
+    finding with reason "not_run") unless allow_writes is True.
     """
+    if module_path in WRITE_CHECKS and not allow_writes:
+        return _error_finding(module_path, NOT_RUN_MESSAGE, "not_run")
+
     if budget is not None and budget.expired:
         return _error_finding(module_path, MESSAGES["time_limit"], "time_limit")
 
@@ -126,13 +146,14 @@ def run_scan(
     verbose: bool = False,
     suggest_fix: bool = False,
     generate_report: bool = True,
+    allow_writes: bool = False,
 ) -> dict:
     budget = TimeBudget()
 
     preflight(target_url, budget=budget)
 
     results = [
-        run_check(module_path, target_url, token, verbose, budget=budget)
+        run_check(module_path, target_url, token, verbose, budget=budget, allow_writes=allow_writes)
         for module_path in CHECKS
     ]
 

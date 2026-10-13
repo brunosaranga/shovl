@@ -36,6 +36,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active     = models.BooleanField(default=True)
     is_staff      = models.BooleanField(default=False)
     is_guest      = models.BooleanField(default=False)
+    # Raising this signs out every token the account has ever been given (see accounts/tokens.py).
+    token_version = models.PositiveIntegerField(default=0)
     tos_agreed    = models.BooleanField(default=False)
     tos_agreed_at = models.DateTimeField(null=True, blank=True)
     date_joined   = models.DateTimeField(default=timezone.now)

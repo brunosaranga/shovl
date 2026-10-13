@@ -110,7 +110,15 @@ class ScanCreateView(APIView):
             return Response(e.as_response_data(), status=e.http_status)
 
         try:
-            raw = run_scan(target_url, verbose=verbose, suggest_fix=suggest_fix, generate_report=generate_report)
+            # Checks that send data (the mass assignment POST) run on practice
+            # targets only, never on a user's own domain.
+            raw = run_scan(
+                target_url,
+                verbose=verbose,
+                suggest_fix=suggest_fix,
+                generate_report=generate_report,
+                allow_writes=is_practice_target(target_url),
+            )
             report = format_report(raw)
 
             scan.status = "complete"
@@ -244,6 +252,10 @@ class ScanStreamView(APIView):
 
         total = len(CHECKS)
 
+        # Checks that send data (the mass assignment POST) run on practice
+        # targets only, never on a user's own domain.
+        allow_writes = is_practice_target(target_url)
+
         def event_stream():
             finished = False
 
@@ -274,7 +286,7 @@ class ScanStreamView(APIView):
                     yield sse({'status': 'running', 'check': check_name, 'progress': i, 'total': total})
 
                     # Never raises: a check that cannot run comes back as an ERROR finding.
-                    result = run_check(module_path, target_url, token, verbose, budget=budget)
+                    result = run_check(module_path, target_url, token, verbose, budget=budget, allow_writes=allow_writes)
                     findings.append(result)
 
                     # Result event (check finished)

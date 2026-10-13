@@ -10,25 +10,53 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
+
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
+# Production settings come from environment variables. See .env.example for the
+# full list. In development, set DJANGO_DEBUG=1.
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'REMOVED-OLD-DEV-SECRET-KEY'
+def env_list(name, default=""):
+    """Read a comma-separated environment variable as a list."""
+    return [item.strip() for item in os.getenv(name, default).split(",") if item.strip()]
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Off unless explicitly switched on.
+DEBUG = os.getenv("DJANGO_DEBUG", "0") == "1"
 
-ALLOWED_HOSTS = [
-    'localhost',
-]
+# SECURITY WARNING: keep the secret key used in production secret!
+# Required in production. Only development falls back to a throwaway key.
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = "dev-only-insecure-key-never-use-in-production"
+    else:
+        raise ImproperlyConfigured("DJANGO_SECRET_KEY must be set in production.")
+
+ALLOWED_HOSTS = env_list(
+    "DJANGO_ALLOWED_HOSTS",
+    "localhost,127.0.0.1" if DEBUG else "",
+)
+if not ALLOWED_HOSTS:
+    raise ImproperlyConfigured(
+        "DJANGO_ALLOWED_HOSTS must be set in production (comma-separated hostnames)."
+    )
+
+# The scanner must never be allowed to reach private addresses in production
+# (it would let anyone point it at our own server). Refuse to start instead of
+# running with the development flag on.
+if not DEBUG and os.getenv("SHOVL_ALLOW_PRIVATE_TARGETS") == "1":
+    raise ImproperlyConfigured(
+        "SHOVL_ALLOW_PRIVATE_TARGETS must not be set in production."
+    )
 
 
 # Application definition
@@ -50,23 +78,35 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "accounts.authentication.VersionedJWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173", # Vite dev server
-]
+# Only the real frontend may call the API. In development that is the Vite
+# server. In production set CORS_ALLOWED_ORIGINS to the frontend's address,
+# for example https://shovl.example.com (no trailing slash).
+CORS_ALLOWED_ORIGINS = env_list(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173" if DEBUG else "",
+)
+if not CORS_ALLOWED_ORIGINS:
+    raise ImproperlyConfigured(
+        "CORS_ALLOWED_ORIGINS must be set in production (the frontend's address)."
+    )
 
-CORS_ALLOW_ALL_ORIGINS = True
 
 
+# How long a signed-in session lasts before the user has to sign in again (the
+# frontend does not use the refresh token yet). Access tokens cannot be revoked
+# by expiry alone, so a longer life means a leaked token stays usable longer.
+# Default: 16 hours. Change it without editing code by setting JWT_ACCESS_TOKEN_MINUTES.
+JWT_ACCESS_TOKEN_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_MINUTES", "960"))
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=JWT_ACCESS_TOKEN_MINUTES),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "USERNAME_FIELD": "email" # use email for login
 }
@@ -127,6 +167,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 10},
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
