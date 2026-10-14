@@ -7,6 +7,9 @@
     flex-direction: column;
     background: var(--surface);
     overscroll-behavior: none;
+    /* Own stacking context, so the ground and footer can sit at z-index -1:
+       above this background, below the page content. */
+    isolation: isolate;
 }
 
 /* The only thing that scrolls. */

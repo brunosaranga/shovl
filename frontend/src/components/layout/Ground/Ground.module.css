@@ -7,7 +7,7 @@
     background-position: bottom center;
     background-repeat: no-repeat;
     pointer-events: none;
-    z-index: 10;
+    z-index: -1; /* behind the page content (see .shell in Layout.module.css) */
 }
 
 @media (max-width: 768px) {

@@ -3,6 +3,7 @@
     display: flex;
     justify-content: center;
     z-index: 21;
+    bottom: 80px;
 }
 
 .card {

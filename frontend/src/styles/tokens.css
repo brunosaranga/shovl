@@ -96,7 +96,7 @@
 
     /* ---- Layout ---------------------------------------------------------- */
     --nav-height: 64px;
-    --ground-height: 300px;
+    --ground-height: 400px;
     --page-top: 150px;        /* clears the fixed navbar */
     --page-bottom: 340px;     /* room to scroll content above the ground */
     --page-wide: 960px;
