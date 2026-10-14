@@ -1,0 +1,112 @@
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: 0;
+    transition: var(--press);
+}
+
+.button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* The neon "dig deeper" button */
+.primary {
+    background: var(--accent);
+    color: var(--on-accent);
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: 2px solid var(--ink-900);
+    box-shadow: var(--shadow-4);
+    text-transform: lowercase;
+}
+
+.primary:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-pressed);
+}
+
+/* Same size as primary, for the destructive choice next to it ("stop and leave") */
+.stop {
+    background: var(--danger);
+    color: var(--on-danger);
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: 2px solid var(--ink-900);
+    box-shadow: var(--shadow-4);
+    text-transform: lowercase;
+}
+
+.stop:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-pressed);
+}
+
+/* Small neon (settings rows, findings controls) */
+.small {
+    background: var(--accent);
+    color: var(--text);
+    border: var(--border-2);
+    font-family: var(--font-sans);
+    font-weight: 900;
+    font-size: 12px;
+    padding: 4px 12px;
+    box-shadow: var(--shadow-2);
+}
+
+.small:active:not(:disabled) {
+    transform: translate(1px, 1px);
+    box-shadow: var(--shadow-pressed);
+}
+
+.danger {
+    background: var(--danger);
+    color: var(--on-danger);
+    border: var(--border-2);
+    font-family: var(--font-sans);
+    font-weight: 900;
+    font-size: 12px;
+    padding: 4px 12px;
+    box-shadow: var(--shadow-2);
+}
+
+.danger:active:not(:disabled) {
+    transform: translate(1px, 1px);
+    box-shadow: var(--shadow-pressed);
+}
+
+/* Black text button ("view vulnerability findings") */
+.dark {
+    background: var(--ink-900);
+    color: var(--text-inverse);
+    padding: 8px 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    border: none;
+    text-transform: lowercase;
+}
+
+/* Text-only link styled like the rest of the mono copy */
+.quiet {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--text);
+    font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+@media (max-width: 768px) {
+    .primary {
+        font-size: 13px;
+        padding: 6px;
+    }
+}

@@ -1,0 +1,17 @@
+.row {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    padding: 70px 10px;
+    position: relative;
+    top: 61px;
+}
+
+@media (max-width: 768px) {
+    .row {
+        padding: 0;
+        top: 60px;
+    }
+}

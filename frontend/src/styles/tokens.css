@@ -1,0 +1,94 @@
+/* ==========================================================================
+   tokens.css: the single source of truth for the shovl design system.
+
+   Layer 1: raw palette  (--ink-950, --neon-500…)  → never used in components
+   Layer 2: semantic     (--surface, --text, --accent, --sev-high…) → what components use
+   A dark theme later = remap layer 2 under [data-theme="dark"], nothing else.
+
+   Values come from the original global.css, so the look is unchanged.
+   Breakpoint: 768px (CSS variables can't be used inside media queries).
+   ========================================================================== */
+
+:root {
+    /* ---- Layer 1: raw palette ------------------------------------------- */
+    --ink-950: #0e0018;       /* text, borders, hard shadows, terminals */
+    --ink-900: #111111;       /* near-black used by a few buttons */
+    --white: #ffffff;
+    --grey-50: #fafafa;
+    --grey-75: #fcfcfc;
+    --grey-100: #f8f8f8;
+    --grey-150: #f1f1f1;     /* neutral status chips */
+    --grey-200: #e5e4e7;      /* auth form borders */
+    --grey-300: #cccccc;
+    --grey-500: #666666;
+    --slate-400: #8395a7;     /* "could not run" / incomplete: neutral on purpose */
+    --neon-500: #4aff00;      /* brand accent */
+    --green-500: #4caf50;     /* "verified" / scan complete */
+    --green-600: #00ac46;
+    --yellow-500: #fdc500;
+    --orange-500: #fd8c00;
+    --red-400: #ff4d4f;       /* stop button */
+    --red-500: #fd3737;       /* errors */
+    --red-600: #ff0000;
+    --rust-500: rgb(183, 86, 46, 0.5); /* terminal shadow, matches the ground */
+
+    /* ---- Layer 2: semantic ----------------------------------------------- */
+    --surface: var(--white);
+    --surface-soft: var(--grey-50);
+    --surface-muted: var(--grey-100);
+    --surface-raised: var(--grey-75);
+    --surface-chip: var(--grey-150);
+    --text: var(--ink-950);
+    --text-muted: var(--grey-500);
+    --text-inverse: var(--white);
+    --border: var(--ink-950);
+    --border-soft: var(--grey-200);
+    --accent: var(--neon-500);
+    --on-accent: var(--ink-950);
+    --danger: var(--red-500);
+    --on-danger: var(--white);
+    --success: var(--green-500);
+    --stop: var(--red-400);
+    --terminal: var(--ink-950);
+    --terminal-text: var(--white);
+    --terminal-shadow: var(--rust-500);
+    --disabled: var(--grey-300);
+
+    /* Severity scale: one mapping for badges, the matrix, risk scores and the dashboard. */
+    --sev-critical: var(--red-600);
+    --sev-high: var(--orange-500);
+    --sev-medium: var(--yellow-500);
+    --sev-low: var(--green-600);
+    --sev-pass: var(--grey-300);
+    --sev-error: var(--slate-400);
+    --sev-incomplete: var(--slate-400);
+
+    /* ---- Typography ------------------------------------------------------ */
+    --font-display: "Arbutus", serif;
+    --font-sans: "Inter", sans-serif;
+    --font-mono: "JetBrains Mono", Courier, monospace;
+
+    /* ---- Neo-brutalist building blocks ----------------------------------- */
+    --border-1: 1px solid var(--border);
+    --border-2: 2px solid var(--border);
+    --border-3: 3px solid var(--border);
+    --border-4: 4px solid var(--border);
+
+    --shadow-2: 2px 2px 0 var(--border);
+    --shadow-4: 4px 4px 0 var(--border);
+    --shadow-5: 5px 5px 0 var(--border);
+    --shadow-6: 6px 6px 0 var(--border);
+    --shadow-8: 8px 8px 0 var(--border);
+    --shadow-pressed: 1px 1px 0 var(--border);
+
+    /* ---- Layout ---------------------------------------------------------- */
+    --nav-height: 64px;
+    --ground-height: 300px;
+    --page-top: 150px;        /* clears the fixed navbar */
+    --page-bottom: 340px;     /* room to scroll content above the ground */
+    --page-wide: 960px;
+    --page-narrow: 800px;
+
+    /* ---- Motion ---------------------------------------------------------- */
+    --press: all 0.1s ease;
+}

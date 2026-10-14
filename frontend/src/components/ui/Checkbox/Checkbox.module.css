@@ -1,0 +1,29 @@
+.row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-top: 4px;
+}
+
+.box {
+    margin-top: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.label {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+.invalid .label {
+    color: var(--danger);
+}
+
+@media (max-width: 768px) {
+    .label {
+        font-size: 10px;
+    }
+}

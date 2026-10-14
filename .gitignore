@@ -26,3 +26,10 @@ frontend/.env
 # General
 .DS_Store
 *.log
+.DS_Store
+*.zip
+node_modules/
+shovl-venv/
+__pycache__/
+db.sqlite3
+.env

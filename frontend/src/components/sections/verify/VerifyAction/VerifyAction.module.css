@@ -1,0 +1,46 @@
+.row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.button {
+    background: var(--accent);
+    color: var(--text);
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: var(--border-2);
+    cursor: pointer;
+    box-shadow: var(--shadow-4);
+    transition: var(--press);
+    text-transform: lowercase;
+}
+
+.button:active:not(:disabled) {
+    transform: translate(3px, 3px);
+    box-shadow: var(--shadow-pressed);
+}
+
+/* verifying / verified: disabled and stays visually pressed */
+.busy {
+    cursor: not-allowed;
+    box-shadow: var(--shadow-pressed);
+    transform: translate(3px, 3px);
+}
+
+.verified {
+    background: var(--success);
+}
+
+.failed {
+    background: var(--danger);
+    color: var(--on-danger);
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+}

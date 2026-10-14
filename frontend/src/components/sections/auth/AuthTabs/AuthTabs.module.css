@@ -1,0 +1,26 @@
+.tabs {
+    display: flex;
+    gap: 24px;
+}
+
+.tab {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 20px;
+    font-family: var(--font-sans);
+    text-underline-offset: 4px;
+    opacity: 0.5;
+}
+
+.active {
+    text-decoration: underline;
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .tab {
+        font-size: 17px;
+    }
+}

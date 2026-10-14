@@ -1,132 +1,150 @@
-import { useEffect, useRef, useState } from 'react'
-import { scanStreamUrl } from '../api/client'
+import { useEffect, useRef, useState } from "react";
+import { openScanStream } from "../lib/api";
+import { describeResponse } from "../lib/apiErrors";
+import { readEvents, readJsonBody } from "../lib/sse";
+import { fill } from "../lib/text";
+import { useContent } from "./useContent";
 
-// Consumes the backend SSE endpoint GET /api/scans/stream/.
-//
-// Why fetch() and not EventSource?
-//   The stream endpoint is behind IsAuthenticated, so it needs the JWT in an
-//   Authorization header. Native EventSource cannot set headers. fetch() can,
-//   and we read the response body as a stream and parse the `data: {...}` lines
-//   ourselves.
-//
-// The backend emits, per check, an object like:
-//   { status: 'running', check, progress, total }                 // check started
-//   { status: 'result',  check, severity, detail, progress, total } // check finished
-// and finally:
-//   { status: 'complete', scan_id, risk_score }
-//   { status: 'error', check, message }                            // a check blew up
-//
-// Returns live progress (0..100), a rolling log array, the final scanId, and an
-// error string if the connection itself failed.
-export default function useScanStream({ targetUrl, verbose = false, suggestFix = false, generateReport = true, enabled = true }) {
-    const [progress, setProgress] = useState(0)
-    const [logs, setLogs] = useState([
-        '>> initializing shovl engine...',
-        '>> establishing secure tunnel...',
-    ])
-    const [scanId, setScanId] = useState(null)
-    const [isComplete, setIsComplete] = useState(false)
-    const [error, setError] = useState(null)
+const MAX_LOG_LINES = 14;
 
-    // Lets the UI "pause" the visible log without killing the underlying stream.
-    const pausedRef = useRef(false)
-    const setPaused = (val) => { pausedRef.current = val }
+// Runs one scan over GET /api/scans/stream/ and reports what happens.
+//
+//   phase:    "connecting" | "running" | "complete" | "failed" | "refused" | "error"
+//   problem:  { kind: "refused" | "failed" | "error", code, message, retryAfter, scanId } or null
+//
+// Stream events from the backend, in order:
+//   running (check: reachability), then running + result per check, then complete
+//   result.severity can be ERROR: the check could not run (e.g. mass assignment on a real domain)
+//   a scan that cannot produce a result sends error, then failed { scan_id, reason, message }
+// A refusal (allowance, guest on a real domain, unverified domain) is a non-200 with a JSON body.
+// restart() runs the same scan again (the "try again" button).
+export function useScanStream({ options, enabled = true }) {
+    const { scan, report, errors } = useContent();
+    const [phase, setPhase] = useState("connecting");
+    const [progress, setProgress] = useState(0);
+    const [logs, setLogs] = useState(scan.terminal.boot);
+    const [scanId, setScanId] = useState(null);
+    const [problem, setProblem] = useState(null);
 
-    const abortRef = useRef(null)
-    const stop = () => abortRef.current?.abort()
+    const [runId, setRunId] = useState(0);
+    const pausedRef = useRef(false);
+    const controllerRef = useRef(null);
+
+    const url = options?.url;
+    const verbose = Boolean(options?.verbose);
+    const suggestFix = Boolean(options?.suggest_fix);
+    const generateReport = options?.generate_report !== false;
 
     useEffect(() => {
-        if (!enabled || !targetUrl) return
+        if (!enabled || !url) return undefined;
 
-        const controller = new AbortController()
-        abortRef.current = controller
+        const controller = new AbortController();
+        controllerRef.current = controller;
+        let finished = false;
 
-        const appendLog = (line) => {
-            if (pausedRef.current) return
-            setLogs((prev) => {
-                const next = [...prev, line]
-                return next.length > 14 ? next.slice(next.length - 14) : next
-            })
-        }
+        const log = (line) => {
+            if (pausedRef.current) return;
+            setLogs((previous) => [...previous, line].slice(-MAX_LOG_LINES));
+        };
 
-        const handleEvent = (evt) => {
-            if (evt.status === 'running') {
-                appendLog(`>> [${new Date().toLocaleTimeString()}] running ${evt.check}...`)
-                if (evt.total) setProgress(Math.round((evt.progress / evt.total) * 100))
-            } else if (evt.status === 'result') {
-                const sev = (evt.severity || '').toLowerCase()
-                const detail = Array.isArray(evt.detail) ? evt.detail.join('; ') : (evt.detail || '')
-                appendLog(`>> ${evt.check} -> [${sev}] ${detail}`)
-                if (evt.total) setProgress(Math.round((evt.progress / evt.total) * 100))
-            } else if (evt.status === 'error') {
-                appendLog(`>> ERROR in ${evt.check}: ${evt.message}`)
-            } else if (evt.status === 'complete') {
-                setProgress(100)
-                setIsComplete(true)
-                setScanId(evt.scan_id)
+        const track = (event) => {
+            if (event.total) setProgress(Math.round((event.progress / event.total) * 100));
+        };
+
+        const handle = (event) => {
+            if (event.status === "running") {
+                log(fill(scan.terminal.running, { time: new Date().toLocaleTimeString(), check: event.check }));
+                track(event);
+            } else if (event.status === "result") {
+                const severity = String(event.severity || "").toUpperCase();
+                const detail = Array.isArray(event.detail) ? event.detail.join("; ") : event.detail || "";
+                log(
+                    fill(scan.terminal.result, {
+                        check: event.check,
+                        severity: report.severity[severity] || severity.toLowerCase(),
+                        detail,
+                    })
+                );
+                track(event);
+            } else if (event.status === "error") {
+                log(fill(scan.terminal.error, { check: event.check, message: event.message }));
+            } else if (event.status === "failed") {
+                finished = true;
+                setPhase("failed");
+                setScanId(event.scan_id ?? null);
+                setProblem({
+                    kind: "failed",
+                    code: event.reason,
+                    message: event.message || report.state.failed.text,
+                    scanId: event.scan_id ?? null,
+                });
+            } else if (event.status === "complete") {
+                finished = true;
+                setProgress(100);
+                setScanId(event.scan_id);
+                setPhase("complete");
             }
-        }
+        };
 
         const run = async () => {
             try {
-                const token = localStorage.getItem('access_token')
-                const res = await fetch(scanStreamUrl({ target_url: targetUrl, verbose, suggest_fix: suggestFix, generate_report: generateReport }), {
-                    method: 'GET',
-                    headers: {
-                        Authorization: token ? `Bearer ${token}` : '',
-                        Accept: 'text/event-stream',
-                    },
-                    signal: controller.signal,
-                })
+                const response = await openScanStream(
+                    { url, verbose, suggest_fix: suggestFix, generate_report: generateReport },
+                    { signal: controller.signal }
+                );
 
-                if (!res.ok) {
-                    setError(`Stream failed (HTTP ${res.status}). Is the domain verified and your session valid?`)
-                    return
-                }
-                if (!res.body) {
-                    setError('Stream returned no body — your browser or a proxy may be buffering SSE.')
-                    return
+                if (!response.ok) {
+                    const body = await readJsonBody(response);
+                    const described = describeResponse(response.status, body, errors);
+                    finished = true;
+                    setPhase("refused");
+                    setProblem({ kind: "refused", ...described });
+                    return;
                 }
 
-                const reader = res.body.getReader()
-                const decoder = new TextDecoder()
-                let buffer = ''
-
-                // SSE frames are separated by a blank line. Buffer partial chunks
-                // and only parse complete "data: ...\n\n" frames.
-                // eslint-disable-next-line no-constant-condition
-                while (true) {
-                    const { done, value } = await reader.read()
-                    if (done) break
-                    buffer += decoder.decode(value, { stream: true })
-
-                    let sep
-                    while ((sep = buffer.indexOf('\n\n')) !== -1) {
-                        const frame = buffer.slice(0, sep)
-                        buffer = buffer.slice(sep + 2)
-                        for (const line of frame.split('\n')) {
-                            const trimmed = line.trim()
-                            if (!trimmed.startsWith('data:')) continue
-                            const payload = trimmed.slice(5).trim()
-                            if (!payload) continue
-                            try {
-                                handleEvent(JSON.parse(payload))
-                            } catch {
-                                // ignore keep-alive / non-JSON lines
-                            }
-                        }
-                    }
+                setPhase("running");
+                for await (const event of readEvents(response)) {
+                    handle(event);
                 }
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    setError(err.message || 'Scan stream connection failed.')
+
+                if (!finished) {
+                    setPhase("error");
+                    setProblem({ kind: "error", code: "stream_ended", message: scan.problems.streamEnded });
                 }
+            } catch (error) {
+                if (error.name === "AbortError") return;
+                setPhase("error");
+                setProblem({ kind: "error", code: "network", message: errors.network });
             }
-        }
+        };
 
-        run()
-        return () => controller.abort()
-    }, [targetUrl, verbose, suggestFix, generateReport, enabled])
+        // Started on the next tick: React's development double-mount unmounts straight away,
+        // which cancels this timer, so dev never opens (and interrupts) a second scan.
+        const timer = setTimeout(run, 0);
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
+    }, [enabled, runId, url, verbose, suggestFix, generateReport, scan, report, errors]);
 
-    return { progress, logs, scanId, isComplete, error, setPaused, stop }
+    return {
+        phase,
+        isActive: Boolean(enabled && url) && (phase === "connecting" || phase === "running"),
+        progress,
+        logs,
+        scanId,
+        problem,
+        setPaused: (value) => {
+            pausedRef.current = value;
+        },
+        stop: () => controllerRef.current?.abort(),
+        restart: () => {
+            setPhase("connecting");
+            setProgress(0);
+            setLogs(scan.terminal.boot);
+            setScanId(null);
+            setProblem(null);
+            setRunId((id) => id + 1);
+        },
+    };
 }

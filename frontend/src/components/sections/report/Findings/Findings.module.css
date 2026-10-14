@@ -1,0 +1,136 @@
+.deck {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.head {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    letter-spacing: -1px;
+    text-transform: lowercase;
+}
+
+.controls {
+    display: flex;
+    gap: 8px;
+}
+
+/* ---- one finding ---------------------------------------------------------- */
+
+.card {
+    border: var(--border-3);
+    background: var(--surface);
+    box-shadow: var(--shadow-5);
+}
+
+.header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+    background: none;
+    border: none;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+}
+
+.expanded {
+    border-bottom: var(--border-2);
+    background: var(--surface-raised);
+}
+
+.titleBlock {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.name {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.aside {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+}
+
+.id {
+    color: var(--text-muted);
+}
+
+.caret {
+    font-weight: 900;
+    font-size: 14px;
+}
+
+.body {
+    padding: 20px;
+    background: var(--surface-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.detailList {
+    margin: 0 0 12px 0;
+    padding-left: 18px;
+}
+
+.detail {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text);
+    margin: 4px 0;
+}
+
+.code {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.codeHeader {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: lowercase;
+}
+
+.codeBlock {
+    background: var(--text);
+    color: var(--text-inverse);
+    padding: 16px;
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-x: auto;
+    border: var(--border-2);
+}
+
+.remediation {
+    border-left: 4px solid var(--accent);
+    padding-left: 12px;
+    font-size: 13px;
+    color: var(--text);
+}
+
+@media (max-width: 768px) {
+    .titleBlock {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}

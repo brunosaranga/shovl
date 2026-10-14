@@ -1,0 +1,17 @@
+.ground {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: var(--ground-height);
+    background-size: cover;
+    background-position: bottom center;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 10;
+}
+
+@media (max-width: 768px) {
+    .ground {
+        bottom: var(--nav-height);
+    }
+}

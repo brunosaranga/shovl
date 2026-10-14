@@ -1,0 +1,8 @@
+.verified {
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.pending {
+    color: var(--text-muted);
+}

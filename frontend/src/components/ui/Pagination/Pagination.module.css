@@ -1,0 +1,21 @@
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.page {
+    border: var(--border-2);
+    padding: 6px 12px;
+    background: var(--surface);
+    font: inherit;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.active {
+    background: var(--accent);
+}

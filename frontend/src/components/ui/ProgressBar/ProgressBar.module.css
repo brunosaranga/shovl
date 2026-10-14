@@ -1,0 +1,30 @@
+.track {
+    width: 100%;
+    background: var(--surface);
+}
+
+.fill {
+    height: 100%;
+    background: var(--accent);
+}
+
+.lg {
+    height: 16px;
+    border: 3px solid var(--border);
+    padding: 2px;
+    box-shadow: var(--shadow-4);
+}
+
+.lg .fill {
+    transition: width 1s steps(8, end);
+}
+
+.sm {
+    height: 12px;
+    border: var(--border-2);
+    padding: 1px;
+}
+
+.sm .fill {
+    transition: width 0.4s ease;
+}

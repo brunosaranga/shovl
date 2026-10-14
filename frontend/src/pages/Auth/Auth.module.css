@@ -1,0 +1,52 @@
+.container {
+    max-width: 1000px;
+    padding: 10px 4px;
+    margin: 0 auto;
+    padding-top: 60px;
+    padding-bottom: var(--page-bottom);
+    display: flex;
+    gap: 80px;
+    align-items: center;
+    min-height: 50vh;
+}
+
+.right {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 21;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+/* The left column's headline, repeated under the logo on mobile. */
+.mobileTagline {
+    display: none;
+    font-family: var(--font-mono);
+    font-size: 19px;
+    font-weight: 900;
+    line-height: 1;
+    text-align: center;
+    user-select: none;
+    color: var(--text);
+    text-wrap: wrap;
+    width: 300px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        justify-content: center;
+    }
+
+    .mobileTagline {
+        display: block;
+    }
+}

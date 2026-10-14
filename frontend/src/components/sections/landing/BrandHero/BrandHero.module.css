@@ -1,0 +1,63 @@
+.hero {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    padding: 70px 10px;
+    position: relative;
+    top: 61px;
+    height: 971px;
+}
+
+.graphic {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+}
+
+.wordmarkWrap {
+    position: absolute;
+    bottom: 260px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.wordmark {
+    font-family: var(--font-display);
+    font-size: 120px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -6px;
+    user-select: none;
+    color: var(--text);
+}
+
+@media (max-width: 768px) {
+    .hero {
+        height: 0;
+        visibility: hidden;
+    }
+
+    .graphic {
+        bottom: 30px;
+    }
+
+    .shovel {
+        height: 250px;
+        width: auto;
+    }
+
+    .wordmarkWrap {
+        visibility: hidden;
+    }
+
+    .wordmark {
+        font-size: 50px;
+    }
+}

@@ -1,13 +1,28 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <title>shovl | break your API before someone else does</title>
+        <meta
+            name="description"
+            content="Paste an API URL and shovl checks it for the OWASP API Top 10 basics: authentication, object access, data exposure, rate limits and more."
+        />
+
+        <!-- Fonts used by tokens.css (--font-display, --font-sans).
+             --font-mono asks for JetBrains Mono, which is not loaded here, so most
+             visitors see the Courier fallback. Add "&family=JetBrains+Mono:wght@400;700;800"
+             to this URL if you want JetBrains Mono everywhere. -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Arbutus&family=Inter:wght@400;700;900&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <div id="root"></div>
+        <script type="module" src="/src/main.jsx"></script>
+    </body>
 </html>

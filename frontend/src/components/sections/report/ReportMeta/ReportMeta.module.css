@@ -1,0 +1,34 @@
+.card {
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.line {
+    font-size: 14px;
+}
+
+.label {
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.value {
+    word-break: break-all;
+}
+
+@media (max-width: 768px) {
+    .card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

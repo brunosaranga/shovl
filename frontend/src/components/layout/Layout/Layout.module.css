@@ -1,0 +1,16 @@
+.shell {
+    position: relative;
+    height: 100dvh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    overscroll-behavior: none;
+}
+
+/* The only thing that scrolls. */
+.content {
+    flex: 1;
+    overflow-y: auto;
+}

@@ -1,0 +1,39 @@
+export const dashboard = {
+    meta: "dashboard | shovl",
+    pageTitle: "dashboard",
+
+    stats: {
+        active: "Active Scans",
+        threats: "Threat Alerts",
+        noThreats: "none",
+        remaining: "Scans Left",
+        remainingGuest: "{remaining} of {limit} free",
+        remainingDay: "{remaining} of {limit} today",
+        unlimited: "unlimited",
+        threatChip: "{label}: {count}",
+    },
+
+    newScan: "+ new scan",
+    listTitle: "your scans",
+    loading: "loading scans...",
+    loadFailed: "couldn't load your scans. refresh to try again.",
+    empty: "no scans yet. paste a URL on the start page and dig deeper.",
+
+    row: {
+        toggle: "show scan details",
+        summary: "scan summary",
+        counts: "{HIGH} high · {MEDIUM} medium · {LOW} low · {PASS} passed",
+        coverage: "based on {run} of {total} checks.",
+        view: "view vulnerability findings",
+        running: "this scan is still running.",
+        open: "open scan",
+        interrupted: "the scan stopped before it finished.",
+    },
+
+    guest: {
+        title: "guest session",
+        text: "guest scans are kept for 30 days. create a free account to keep them and to scan your own domains.",
+        counting: "scans you run today still count toward today's total after you register.",
+        cta: "create a free account",
+    },
+};

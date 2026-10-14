@@ -1,0 +1,18 @@
+.title {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: -1.5px;
+    color: var(--text);
+    text-transform: lowercase;
+}
+
+/* On mobile the navbar is a dark bar at the bottom of the screen. */
+@media (max-width: 768px) {
+    .title {
+        font-size: 20px;
+        letter-spacing: -0.5px;
+        color: var(--text-inverse);
+    }
+}

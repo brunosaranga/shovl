@@ -1,0 +1,32 @@
+.field {
+    background: var(--text);
+    color: var(--text-inverse);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.value {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    word-break: break-all;
+}
+
+.button {
+    background: var(--surface);
+    color: var(--text);
+    border: none;
+    padding: 8px 16px;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 12px;
+    transition: var(--press);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.copied {
+    background: var(--accent);
+}
