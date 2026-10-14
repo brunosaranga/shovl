@@ -28,7 +28,7 @@ src/
 ├── routes.jsx               # single source of truth: every page, who may open it, the account menu
 ├── styles/                  # tokens.css (design system), reset, base, utilities
 ├── content/en/              # ALL copy, no JSX ({placeholders} filled by lib/text.js)
-├── context/                 # SessionContext (anonymous | guest | registered), NavSlotContext
+├── context/                 # SessionContext (anonymous | guest | registered), ThemeContext, NavSlotContext
 ├── hooks/                   # useScanStream, useScanLauncher, useScans, useDomainSetup,
 │                            # useLeaveGuard, useMediaQuery, useContent
 ├── lib/                     # api (axios + endpoints + stream), session (token storage),
@@ -38,7 +38,8 @@ src/
 │   ├── layout/              # Layout (shell), Navbar (+ AccountMenu), NavCenter, Ground, Footer,
 │   │                        # PageBody, PageMeta, AccessGate
 │   ├── ui/                  # Button, Card, Badge, Alert, Modal, ProgressBar, Terminal, Knob,
-│   │                        # Logo, Spinner, TextField, Checkbox, CopyField, PageTitle, Pagination
+│   │                        # Logo, Spinner, TextField, Checkbox, CopyField, PageTitle, Pagination,
+│   │                        # ThemeToggle
 │   ├── forms/               # UrlInput, AuthForm
 │   └── sections/            # grouped by page area: landing/, auth/, verify/, scan/,
 │                            # report/, dashboard/, settings/
@@ -52,7 +53,12 @@ Rules of thumb:
 
 - **Copy lives in `content/en/`.** Never hard-code text in a component.
 - **Components only use semantic tokens** (`--surface`, `--text`, `--accent`, `--sev-high`…).
-  Raw colours (`--ink-950`, `--neon-500`…) stay inside `tokens.css`. A dark theme later = remap layer 2.
+  Raw colours (`--ink-950`, `--neon-500`…) stay inside `tokens.css`. Dark mode is the inverse:
+  `[data-theme="dark"]` at the bottom of `tokens.css` remaps layer 2, nothing else.
+- **Text on a bright or red fill uses `--on-fill` / `--on-dark-fill`**, never `--text`: those two
+  never invert, so a yellow badge keeps dark text in dark mode.
+- **Keyframes live in the `.module.css` that uses them.** CSS Modules rename animation names
+  inside a module, so a module can't use keyframes from a global stylesheet.
 - **Pages compose sections; sections use `ui/` pieces.** Pages hold page-level wiring only.
 - **`lib/` is plain JavaScript.** Anything that talks to the API or localStorage goes there, so
   components never build URLs or read tokens.
@@ -78,6 +84,8 @@ Rules of thumb:
 | Reports of scans still running refresh themselves every 3s | `hooks/useScans` (`useScanDetail`) |
 | Page title in the navbar's middle slot, URL input there on the desktop landing page | `layout/NavCenter`, `context/NavSlotContext` |
 | Per-page `<title>` (React 19 hoists it, no helmet) | `layout/PageMeta` |
+| Dark mode without a flash: saved choice, else the system setting; toggle in the navbar | `index.html`, `context/ThemeContext`, `ui/ThemeToggle` |
+| Practice targets + one-click suggestions on the landing page | `lib/targets.js` (`PRACTICE_TARGETS`), `sections/landing/LaunchPanel` |
 
 ## Before production
 

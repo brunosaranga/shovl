@@ -24,6 +24,12 @@
     justify-content: center;
 }
 
+.right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
 /* ---- account menu --------------------------------------------------------- */
 
 .menuWrapper {
@@ -86,6 +92,7 @@
 .item:hover,
 .item:focus-visible {
     background: var(--accent);
+    color: var(--on-accent);
 }
 
 .danger:hover,
@@ -98,6 +105,14 @@
     .navbar {
         bottom: 0;
         background: var(--text);
+    }
+
+    /* The bar is the inverse colour here, so the toggle follows it. */
+    .themeToggle {
+        background: var(--text);
+        color: var(--surface);
+        border-color: var(--surface);
+        box-shadow: none;
     }
 
     /* The bar sits at the bottom of the screen, so the menu opens upwards. */

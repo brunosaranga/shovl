@@ -26,8 +26,8 @@
 }
 
 .value {
-    background: var(--text);
-    color: var(--surface);
+    background: var(--terminal);
+    color: var(--terminal-text);
     padding: 4px 8px;
     font-family: monospace;
     word-break: break-all;

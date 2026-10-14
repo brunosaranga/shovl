@@ -31,13 +31,13 @@
 .none { text-transform: none; }
 
 /* Tones: dark text on light fills, white text on dark fills */
-.critical { background: var(--sev-critical); color: var(--text-inverse); }
-.high { background: var(--sev-high); color: var(--text); }
-.medium { background: var(--sev-medium); color: var(--text); }
-.low { background: var(--sev-low); color: var(--text); }
-.pass { background: var(--sev-pass); color: var(--text); }
-.error { background: var(--sev-error); color: var(--text-inverse); }
-.incomplete { background: var(--sev-incomplete); color: var(--text-inverse); }
-.accent { background: var(--accent); color: var(--text); }
+.critical { background: var(--sev-critical); color: var(--on-dark-fill); }
+.high { background: var(--sev-high); color: var(--on-fill); }
+.medium { background: var(--sev-medium); color: var(--on-fill); }
+.low { background: var(--sev-low); color: var(--on-fill); }
+.pass { background: var(--sev-pass); color: var(--on-fill); }
+.error { background: var(--sev-error); color: var(--on-dark-fill); }
+.incomplete { background: var(--sev-incomplete); color: var(--on-dark-fill); }
+.accent { background: var(--accent); color: var(--on-fill); }
 .neutral { background: var(--surface-chip); color: var(--text); }
 .danger { background: var(--danger); color: var(--on-danger); }

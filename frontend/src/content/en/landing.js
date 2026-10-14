@@ -23,10 +23,14 @@ export const landing = {
     invalidUrl: "that doesn't look like a URL. try something like api.example.com",
 
     allowance: {
-        anonymous: "3 free practice scans. no sign-up. try postman-echo.com",
+        anonymous: "3 free practice scans. no sign-up.",
         guest: "{remaining} of {limit} free scans left",
         registered: "{remaining} of {limit} scans left today",
     },
 
     createAccount: "create a free account",
+
+    // One-click practice targets under the button (anyone who isn't registered).
+    tryLabel: "try:",
+    tryAria: "put {url} in the URL box",
 };

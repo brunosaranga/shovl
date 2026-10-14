@@ -31,11 +31,11 @@
     color: var(--text);
 }
 
-.high { background: var(--sev-high); color: var(--text); }
-.medium { background: var(--sev-medium); color: var(--text); }
-.low { background: var(--sev-low); color: var(--text); }
-.pass { background: var(--sev-pass); color: var(--text); }
-.error { background: var(--sev-error); color: var(--text-inverse); }
+.high { background: var(--sev-high); color: var(--on-fill); }
+.medium { background: var(--sev-medium); color: var(--on-fill); }
+.low { background: var(--sev-low); color: var(--on-fill); }
+.pass { background: var(--sev-pass); color: var(--on-fill); }
+.error { background: var(--sev-error); color: var(--on-dark-fill); }
 
 @media (max-width: 768px) {
     .grid {

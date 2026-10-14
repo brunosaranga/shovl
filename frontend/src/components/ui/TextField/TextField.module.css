@@ -17,6 +17,8 @@
     font-size: 14px;
     font-family: var(--font-sans);
     outline: none;
+    background: var(--surface);
+    color: var(--text);
 }
 
 .input:focus {

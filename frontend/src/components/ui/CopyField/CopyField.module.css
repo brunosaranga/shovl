@@ -1,6 +1,7 @@
 .field {
-    background: var(--text);
-    color: var(--text-inverse);
+    background: var(--terminal);
+    color: var(--terminal-text);
+    border: 2px solid var(--terminal-border);
     padding: 20px;
     display: flex;
     justify-content: space-between;
@@ -29,4 +30,5 @@
 
 .copied {
     background: var(--accent);
+    color: var(--on-accent);
 }

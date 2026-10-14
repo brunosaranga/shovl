@@ -111,13 +111,13 @@
 }
 
 .codeBlock {
-    background: var(--text);
-    color: var(--text-inverse);
+    background: var(--terminal);
+    color: var(--terminal-text);
     padding: 16px;
     font-size: 12px;
     line-height: 1.6;
     overflow-x: auto;
-    border: var(--border-2);
+    border: 2px solid var(--terminal-border);
 }
 
 .remediation {

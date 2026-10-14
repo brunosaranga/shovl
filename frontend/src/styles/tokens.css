@@ -3,7 +3,8 @@
 
    Layer 1: raw palette  (--ink-950, --neon-500…)  → never used in components
    Layer 2: semantic     (--surface, --text, --accent, --sev-high…) → what components use
-   A dark theme later = remap layer 2 under [data-theme="dark"], nothing else.
+   Dark theme = the inverse: [data-theme="dark"] at the bottom remaps layer 2, nothing else.
+   The theme attribute sits on <html> (set before React loads, see index.html).
 
    Values come from the original global.css, so the look is unchanged.
    Breakpoint: 768px (CSS variables can't be used inside media queries).
@@ -18,6 +19,10 @@
     --grey-75: #fcfcfc;
     --grey-100: #f8f8f8;
     --grey-150: #f1f1f1;     /* neutral status chips */
+    --ink-800: #1b1027;       /* dark theme: raised surfaces */
+    --ink-700: #2b2038;       /* dark theme: chips */
+    --ink-600: #3d3249;       /* dark theme: soft borders, disabled */
+    --black: #000000;         /* dark theme: terminals */
     --grey-200: #e5e4e7;      /* auth form borders */
     --grey-300: #cccccc;
     --grey-500: #666666;
@@ -33,13 +38,14 @@
     --rust-500: rgb(183, 86, 46, 0.5); /* terminal shadow, matches the ground */
 
     /* ---- Layer 2: semantic ----------------------------------------------- */
+    color-scheme: light;      /* native controls (checkboxes, scrollbars) follow the theme */
     --surface: var(--white);
     --surface-soft: var(--grey-50);
     --surface-muted: var(--grey-100);
     --surface-raised: var(--grey-75);
     --surface-chip: var(--grey-150);
     --text: var(--ink-950);
-    --text-muted: var(--grey-500);
+    --text-muted: var(--ink-950); /* informational text: same ink as body text (14 Oct) */
     --text-inverse: var(--white);
     --border: var(--ink-950);
     --border-soft: var(--grey-200);
@@ -51,8 +57,15 @@
     --stop: var(--red-400);
     --terminal: var(--ink-950);
     --terminal-text: var(--white);
+    --terminal-border: var(--ink-950);
     --terminal-shadow: var(--rust-500);
     --disabled: var(--grey-300);
+    --on-disabled: var(--white);
+
+    /* Text on bright fills (neon, orange, yellow, green, grey) and on red / slate fills.
+       Never remapped: a yellow badge needs dark text in both themes. */
+    --on-fill: var(--ink-950);
+    --on-dark-fill: var(--white);
 
     /* Severity scale: one mapping for badges, the matrix, risk scores and the dashboard. */
     --sev-critical: var(--red-600);
@@ -91,4 +104,26 @@
 
     /* ---- Motion ---------------------------------------------------------- */
     --press: all 0.1s ease;
+}
+
+/* ==========================================================================
+   Dark theme: the inverse. Ink becomes the surface, white becomes the ink, so
+   every border and hard shadow turns white. Accent, severity and fills stay.
+   ========================================================================== */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface: var(--ink-950);
+    --surface-soft: var(--ink-800);
+    --surface-muted: var(--ink-800);
+    --surface-raised: var(--ink-800);
+    --surface-chip: var(--ink-700);
+    --text: var(--white);
+    --text-muted: var(--white);
+    --text-inverse: var(--ink-950);
+    --border: var(--white);
+    --border-soft: var(--ink-600);
+    --terminal: var(--black);
+    --terminal-border: var(--white);
+    --disabled: var(--ink-600);
+    --on-disabled: var(--grey-300);
 }

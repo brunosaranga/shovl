@@ -18,6 +18,6 @@
 
 .badge {
     color: var(--accent);
-    background: var(--ink-900);
+    background: var(--terminal);
     padding: 2px 8px;
 }

@@ -10,12 +10,8 @@ body {
     outline-offset: 2px;
 }
 
-@keyframes spin-steps {
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
+/* For the global .shake utility (utilities.css). Inside a .module.css file,
+   define the keyframes in that module instead: CSS Modules rename them. */
 @keyframes shake {
     0%,
     100% {

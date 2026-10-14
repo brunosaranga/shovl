@@ -66,6 +66,11 @@ export default function Landing() {
                     consentRef={consentRef}
                     allowanceText={allowanceText}
                     error={launchError}
+                    showExamples={status !== "registered"}
+                    onPickExample={(example) => {
+                        onUrlChange(example);
+                        urlRef.current?.focus();
+                    }}
                 />
             </div>
         </>

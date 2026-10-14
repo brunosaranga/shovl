@@ -2,11 +2,14 @@ import { Link } from "react-router-dom";
 import Button from "../../../ui/Button/Button";
 import Checkbox from "../../../ui/Checkbox/Checkbox";
 import { useContent } from "../../../../hooks/useContent";
+import { PRACTICE_TARGETS } from "../../../../lib/targets";
+import { fill } from "../../../../lib/text";
 import styles from "./LaunchPanel.module.css";
 
 // The "dig deeper" button, with a small card for what goes with it:
 //   the consent tick (only when nobody is signed in: ticking it is what creates the guest session),
-//   how many scans are left, and any reason the scan couldn't start.
+//   how many scans are left, any reason the scan couldn't start, and (for anyone not
+//   registered) one-click practice targets that fill the URL box.
 // Desktop: the card floats just above the button. Mobile: just below it.
 export default function LaunchPanel({
     onLaunch,
@@ -18,9 +21,11 @@ export default function LaunchPanel({
     consentRef,
     allowanceText,
     error,
+    showExamples,
+    onPickExample,
 }) {
     const { landing } = useContent();
-    const hasCard = showConsent || allowanceText || error;
+    const hasCard = showConsent || allowanceText || error || showExamples;
 
     return (
         <div className={styles.launch}>
@@ -51,6 +56,25 @@ export default function LaunchPanel({
                         </p>
                     ) : null}
                     {allowanceText ? <p className={styles.allowance}>{allowanceText}</p> : null}
+                    {showExamples ? (
+                        <div className={styles.examples}>
+                            <span className={styles.allowance}>{landing.tryLabel}</span>
+                            {PRACTICE_TARGETS.map((target) => {
+                                const shown = target.example.replace(/^https?:\/\//, "");
+                                return (
+                                    <button
+                                        key={target.host}
+                                        type="button"
+                                        className={styles.example}
+                                        onClick={() => onPickExample(target.example)}
+                                        aria-label={fill(landing.tryAria, { url: shown })}
+                                    >
+                                        {shown}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    ) : null}
                 </div>
             ) : null}
         </div>

@@ -1,14 +1,24 @@
-// Mirrors ALLOWED_PRACTICE_TARGETS in backend domains/verification.py.
-// Practice targets skip domain ownership verification.
-const PRACTICE_TARGETS = ["postman-echo.com"];
+// Public APIs built for testing HTTP clients: free, no key, and their writes are
+// echoed or simulated (never stored), so the practice scan's test POST is harmless.
+// Practice targets skip domain ownership verification and are all a guest can scan.
+//
+// `host` mirrors ALLOWED_PRACTICE_TARGETS in backend domains/verification.py: keep both in sync.
+// `example` is a path that answers directly; a bare domain may redirect to another site,
+// which the scanner refuses (postman-echo.com/ does).
+export const PRACTICE_TARGETS = [
+    { host: "postman-echo.com", example: "https://postman-echo.com/get" },
+    { host: "httpbingo.org", example: "https://httpbingo.org/get" },
+    { host: "jsonplaceholder.typicode.com", example: "https://jsonplaceholder.typicode.com/posts" },
+    { host: "dummyjson.com", example: "https://dummyjson.com/products" },
+];
 
 // Mirrors LOCAL_PRACTICE_TARGETS in the backend. Development builds only: in
 // production these would point at our own server, so they are not practice targets.
 const LOCAL_PRACTICE_TARGETS = ["localhost", "127.0.0.1"];
 
-const ACTIVE_PRACTICE_TARGETS = import.meta.env.DEV
-    ? [...PRACTICE_TARGETS, ...LOCAL_PRACTICE_TARGETS]
-    : PRACTICE_TARGETS;
+const PRACTICE_HOSTS = PRACTICE_TARGETS.map((target) => target.host);
+
+const ACTIVE_PRACTICE_TARGETS = import.meta.env.DEV ? [...PRACTICE_HOSTS, ...LOCAL_PRACTICE_TARGETS] : PRACTICE_HOSTS;
 
 // Pulls a bare hostname out of whatever the user typed. Tolerates input with or
 // without a scheme ("api.example.com", "https://api.example.com/v1", etc.).

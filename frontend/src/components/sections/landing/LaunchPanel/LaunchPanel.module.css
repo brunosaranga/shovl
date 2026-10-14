@@ -27,6 +27,29 @@
     color: var(--text-muted);
 }
 
+.examples {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.example {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text);
+    background: var(--surface);
+    border: var(--border-1);
+    padding: 2px 6px;
+    cursor: pointer;
+}
+
+.example:hover,
+.example:focus-visible {
+    background: var(--accent);
+    color: var(--on-accent);
+}
+
 .error {
     font-family: var(--font-mono);
     font-size: 12px;

@@ -21,7 +21,7 @@
     font-weight: 900;
     font-size: 16px;
     padding: 10px 20px;
-    border: 2px solid var(--ink-900);
+    border: var(--border-2);
     box-shadow: var(--shadow-4);
     text-transform: lowercase;
 }
@@ -39,7 +39,7 @@
     font-weight: 900;
     font-size: 16px;
     padding: 10px 20px;
-    border: 2px solid var(--ink-900);
+    border: var(--border-2);
     box-shadow: var(--shadow-4);
     text-transform: lowercase;
 }
@@ -52,7 +52,7 @@
 /* Small neon (settings rows, findings controls) */
 .small {
     background: var(--accent);
-    color: var(--text);
+    color: var(--on-accent);
     border: var(--border-2);
     font-family: var(--font-sans);
     font-weight: 900;
@@ -84,8 +84,8 @@
 
 /* Black text button ("view vulnerability findings") */
 .dark {
-    background: var(--ink-900);
-    color: var(--text-inverse);
+    background: var(--text);
+    color: var(--surface);
     padding: 8px 16px;
     font-family: var(--font-mono);
     font-size: 12px;

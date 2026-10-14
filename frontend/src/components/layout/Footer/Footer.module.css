@@ -6,7 +6,7 @@
     font-family: var(--font-sans);
     font-size: 13px;
     font-weight: 700;
-    color: var(--text-inverse);
+    color: var(--white); /* sits on the ground image in both themes */
     z-index: 21;
     pointer-events: none;
 }

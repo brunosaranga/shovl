@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 import Logo from "../../ui/Logo/Logo";
+import ThemeToggle from "../../ui/ThemeToggle/ThemeToggle";
 import AccountMenu from "./AccountMenu";
 import { useContent } from "../../../hooks/useContent";
 import styles from "./Navbar.module.css";
 
-// Logo (home) · middle slot (filled by the page) · account menu.
+// Logo (home) · middle slot (filled by the page) · theme toggle + account menu.
 // Desktop: fixed at the top. Mobile: a dark bar fixed at the bottom.
 export default function Navbar({ slotRef }) {
     const { common } = useContent();
@@ -17,7 +18,10 @@ export default function Navbar({ slotRef }) {
 
             <div className={styles.center} ref={slotRef} />
 
-            <AccountMenu />
+            <div className={styles.right}>
+                <ThemeToggle className={styles.themeToggle} />
+                <AccountMenu />
+            </div>
         </nav>
     );
 }

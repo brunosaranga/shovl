@@ -20,6 +20,23 @@
             href="https://fonts.googleapis.com/css2?family=Arbutus&family=Inter:wght@400;700;900&display=swap"
             rel="stylesheet"
         />
+
+        <!-- Set the theme before React loads, so dark-mode visitors never see a white flash.
+             Saved choice first, then the system setting. ThemeContext takes over from here. -->
+        <script>
+            (function () {
+                var theme = "light";
+                try {
+                    var saved = localStorage.getItem("shovl.theme");
+                    if (saved === "light" || saved === "dark") {
+                        theme = saved;
+                    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+                        theme = "dark";
+                    }
+                } catch (e) {}
+                document.documentElement.dataset.theme = theme;
+            })();
+        </script>
     </head>
     <body>
         <div id="root"></div>

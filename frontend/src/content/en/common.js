@@ -27,4 +27,9 @@ export const common = {
     },
 
     didNotCount: "this scan did not count against your allowance.",
+
+    theme: {
+        toDark: "switch to dark mode",
+        toLight: "switch to light mode",
+    },
 };
