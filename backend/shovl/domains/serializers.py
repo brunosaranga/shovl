@@ -30,6 +30,6 @@ class DomainSerializer(serializers.ModelSerializer):
         # `user` is set in the view, not the serializer. so DRF's automatic unique_together check never runs. Without this a repeat submission reaches the database and comes back as a 500 instead of a clean 400.
         request = self.context.get("request")
         if request and Domain.objects.filter(user=request.user, hostname=value).exists():
-            raise serializers.VAlidationError("You have already added this domain.")
+            raise serializers.ValidationError("You have already added this domain.")
 
         return value
