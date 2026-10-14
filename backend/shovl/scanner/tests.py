@@ -501,9 +501,16 @@ class CheckSizeCapTests(SimpleTestCase):
 class PracticeTargetTests(SimpleTestCase):
     @mock.patch.dict(os.environ, {"SHOVL_ALLOW_PRIVATE_TARGETS": "0"})
     def test_production(self):
-        self.assertTrue(is_practice_target("https://postman-echo.com/get"))
-        self.assertTrue(is_practice_target("https://api.postman-echo.com/get"))
-        for url in ["http://localhost:8000/", "http://127.0.0.1/", "http://app.localhost/", "https://example.com/"]:
+        for url in [
+            "https://postman-echo.com/get",
+            "https://api.postman-echo.com/get",
+            "https://httpbingo.org/get",
+            "https://jsonplaceholder.typicode.com/posts",
+            "https://dummyjson.com/products",
+        ]:
+            self.assertTrue(is_practice_target(url), url)
+        for url in ["http://localhost:8000/", "http://127.0.0.1/", "http://app.localhost/", "https://example.com/",
+                    "https://typicode.com/", "https://my-app.typicode.com/"]:
             self.assertFalse(is_practice_target(url), url)
 
     @mock.patch.dict(os.environ, {"SHOVL_ALLOW_PRIVATE_TARGETS": "1"})
@@ -513,7 +520,9 @@ class PracticeTargetTests(SimpleTestCase):
 
     def test_lookalikes_are_never_practice_targets(self):
         for url in ["https://postman-echo.com.evil.test/", "https://postman-echo.com@evil.test/",
-                    "https://evilpostman-echo.com/", "http://localhost.evil.test/"]:
+                    "https://evilpostman-echo.com/", "http://localhost.evil.test/",
+                    "https://dummyjson.com.evil.test/", "https://notdummyjson.com/",
+                    "https://jsonplaceholder.typicode.com@evil.test/", "https://httpbingo.org.evil.test/"]:
             self.assertFalse(is_practice_target(url), url)
 
 

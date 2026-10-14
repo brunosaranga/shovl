@@ -3,9 +3,16 @@ from urllib.parse import urlparse, urlsplit
 
 from scanner import config, http
 
-# Keep in sync with PRACTICE_TARGETS in frontend/src/api/targets.js.
+# Public APIs built for testing HTTP clients: free, no key, and their writes are echoed
+# or simulated (never stored), so a practice scan's test POST harms nobody. Subdomains
+# count too (api.postman-echo.com). Keep in sync with PRACTICE_TARGETS in
+# frontend/src/lib/targets.js. Left out on purpose: reqres.in (needs an API key),
+# api.escuelajs.co (writes are stored for everyone), httpbin.org (no uptime guarantee).
 ALLOWED_PRACTICE_TARGETS = [
     "postman-echo.com",
+    "httpbingo.org",
+    "jsonplaceholder.typicode.com",
+    "dummyjson.com",
 ]
 
 # DEVELOPMENT ONLY (SHOVL_ALLOW_PRIVATE_TARGETS=1): local servers. In production
