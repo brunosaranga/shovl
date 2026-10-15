@@ -101,7 +101,9 @@
     --page-bottom: 340px;     /* room to scroll content above the ground */
     --page-wide: 960px;
     --page-narrow: 800px;
+    --z-backdrop: 5;
     --z-ground: 10;
+    --z-brand: 12;
     --z-content: 15;
     --z-nav: 20;
     --z-overlay: 100;

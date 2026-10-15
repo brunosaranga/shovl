@@ -7,6 +7,7 @@
     padding: 70px 10px;
     position: relative;
     top: 61px;
+    z-index: var(--z-content);
 }
 
 @media (max-width: 768px) {
