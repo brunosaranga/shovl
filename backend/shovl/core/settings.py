@@ -102,7 +102,7 @@ REST_FRAMEWORK = {
 # for example https://shovl.example.com (no trailing slash).
 CORS_ALLOWED_ORIGINS = env_list(
     "CORS_ALLOWED_ORIGINS",
-    "http://localhost:5173,http://127.0.0.1:5173" if DEBUG else "",
+    "http://localhost:5173,http://127.0.0.1:5173,https://shovl-3upi.onrender.com/" if DEBUG else "",
 )
 if not CORS_ALLOWED_ORIGINS:
     raise ImproperlyConfigured(
