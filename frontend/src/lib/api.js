@@ -12,6 +12,22 @@ const client = axios.create({
     headers: { "Content-Type": "application/json" },
 });
 
+/**
+ * On the free hosting plan the API server sleeps after 15 idle minutes and takes about a
+ * minute to wake. Called once when the app loads, so the server is already starting while
+ * the visitor reads the page. The request itself is the wake-up call: the answer is not
+ * needed (and, being cross-site with no-cors, not readable).
+ */
+export function wakeApi() {
+    if (!API_BASE_URL) return;
+    try {
+        const healthUrl = new URL("/healthz", API_BASE_URL).href;
+        fetch(healthUrl, { mode: "no-cors", cache: "no-store" }).catch(() => {});
+    } catch {
+        // VITE_API_BASE_URL is not a full address: nothing to wake.
+    }
+}
+
 // Endpoints that must never carry the stored token, and whose 401 means
 // "wrong credentials", not "session expired". An old token in the header would
 // otherwise make Django reject the request before the view even runs.
