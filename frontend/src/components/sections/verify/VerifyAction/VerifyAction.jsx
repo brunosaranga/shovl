@@ -1,13 +1,16 @@
 import { useState } from "react";
 import Spinner from "../../../ui/Spinner/Spinner";
+import { useSound } from "../../../../context/SoundContext";
 import { domainsApi } from "../../../../lib/api";
 import { useContent } from "../../../../hooks/useContent";
 import styles from "./VerifyAction.module.css";
 
 // The verify button and its states: idle → verifying → verified | failed (→ retry).
 //   POST /api/domains/<id>/verify/  → { status: "verified" }  or 400 { status: "failed", detail }
+// Every failed attempt plays the error cue.
 export default function VerifyAction({ domainId, onVerified, onFailed }) {
     const { verify } = useContent();
+    const { play } = useSound();
     const [state, setState] = useState("idle");
 
     const run = async () => {
@@ -22,6 +25,7 @@ export default function VerifyAction({ domainId, onVerified, onFailed }) {
         } catch {
             // 400 = the TXT record isn't visible yet
         }
+        play("error");
         setState("failed");
         onFailed?.();
     };

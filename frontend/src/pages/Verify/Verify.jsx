@@ -10,12 +10,14 @@ import DnsInstructions from "../../components/sections/verify/DnsInstructions/Dn
 import VerifyAction from "../../components/sections/verify/VerifyAction/VerifyAction";
 import { useContent } from "../../hooks/useContent";
 import { useDomainSetup } from "../../hooks/useDomainSetup";
+import { useSoundCue } from "../../hooks/useSounds";
 import { extractHostname, isPracticeTarget } from "../../lib/targets";
 import { fill } from "../../lib/text";
 import styles from "./Verify.module.css";
 
 // Prove you own a domain (DNS TXT record), then the scan starts.
 // Arrives with the scan options in location.state (from the landing page or sign-in).
+// No ambiance on this page (routes.jsx); errors still play the error cue.
 export default function Verify() {
     const { verify } = useContent();
     const navigate = useNavigate();
@@ -27,6 +29,7 @@ export default function Verify() {
 
     const { domain, loading, error } = useDomainSetup(options && !practice ? hostname : null);
     const [failed, setFailed] = useState(false);
+    useSoundCue("error", !loading && error ? error : null);
 
     // Verified on an earlier visit: skip straight to the scan.
     useEffect(() => {

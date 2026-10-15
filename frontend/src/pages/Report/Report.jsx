@@ -12,6 +12,7 @@ import Findings from "../../components/sections/report/Findings/Findings";
 import ScanState from "../../components/sections/report/ScanState/ScanState";
 import { useContent } from "../../hooks/useContent";
 import { useScanDetail } from "../../hooks/useScans";
+import { useScanOutcomeSound, useSoundCue } from "../../hooks/useSounds";
 import styles from "./Report.module.css";
 
 export default function Report() {
@@ -19,6 +20,10 @@ export default function Report() {
     const { scanId } = useParams();
     const navigate = useNavigate();
     const { scan, loading, error } = useScanDetail(scanId);
+
+    // Error cue when the report can't load; the outcome cue when a running scan finishes here.
+    useSoundCue("error", error && !scan ? error : null);
+    useScanOutcomeSound(scan?.status);
 
     const results = scan?.results || null;
     const meta = results?.meta;

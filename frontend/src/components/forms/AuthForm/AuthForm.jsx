@@ -2,6 +2,7 @@ import { useState } from "react";
 import TextField from "../../ui/TextField/TextField";
 import Checkbox from "../../ui/Checkbox/Checkbox";
 import { useSession } from "../../../context/SessionContext";
+import { useSound } from "../../../context/SoundContext";
 import { useContent } from "../../../hooks/useContent";
 import { describeError } from "../../../lib/apiErrors";
 import styles from "./AuthForm.module.css";
@@ -14,6 +15,7 @@ import styles from "./AuthForm.module.css";
 export default function AuthForm({ mode, notice, onSuccess }) {
     const { auth, errors } = useContent();
     const { status, signIn, register } = useSession();
+    const { play } = useSound();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -38,6 +40,7 @@ export default function AuthForm({ mode, notice, onSuccess }) {
             }
             onSuccess?.();
         } catch (error) {
+            play("error");
             setProblem(describeError(error, errors));
             setBusy(false);
         }

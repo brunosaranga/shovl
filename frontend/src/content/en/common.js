@@ -32,4 +32,9 @@ export const common = {
         toDark: "switch to dark mode",
         toLight: "switch to light mode",
     },
+
+    sound: {
+        mute: "mute sound",
+        unmute: "turn sound on",
+    },
 };

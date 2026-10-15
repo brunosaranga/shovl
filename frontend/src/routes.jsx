@@ -1,3 +1,4 @@
+import { matchPath } from "react-router-dom";
 import Layout from "./components/layout/Layout/Layout";
 import AccessGate from "./components/layout/AccessGate/AccessGate";
 import Landing from "./pages/Landing/Landing";
@@ -16,11 +17,13 @@ import NotFound from "./pages/NotFound/NotFound";
 //   session     → a guest or a registered account (guests can scan practice targets)
 //   registered  → registered accounts only (guests are sent to register)
 // menuKey: shows the page in the account menu; the label lives in content/en/nav.js.
+// ambiance: false keeps the ambiance loop off on that page (lib/sound.js); every other
+//   page, the 404 included, plays it.
 export const pageRoutes = [
     { path: "/", element: <Landing />, access: "public" },
     { path: "/signin", element: <Auth />, access: "public" },
-    { path: "/verify", element: <Verify />, access: "registered" },
-    { path: "/scan/running", element: <ScanRunning />, access: "session" },
+    { path: "/verify", element: <Verify />, access: "registered", ambiance: false },
+    { path: "/scan/running", element: <ScanRunning />, access: "session", ambiance: false },
     { path: "/scan/:scanId/report", element: <Report />, access: "session" },
     { path: "/dashboard", element: <Dashboard />, access: "session", menuKey: "dashboard" },
     { path: "/settings", element: <Settings />, access: "registered", menuKey: "settings" },
@@ -37,6 +40,11 @@ const ALLOWED = {
 /** Can someone with this session status open a route with this access level? */
 export function canAccess(access, status) {
     return (ALLOWED[access] || ALLOWED.registered).includes(status);
+}
+
+/** Does the page at this path play the ambiance loop? */
+export function hasAmbiance(pathname) {
+    return !pageRoutes.some((route) => route.ambiance === false && matchPath(route.path, pathname));
 }
 
 export const routerConfig = [

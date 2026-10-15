@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "../context/SessionContext";
+import { useSound } from "../context/SoundContext";
 import { describeError } from "../lib/apiErrors";
 import { extractHostname, isPracticeTarget, normalizeTargetUrl } from "../lib/targets";
 import { useContent } from "./useContent";
@@ -12,9 +13,11 @@ import { useContent } from "./useContent";
 //   real domain + guest/nobody  → /signin, register tab (guests can only scan practice targets)
 //   practice target + nobody    → needs the consent tick, then creates a guest session
 //   practice target + a session → /scan/running
+// Every refusal here plays the error cue, so pressing "dig deeper" again replays it.
 export function useScanLauncher() {
     const navigate = useNavigate();
     const { status, startGuestSession } = useSession();
+    const { play } = useSound();
     const { landing, errors } = useContent();
 
     const [urlError, setUrlError] = useState(null); // null | "empty" | "invalid"
@@ -31,11 +34,13 @@ export function useScanLauncher() {
         setLaunchError(null);
 
         if (!url?.trim()) {
+            play("error");
             flash(setUrlError, "empty");
             return { focus: "url" };
         }
         const target = normalizeTargetUrl(url);
         if (!extractHostname(target)) {
+            play("error");
             setUrlError("invalid");
             setLaunchError({ message: landing.invalidUrl });
             return { focus: "url" };
@@ -59,6 +64,7 @@ export function useScanLauncher() {
 
         if (status === "anonymous") {
             if (!consent) {
+                play("error");
                 flash(setConsentError, true);
                 return { focus: "consent" };
             }
@@ -66,6 +72,7 @@ export function useScanLauncher() {
             try {
                 await startGuestSession();
             } catch (error) {
+                play("error");
                 const described = describeError(error, errors);
                 setLaunchError({
                     message: described.code === "too_many_sessions" ? errors.codes.too_many_sessions : described.message,

@@ -28,18 +28,19 @@ src/
 ├── routes.jsx               # single source of truth: every page, who may open it, the account menu
 ├── styles/                  # tokens.css (design system), reset, base, utilities
 ├── content/en/              # ALL copy, no JSX ({placeholders} filled by lib/text.js)
-├── context/                 # SessionContext (anonymous | guest | registered), ThemeContext, NavSlotContext
+├── context/                 # SessionContext (anonymous | guest | registered), ThemeContext, SoundContext,
+│                            # NavSlotContext
 ├── hooks/                   # useScanStream, useScanLauncher, useScans, useDomainSetup,
-│                            # useLeaveGuard, useMediaQuery, useContent
+│                            # useLeaveGuard, useMediaQuery, useContent, useSounds
 ├── lib/                     # api (axios + endpoints + stream), session (token storage),
-│                            # sse, targets, severity, apiErrors, text — no React in here
-├── assets/                  # logos/, knobs/, images/
+│                            # sse, targets, severity, apiErrors, text, sound — no React in here
+├── assets/                  # logos/, knobs/, images/, sounds/
 ├── components/
 │   ├── layout/              # Layout (shell), Navbar (+ AccountMenu), NavCenter, Ground, Footer,
 │   │                        # PageBody, PageMeta, AccessGate
 │   ├── ui/                  # Button, Card, Badge, Alert, Modal, ProgressBar, Terminal, Knob,
 │   │                        # Logo, Spinner, TextField, Checkbox, CopyField, PageTitle, Pagination,
-│   │                        # ThemeToggle
+│   │                        # ThemeToggle, SoundToggle
 │   ├── forms/               # UrlInput, AuthForm
 │   └── sections/            # grouped by page area: landing/, auth/, verify/, scan/,
 │                            # report/, dashboard/, settings/
@@ -86,6 +87,23 @@ Rules of thumb:
 | Per-page `<title>` (React 19 hoists it, no helmet) | `layout/PageMeta` |
 | Dark mode without a flash: saved choice, else the system setting; toggle in the navbar | `index.html`, `context/ThemeContext`, `ui/ThemeToggle` |
 | Practice targets + one-click suggestions on the landing page | `lib/targets.js` (`PRACTICE_TARGETS`), `sections/landing/LaunchPanel` |
+| Sound: ambiance loop on every page except verify and scan running (`ambiance: false` in routes); scan track once per scan; success / failed / error / knob cues; mute button left of the theme toggle, remembered (`shovl.sound`) | `lib/sound.js`, `context/SoundContext`, `hooks/useSounds`, `ui/SoundToggle`, `routes.jsx` |
+
+## Sound
+
+Files live in `src/assets/sounds/` under their export names. To replace one, overwrite the file with
+the same name. Playback levels (0 to 1) and fade lengths are at the top of `lib/sound.js`.
+
+- Browsers keep a page silent until the first click, tap or key press, so the ambiance starts then.
+- Muted visitors download nothing. Otherwise the four short cues load with the page (~200 KB), the
+  ambiance streams and the scan track (1.6 MB) downloads on the first gesture, so the track is ready
+  when the scan page opens.
+- Opening /verify or /scan/running cuts the ambiance at once, no fade. On the scan page every other sound
+  (a cue still ringing included) stops and the scan track starts from the top.
+- The ambiance pauses while the tab is hidden; cues still play (a scan finishing in the background).
+- Which cue plays where: scan outcomes in `hooks/useSounds` (`useScanSounds`, `useScanOutcomeSound`);
+  errors where they're shown (`useSoundCue`) or where they happen (`play("error")` in `useScanLauncher`,
+  `AuthForm`, `VerifyAction`); the knob sound in `ui/Knob`.
 
 ## Before production
 

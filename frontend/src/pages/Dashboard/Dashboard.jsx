@@ -9,11 +9,13 @@ import ScanList from "../../components/sections/dashboard/ScanList/ScanList";
 import { useSession } from "../../context/SessionContext";
 import { useContent } from "../../hooks/useContent";
 import { useScanList } from "../../hooks/useScans";
+import { useSoundCue } from "../../hooks/useSounds";
 
 export default function Dashboard() {
     const { dashboard } = useContent();
     const { allowance, isGuest, refreshUser } = useSession();
     const { scans, loading, error } = useScanList();
+    useSoundCue("error", error);
 
     // Scans left changes after every scan: always show the current number here.
     useEffect(() => {

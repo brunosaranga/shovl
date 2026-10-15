@@ -12,9 +12,11 @@ import { useSession } from "../../context/SessionContext";
 import { useContent } from "../../hooks/useContent";
 import { useLeaveGuard } from "../../hooks/useLeaveGuard";
 import { useScanStream } from "../../hooks/useScanStream";
+import { useScanSounds } from "../../hooks/useSounds";
 
 // Runs the scan described in location.state ({ url, verbose, suggest_fix, generate_report })
-// and opens the report when it completes.
+// and opens the report when it completes. No ambiance here: the scan track plays once while
+// the scan runs, then the complete or failed cue (hooks/useSounds).
 export default function ScanRunning() {
     const { scan } = useContent();
     const location = useLocation();
@@ -26,6 +28,7 @@ export default function ScanRunning() {
 
     const stream = useScanStream({ options, enabled: Boolean(options) });
     const { blocker, allowNextLeave } = useLeaveGuard(stream.isActive);
+    useScanSounds(stream.phase, Boolean(options));
 
     // Finished one way or another: the allowance may have changed.
     const done = !stream.isActive;

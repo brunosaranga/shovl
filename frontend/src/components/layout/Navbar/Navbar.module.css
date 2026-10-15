@@ -107,8 +107,8 @@
         background: var(--text);
     }
 
-    /* The bar is the inverse colour here, so the toggle follows it. */
-    .themeToggle {
+    /* The bar is the inverse colour here, so the sound and theme toggles follow it. */
+    .barToggle {
         background: var(--text);
         color: var(--surface);
         border-color: var(--surface);

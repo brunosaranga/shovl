@@ -4,12 +4,15 @@ import { NavSlotProvider } from "../../../context/NavSlotContext";
 import Navbar from "../Navbar/Navbar";
 import Ground from "../Ground/Ground";
 import Footer from "../Footer/Footer";
+import { useRouteAmbiance } from "../../../hooks/useSounds";
 import styles from "./Layout.module.css";
 
 // The shell every page sits in: fixed navbar, the ground graphic, the footer, and a
 // scrolling content area. Pages put things in the navbar's middle slot with <NavCenter>.
+// It also switches the ambiance loop on or off as the page changes (routes.jsx says where).
 export default function Layout() {
     const [navSlot, setNavSlot] = useState(null);
+    useRouteAmbiance();
 
     return (
         <NavSlotProvider value={navSlot}>
