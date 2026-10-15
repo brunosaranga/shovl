@@ -7,3 +7,5 @@ dnspython==2.9.0
 reportlab==5.0.1
 psycopg[binary]==3.3.6
 dj-database-url==3.1.2
+gunicorn==26.2.0
+whitenoise==6.12.0

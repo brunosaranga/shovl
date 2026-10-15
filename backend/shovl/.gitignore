@@ -1,0 +1,2 @@
+# Made by `python manage.py collectstatic`; the host's build makes its own copy.
+staticfiles/

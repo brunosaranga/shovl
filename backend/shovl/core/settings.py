@@ -46,6 +46,10 @@ ALLOWED_HOSTS = env_list(
     "DJANGO_ALLOWED_HOSTS",
     "localhost,127.0.0.1" if DEBUG else "",
 )
+# Render sets this to the service's own address (for example shovl-api.onrender.com).
+RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME and RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 if not ALLOWED_HOSTS:
     raise ImproperlyConfigured(
         "DJANGO_ALLOWED_HOSTS must be set in production (comma-separated hostnames)."
@@ -75,6 +79,7 @@ INSTALLED_APPS = [
     "domains", # Phase 3
     "scans", # Phase 3
     "corsheaders",
+    "rest_framework",
 ]
 
 REST_FRAMEWORK = {
@@ -83,6 +88,12 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
+    ),
+    # Production answers JSON only. The clickable browsable API is for development.
+    "DEFAULT_RENDERER_CLASSES": (
+        ("rest_framework.renderers.JSONRenderer", "rest_framework.renderers.BrowsableAPIRenderer")
+        if DEBUG
+        else ("rest_framework.renderers.JSONRenderer",)
     ),
 }
 
@@ -118,8 +129,12 @@ AUTH_USER_MODEL = "accounts.User"
 
 
 MIDDLEWARE = [
+    # First on purpose: the host's health check gets its answer before host and HTTPS checks.
+    'core.health.HealthCheckMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    # Serves the admin's CSS and JS in production (collected by collectstatic).
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -229,3 +244,66 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+if not DEBUG:
+    STORAGES = {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+    }
+
+
+# Shared cache. The guest-creation limit counts addresses here, so every web worker must
+# see the same numbers: with a database the cache is a table (python manage.py
+# createcachetable), otherwise memory (development and tests).
+if DATABASE_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "shovl_cache",
+        }
+    }
+
+# How many proxies sit in front of Django and add themselves to X-Forwarded-For.
+# 0 = use the connection address (right for local development). See accounts/throttles.py.
+GUEST_THROTTLE_PROXIES = int(os.getenv("GUEST_THROTTLE_PROXIES", "0"))
+# Temporary, for setting the number above on a new host: logs the addresses each guest
+# creation arrives with. Turn it off again once GUEST_THROTTLE_PROXIES is set.
+SHOVL_LOG_CLIENT_IP = os.getenv("SHOVL_LOG_CLIENT_IP") == "1"
+
+# PDF reports are written to the server's own disk, which most hosts wipe on every
+# deploy, and the frontend has no download button yet. Off in production by default.
+SHOVL_PDF_REPORTS = os.getenv("SHOVL_PDF_REPORTS", "1" if DEBUG else "0") == "1"
+
+
+# Production behind the host's HTTPS proxy.
+if not DEBUG:
+    # The host terminates HTTPS and says so in this header.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    # Set DJANGO_SSL_REDIRECT=0 only to try production settings on your own machine.
+    SECURE_SSL_REDIRECT = os.getenv("DJANGO_SSL_REDIRECT", "1") == "1"
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # Browsers remember to use HTTPS for this host for 30 days.
+    SECURE_HSTS_SECONDS = int(os.getenv("DJANGO_HSTS_SECONDS", str(60 * 60 * 24 * 30)))
+    # On purpose: HSTS for every subdomain, and the browsers' preload list, are decisions for
+    # the main domain, not for the API's own host. build.sh fails on any other warning.
+    SILENCED_SYSTEM_CHECKS = ["security.W005", "security.W021"]
+
+
+# Errors go to the host's log stream (with DEBUG off Django would otherwise only email
+# them, and no email is set up).
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "plain": {"format": "{levelname} {name}: {message}", "style": "{"},
+    },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "plain"},
+    },
+    "root": {"handlers": ["console"], "level": "WARNING"},
+    "loggers": {
+        "django.request": {"handlers": ["console"], "level": "ERROR", "propagate": False},
+        "accounts": {"handlers": ["console"], "level": "INFO", "propagate": False},
+    },
+}

@@ -2,11 +2,13 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.conf import settings
 from django.http import StreamingHttpResponse, FileResponse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from .renderers import ServerSentEventRenderer
 from django.utils import timezone
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlparse
 import json, logging, os
 
@@ -35,6 +37,32 @@ UNREACHABLE_REASONS = {
 def sse(payload):
     """One server-sent-events frame."""
     return f"data: {json.dumps(payload)}\n\n"
+
+
+# A slow target can keep one check busy for most of the scan budget. Hosting proxies may
+# close a connection that sends nothing for a minute, so the stream sends a comment line
+# this often while it waits. Browsers and the frontend ignore comment lines.
+KEEP_ALIVE_SECONDS = 15
+KEEP_ALIVE = ": keep-alive\n\n"
+
+
+def while_working(func, *args, **kwargs):
+    """
+    Runs func in a helper thread and yields KEEP_ALIVE until it finishes. Use with
+    `result = yield from while_working(...)`: the result (or func's exception) comes back
+    to the caller. If the browser leaves first, the check finishes in the background
+    within the scan budget and its result is dropped.
+    """
+    pool = ThreadPoolExecutor(max_workers=1)
+    try:
+        future = pool.submit(func, *args, **kwargs)
+        while True:
+            try:
+                return future.result(timeout=KEEP_ALIVE_SECONDS)
+            except TimeoutError:
+                yield KEEP_ALIVE
+    finally:
+        pool.shutdown(wait=False)
 
 
 def mark_failed(scan, reason, message):
@@ -120,9 +148,10 @@ class ScanCreateView(APIView):
             scan.results = report
             scan.completed_at = timezone.now()
 
-            # Only spend the time/IO building a PDF when the user asked for one.
+            # Only spend the time/IO building a PDF when the user asked for one and
+            # PDFs are switched on (SHOVL_PDF_REPORTS, off in production by default).
             # When skipped, pdf_path stays blank and ScanPDFView correctly 404s.
-            if generate_report:
+            if generate_report and settings.SHOVL_PDF_REPORTS:
                 pdf_path = f"reports/scan_{scan.id}.pdf"
                 os.makedirs("reports", exist_ok=True)
                 generate_pdf(report, pdf_path)
@@ -257,7 +286,7 @@ class ScanStreamView(APIView):
                 # is not silent while we wait.
                 yield sse({'status': 'running', 'check': 'reachability', 'progress': 0, 'total': total})
                 try:
-                    preflight(target_url, budget=budget)
+                    yield from while_working(preflight, target_url, budget=budget)
                 except ScanFailed as e:
                     finished = True
                     yield from fail(e.reason, e.message)
@@ -271,7 +300,9 @@ class ScanStreamView(APIView):
                     yield sse({'status': 'running', 'check': check_name, 'progress': i, 'total': total})
 
                     # Never raises: a check that cannot run comes back as an ERROR finding.
-                    result = run_check(module_path, target_url, token, verbose, budget=budget, allow_writes=allow_writes)
+                    result = yield from while_working(
+                        run_check, module_path, target_url, token, verbose, budget=budget, allow_writes=allow_writes
+                    )
                     findings.append(result)
 
                     # Result event (check finished)
@@ -298,7 +329,7 @@ class ScanStreamView(APIView):
                     scan.completed_at = timezone.now()
 
                     # A PDF problem should not throw away a finished scan.
-                    if generate_report:
+                    if generate_report and settings.SHOVL_PDF_REPORTS:
                         try:
                             os.makedirs('reports', exist_ok=True)
                             pdf_path = f'reports/scan_{scan.id}.pdf'
@@ -325,7 +356,11 @@ class ScanStreamView(APIView):
                         pk=scan.pk, status__in=('pending', 'running')
                     ).update(status='interrupted')
 
-        return StreamingHttpResponse(
+        response = StreamingHttpResponse(
             event_stream(),
             content_type='text/event-stream'
         )
+        # Proxies must pass each event on as soon as it is written, not collect the stream first.
+        response['Cache-Control'] = 'no-cache'
+        response['X-Accel-Buffering'] = 'no'
+        return response
