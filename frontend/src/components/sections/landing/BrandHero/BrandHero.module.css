@@ -8,6 +8,8 @@
     position: relative;
     top: 30px;
     height: 971px;
+    /* background-color: red; */
+    z-index: 10;
 }
 
 .graphic {
