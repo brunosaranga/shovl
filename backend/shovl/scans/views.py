@@ -14,6 +14,7 @@ from accounts.permissions import REGISTRATION_REQUIRED_MESSAGE
 from .limits import AllowanceExceeded, start_scan
 from .models import Scan
 from .serializers import ScanSerializer
+from .validators import target_url_error
 from domains.models import Domain
 from domains.verification import is_practice_target
 from scanner.engine import CHECKS, ScanFailed, build_raw, ensure_usable, preflight, run_check, run_scan
@@ -59,17 +60,10 @@ class ScanCreateView(APIView):
         suggest_fix = request.data.get("suggest_fix", False)
         generate_report = request.data.get("generate_report", True)
 
-        # Validate URL provided
-        if not target_url:
-            return Response({"error": "target_url is required."}, status=400)
-        
-        # Validate URL format
-        parsed = urlparse(target_url)
-        if not parsed.scheme or not parsed.netloc:
-            return Response(
-                {"error": "Invalid URL format. Include http:// or https://"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # Present, http(s), not too long, nothing the database would refuse.
+        error = target_url_error(target_url)
+        if error:
+            return Response({"error": error}, status=status.HTTP_400_BAD_REQUEST)
 
         # Guests may only scan practice targets. Anything else needs a real
         # account. Checked before any domain lookup or network activity.
@@ -196,21 +190,12 @@ class ScanStreamView(APIView):
         suggest_fix = request.query_params.get('suggest_fix', 'false') == 'true'
         generate_report = request.query_params.get('generate_report', 'true') == 'true'
 
-        # target_url is required before any other check can run.
-        if not target_url:
-            return Response(
-                {'error': 'target_url is required.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
         # Same guards the blocking create endpoint enforces, applied before we
         # start streaming. Failures return a normal (non-stream) Response.
+        error = target_url_error(target_url)
+        if error:
+            return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
         parsed = urlparse(target_url)
-        if not parsed.scheme or not parsed.netloc:
-            return Response(
-                {'error': 'Invalid URL format. Include http:// or https://'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
 
         # Guests may only scan practice targets. This has to be answered here,
         # before streaming starts, because a started stream is already a 200.

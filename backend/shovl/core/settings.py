@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 
+import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -149,13 +150,47 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+#
+# DATABASE_URL is the provider's connection string, for example
+# postgresql://user:password@host/dbname?sslmode=require
+# Without it, development uses the local SQLite file. Production refuses to start
+# without Postgres: the row locks that guard the scan allowance, guest upgrades and
+# sign-in transfers only take effect there.
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            # Seconds a connection is kept open for the next request (0 = close after
+            # every request). The health check replaces a connection the provider has
+            # closed, for example after Neon scales to zero.
+            conn_max_age=int(os.getenv("DB_CONN_MAX_AGE", "60")),
+            conn_health_checks=True,
+        )
     }
-}
+    _db = DATABASES["default"]
+    # Encrypt every connection that leaves this machine, unless the URL already says how.
+    if _db.get("HOST") not in ("", "localhost", "127.0.0.1"):
+        _db.setdefault("OPTIONS", {}).setdefault("sslmode", "require")
+    # Only for a transaction-mode pooler (a Neon "-pooler" address, PgBouncer): set
+    # DB_DISABLE_SERVER_SIDE_CURSORS=1. The direct connection string needs nothing.
+    _db["DISABLE_SERVER_SIDE_CURSORS"] = os.getenv("DB_DISABLE_SERVER_SIDE_CURSORS") == "1"
+elif DEBUG:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+else:
+    raise ImproperlyConfigured(
+        "DATABASE_URL must be set in production (the Postgres connection string)."
+    )
+
+if not DEBUG and DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql":
+    raise ImproperlyConfigured("Production needs Postgres: DATABASE_URL must start with postgresql://")
 
 
 # Password validation
