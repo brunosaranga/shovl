@@ -2,7 +2,7 @@
 export const common = {
     brand: "shovl",
     tagline: "break your API before someone else does.",
-    footer: "+++",
+    footer: "shovl beta engine: librana",
     logoAlt: "shovl logo",
     homeLabel: "shovl home",
     loading: "loading...",
