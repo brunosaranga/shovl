@@ -2,7 +2,7 @@
 export const common = {
     brand: "shovl",
     tagline: "break your API before someone else does.",
-    footer: "© 2026 Hinajuju Dynama. All Rights Reserved",
+    footer: "+++",
     logoAlt: "shovl logo",
     homeLabel: "shovl home",
     loading: "loading...",
