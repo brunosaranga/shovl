@@ -101,6 +101,10 @@
     --page-bottom: 340px;     /* room to scroll content above the ground */
     --page-wide: 960px;
     --page-narrow: 800px;
+    --z-ground: 10;
+    --z-content: 15;
+    --z-nav: 20;
+    --z-overlay: 100;
 
     /* ---- Motion ---------------------------------------------------------- */
     --press: all 0.1s ease;

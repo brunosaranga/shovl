@@ -18,7 +18,7 @@ export const landing = {
     starting: "starting...",
 
     // Shown next to the button when nobody is signed in: ticking it creates the guest session.
-    consent: "I own or have explicit permission to test this URL",
+    consent: "I own or have explicit permission to test URLs I submit to shovl.",
     consentRequired: "tick the box first: only scan APIs you're allowed to test.",
     invalidUrl: "that doesn't look like a URL. try something like api.example.com",
 

@@ -5,7 +5,8 @@
     height: var(--nav-height);
     padding: 0 40px;
     position: fixed;
-    z-index: 20;
+    /* z-index: 20; */
+    z-index: var(--z-nav);
     width: 100%;
 }
 
@@ -61,13 +62,15 @@
     position: absolute;
     right: 0;
     top: calc(100% + 8px);
-    background: var(--surface);
+    /* background: var(--surface); */
     border: var(--border-2);
-    box-shadow: var(--shadow-4);
+    /* box-shadow: var(--shadow-4); */
     min-width: 160px;
-    z-index: 50;
+    /* z-index: 100; */
+    z-index: 2;
     display: flex;
     flex-direction: column;
+    background-color: red;
 }
 
 .item {

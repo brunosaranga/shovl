@@ -16,7 +16,7 @@
     flex-direction: column;
     align-items: center;
     position: relative;
-    z-index: 21;
+    z-index: var(--z-content);
 }
 
 .header {

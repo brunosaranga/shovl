@@ -7,7 +7,8 @@
     font-size: 13px;
     font-weight: 700;
     color: var(--white); /* sits on the ground image in both themes */
-    z-index: -1; /* on the ground (it comes after Ground in the DOM), under the page content */
+    /* z-index: -1; on the ground (it comes after Ground in the DOM), under the page content */
+    z-index: var(--z-content);
     pointer-events: none;
 }
 
