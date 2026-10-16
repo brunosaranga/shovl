@@ -11,20 +11,20 @@ export default function ScanOptions({ options, onChange }) {
         <div className={styles.row}>
             <Knob 
             name="verbose" 
-            // label={landing.options.verbose} 
+            label={landing.options.verbose} 
             active={options.verbose} 
             onChange={set("verbose")} />
 
             <Knob
                 name="generateReport"
-                // label={landing.options.generateReport}
+                label={landing.options.generateReport}
                 active={options.generateReport}
                 onChange={set("generateReport")}
             />
 
             <Knob 
             name="suggestFix" 
-            // label={landing.options.suggestFix} 
+            label={landing.options.suggestFix} 
             active={options.suggestFix} 
             onChange={set("suggestFix")} />
         </div>
