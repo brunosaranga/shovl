@@ -4,7 +4,7 @@ Scan allowance for the beta.
     guests                      3 scans in total
     registered_users            5 scans in any rolling 24 hours
 
-    A scan counts from the moment it starts. Scans that failed or were interrupted do not count, but every attempt couunts toward a higher hard ceiling, so failures cannot be used for unlimited free scanning. Staff accounts are exempt.
+    A scan counts from the moment it starts, paused time included. Scans that failed, were interrupted or were stopped do not count, but every attempt couunts toward a higher hard ceiling, so failures cannot be used for unlimited free scanning. Staff accounts are exempt.
 
     Change the nu,bers below, nothing else needs to move.
 """
@@ -16,7 +16,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 
-from .models import Scan
+from .models import ACTIVE_STATUSES, Scan
 
 User = get_user_model()
 
@@ -36,11 +36,12 @@ DAY = timedelta(hours=24)
 
 
 
-# A scan still "running" after this long is treated as abandoned 
+# A scan still "running" (or "paused") after this long is treated as abandoned. A real scan stays
+# well inside it: 90 seconds of scanning plus at most 5 minutes paused (scans/controls.py).
 STALE_AFTER = timedelta(minutes=10)
 # ---------------------------------------------------------------
 
-IN_PROGRESS = ("pending", "running")
+IN_PROGRESS = ACTIVE_STATUSES
 
 
 

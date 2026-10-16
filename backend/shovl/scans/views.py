@@ -10,11 +10,12 @@ from .renderers import ServerSentEventRenderer
 from django.utils import timezone
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlparse
-import json, logging, os
+import json, logging, os, time
 
 from accounts.permissions import REGISTRATION_REQUIRED_MESSAGE
+from . import controls
 from .limits import AllowanceExceeded, start_scan
-from .models import Scan
+from .models import ACTIVE_STATUSES, Scan
 from .serializers import ScanSerializer
 from .validators import target_url_error
 from domains.models import Domain
@@ -65,12 +66,73 @@ def while_working(func, *args, **kwargs):
         pool.shutdown(wait=False)
 
 
+def _sleep(seconds):
+    """How a paused stream waits. A function of its own so tests can replace it."""
+    time.sleep(seconds)
+
+
+def hold_if_paused(scan_id, budget, pause):
+    """
+    Runs between two checks: this is where pause and stop take effect. Use with
+    `state = yield from hold_if_paused(...)`. Returns "go" when the scan may carry on,
+    otherwise the status that ends it (normally "stopped").
+
+    While the scan is paused it yields a "paused" event, then keep-alive lines, and a
+    "resumed" event when the person resumes. Time spent paused is given back to the scan's
+    time budget and added to pause["seconds"]; past controls.MAX_PAUSE_SECONDS in total the
+    scan is stopped, so a forgotten tab cannot hold a server thread for long.
+    """
+    status = controls.current_status(scan_id)
+    if status == 'running':
+        return 'go'
+    if status != 'paused':
+        return status
+
+    yield sse({'status': 'paused', 'scan_id': scan_id})
+    started = last_signal = time.monotonic()
+
+    while True:
+        _sleep(controls.PAUSE_POLL_SECONDS)
+        now = time.monotonic()
+        held = now - started
+        status = controls.current_status(scan_id)
+
+        if status == 'paused' and pause['seconds'] + held >= controls.MAX_PAUSE_SECONDS:
+            # If it was resumed or stopped at this very moment, that answer stands instead.
+            status = 'stopped' if controls.stop_paused_too_long(scan_id) else controls.current_status(scan_id)
+
+        if status != 'paused':
+            pause['seconds'] += held
+            budget.extend(held)
+            if status == 'running':
+                yield sse({'status': 'resumed', 'scan_id': scan_id})
+                return 'go'
+            return status
+
+        if now - last_signal >= KEEP_ALIVE_SECONDS:
+            yield KEEP_ALIVE
+            last_signal = now
+
+
+def stopped_event(scan_id):
+    """The last event of a scan that ended early, with the reason the report shows."""
+    reason, message = controls.stop_details(scan_id)
+    return sse({'status': 'stopped', 'scan_id': scan_id, 'reason': reason, 'message': message})
+
+
 def mark_failed(scan, reason, message):
-    """Save a failed scan with the reason, so the dashboard and report can say why. Failed scans do not count."""
-    scan.status = 'failed'
-    scan.results = {'error': {'reason': reason, 'message': message}}
-    scan.completed_at = timezone.now()
-    scan.save(update_fields=['status', 'results', 'completed_at'])
+    """
+    Save a failed scan with the reason, so the dashboard and report can say why. Failed scans do not count.
+    Only a scan that has not ended yet is changed: if the person stopped it first, the stop stands.
+    Returns True when the scan was marked failed.
+    """
+    return bool(
+        Scan.objects.filter(pk=scan.pk, status__in=ACTIVE_STATUSES).update(
+            status='failed',
+            results={'error': {'reason': reason, 'message': message}},
+            completed_at=timezone.now(),
+        )
+    )
 
 
 # Create your views here.
@@ -204,7 +266,36 @@ class ScanPDFView(APIView):
         )
         response['Content-Disposition'] = f'attachment; filename="shovl_report_{pk}.pdf"'
         return response
-    
+
+
+class ScanControlView(APIView):
+    """
+    POST /api/scans/<id>/pause/, /resume/ or /stop/ (no body). Only the scan's owner.
+
+    200 {"id", "status"} once the scan is in the state asked for, including when it already was.
+    409 {"detail", "code": "scan_finished", "status"} when it ended first (complete, failed,
+    interrupted, stopped), so there is nothing left to pause, resume or stop.
+    404 for a scan that doesn't exist or isn't yours.
+
+    Pause and stop take effect between two checks: the stream sends "paused" or "stopped" then.
+    A stop is recorded straight away, so the dashboard shows it at once.
+    """
+    permission_classes = [IsAuthenticated]
+    control = None  # "pause", "resume" or "stop", set in urls.py
+
+    def post(self, request, pk):
+        if not Scan.objects.filter(pk=pk, user=request.user).exists():
+            return Response({'detail': 'Scan not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        now = controls.change(pk, self.control)
+        if now == controls.TRANSITIONS[self.control][1]:
+            return Response({'id': pk, 'status': now})
+
+        return Response(
+            {'detail': 'This scan has already finished.', 'code': 'scan_finished', 'status': now},
+            status=status.HTTP_409_CONFLICT,
+        )
+
 
 class ScanStreamView(APIView):
     permission_classes = [IsAuthenticated]
@@ -272,15 +363,22 @@ class ScanStreamView(APIView):
 
         def event_stream():
             finished = False
+            pause = {'seconds': 0.0}  # time spent paused so far, all pauses added up
 
             def fail(reason, message):
-                """Mark the scan failed and tell the browser. The old 'error' event is sent too, so it shows in the log."""
-                mark_failed(scan, reason, message)
+                """Mark the scan failed and tell the browser. The old 'error' event is sent too, so it shows in the log.
+                If the person stopped the scan first, the stop stands and the browser is told that instead."""
+                if not mark_failed(scan, reason, message):
+                    yield stopped_event(scan.id)
+                    return
                 yield sse({'status': 'error', 'check': 'scan', 'message': message})
                 yield sse({'status': 'failed', 'scan_id': scan.id, 'reason': reason, 'message': message})
 
             try:
                 budget = TimeBudget()
+
+                # The scan's id comes first, so the page can pause or stop this scan.
+                yield sse({'status': 'started', 'scan_id': scan.id, 'total': total})
 
                 # Can we reach the target at all? Announced first, so the screen
                 # is not silent while we wait.
@@ -294,6 +392,13 @@ class ScanStreamView(APIView):
 
                 findings = []
                 for i, module_path in enumerate(CHECKS):
+                    # Pause and stop take effect here, between two checks.
+                    state = yield from hold_if_paused(scan.id, budget, pause)
+                    if state != 'go':
+                        finished = True
+                        yield stopped_event(scan.id)
+                        return
+
                     check_name = module_path.split('.')[-1]
 
                     # Running event (check started)
@@ -311,6 +416,13 @@ class ScanStreamView(APIView):
                         'detail': result['detail'], 'progress': i + 1, 'total': total,
                     })
 
+                # A pause or stop that arrived during the last check.
+                state = yield from hold_if_paused(scan.id, budget, pause)
+                if state != 'go':
+                    finished = True
+                    yield stopped_event(scan.id)
+                    return
+
                 # If no check produced a real result, the scan fails and does not count.
                 try:
                     ensure_usable(findings)
@@ -323,22 +435,26 @@ class ScanStreamView(APIView):
                     raw = build_raw(target_url, findings, verbose, suggest_fix, generate_report)
                     report = format_report(raw)
 
-                    scan.status = 'complete'
-                    scan.risk_score = report['meta']['risk_score']
-                    scan.results = report
-                    scan.completed_at = timezone.now()
-
                     # A PDF problem should not throw away a finished scan.
+                    pdf_path = ''
                     if generate_report and settings.SHOVL_PDF_REPORTS:
                         try:
                             os.makedirs('reports', exist_ok=True)
                             pdf_path = f'reports/scan_{scan.id}.pdf'
                             generate_pdf(report, pdf_path)
-                            scan.pdf_path = pdf_path
                         except Exception:
+                            pdf_path = ''
                             logger.exception('PDF generation failed for scan %s', scan.id)
 
-                    scan.save()
+                    # Saved only while the scan has not ended: a stop that arrived in the
+                    # last moments stands, and is never overwritten by "complete".
+                    saved = Scan.objects.filter(pk=scan.pk, status__in=ACTIVE_STATUSES).update(
+                        status='complete',
+                        risk_score=report['meta']['risk_score'],
+                        results=report,
+                        completed_at=timezone.now(),
+                        pdf_path=pdf_path,
+                    )
                 except Exception:
                     logger.exception('Building the report failed for scan %s', scan.id)
                     finished = True
@@ -346,14 +462,17 @@ class ScanStreamView(APIView):
                     return
 
                 finished = True
+                if not saved:
+                    yield stopped_event(scan.id)
+                    return
                 yield sse({'status': 'complete', 'scan_id': scan.id, 'risk_score': report['meta']['risk_score']})
 
             finally:
-                # The browser went away before the scan finished.
-                # Interrupted scans do not count against the allowance.
+                # The browser went away before the scan finished (also while paused).
+                # Interrupted scans do not count against the allowance. A stopped scan stays stopped.
                 if not finished:
                     Scan.objects.filter(
-                        pk=scan.pk, status__in=('pending', 'running')
+                        pk=scan.pk, status__in=ACTIVE_STATUSES
                     ).update(status='interrupted')
 
         response = StreamingHttpResponse(

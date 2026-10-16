@@ -75,6 +75,10 @@ class TimeBudget:
     def remaining(self):
         return max(self._deadline - self._clock(), 0.0)
 
+    def extend(self, seconds):
+        """Push the deadline back, e.g. by the time the scan spent paused, which is not scanning time."""
+        self._deadline += max(seconds, 0.0)
+
     @property
     def expired(self):
         return self.remaining() < MIN_TIME_LEFT

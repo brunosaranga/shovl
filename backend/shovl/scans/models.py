@@ -4,15 +4,24 @@ from django.conf import settings
 from .encoders import StorableJSONEncoder
 
 
+# A scan in one of these has not ended yet. Pause and stop only apply to these, and the
+# allowance counts them while they last (scans/limits.py).
+ACTIVE_STATUSES = ("pending", "running", "paused")
+
+
 # Create your models here.
 class Scan(models.Model):
     STATUS_CHOICES = [
         ("pending", "Pending"),
         ("running", "Running"),
+        # Held between two checks until the person resumes or stops it (scans/controls.py).
+        ("paused", "Paused"),
         ("complete", "Complete"),
         ("failed", "Failed"),
         # The browser closed (or the scan was abandoned) before it finished.
         ("interrupted", "Interrupted"),
+        # Ended on purpose: the stop button, or paused for too long. Results hold the reason.
+        ("stopped", "Stopped"),
     ]
 
     user = models.ForeignKey(
