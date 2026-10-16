@@ -10,6 +10,7 @@ import { useSession } from "../../context/SessionContext";
 import { useContent } from "../../hooks/useContent";
 import { useScanList } from "../../hooks/useScans";
 import { useSoundCue } from "../../hooks/useSounds";
+import { isInProgress } from "../../lib/severity";
 
 export default function Dashboard() {
     const { dashboard } = useContent();
@@ -17,10 +18,12 @@ export default function Dashboard() {
     const { scans, loading, error } = useScanList();
     useSoundCue("error", error);
 
-    // Scans left changes after every scan: always show the current number here.
+    // Scans left changes after every scan: show the current number on arrival, and again
+    // whenever a scan in progress ends (an interrupted or stopped scan frees its place).
+    const inProgress = scans.filter((scan) => isInProgress(scan.status)).length;
     useEffect(() => {
         refreshUser();
-    }, [refreshUser]);
+    }, [refreshUser, inProgress]);
 
     return (
         <>

@@ -33,6 +33,7 @@ export function useRouteAmbiance() {
  *   complete             → scanComplete
  *   failed / error       → scanFailed (the scan couldn't finish, or the connection dropped)
  *   refused              → error (the scan never started: allowance, unverified domain…)
+ *   stopped              → the scan track stops, no cue (stopped on purpose, or paused too long)
  * Leaving the page fades the scan track out.
  */
 export function useScanSounds(phase, enabled = true) {
@@ -57,6 +58,8 @@ export function useScanSounds(phase, enabled = true) {
         } else if (phase === "refused") {
             stopScan();
             play("error");
+        } else if (phase === "stopped") {
+            stopScan();
         }
     }, [enabled, phase, play, startScan, stopScan]);
 }
@@ -72,7 +75,7 @@ export function useScanOutcomeSound(status) {
     useEffect(() => {
         const was = previous.current;
         previous.current = status;
-        if (was !== "running" && was !== "pending") return;
+        if (was !== "running" && was !== "pending" && was !== "paused") return;
         if (status === "complete") play("scanComplete");
         else if (status === "failed" || status === "interrupted") play("scanFailed");
     }, [status, play]);

@@ -19,11 +19,13 @@ import NotFound from "./pages/NotFound/NotFound";
 // menuKey: shows the page in the account menu; the label lives in content/en/nav.js.
 // ambiance: false keeps the ambiance loop off on that page (lib/sound.js); every other
 //   page, the 404 included, plays it.
+// ground: "still" brings the walking ground to a halt on that page (layout/Ground): we stop
+//   to dig while a scan runs, and stay put if it fails. Leaving walks on from the same spot.
 export const pageRoutes = [
     { path: "/", element: <Landing />, access: "public" },
     { path: "/signin", element: <Auth />, access: "public" },
     { path: "/verify", element: <Verify />, access: "registered", ambiance: false },
-    { path: "/scan/running", element: <ScanRunning />, access: "session", ambiance: false },
+    { path: "/scan/running", element: <ScanRunning />, access: "session", ambiance: false, ground: "still" },
     { path: "/scan/:scanId/report", element: <Report />, access: "session" },
     { path: "/dashboard", element: <Dashboard />, access: "session", menuKey: "dashboard" },
     { path: "/settings", element: <Settings />, access: "registered", menuKey: "settings" },
@@ -45,6 +47,11 @@ export function canAccess(access, status) {
 /** Does the page at this path play the ambiance loop? */
 export function hasAmbiance(pathname) {
     return !pageRoutes.some((route) => route.ambiance === false && matchPath(route.path, pathname));
+}
+
+/** Does the ground stand still on the page at this path? */
+export function isGroundStill(pathname) {
+    return pageRoutes.some((route) => route.ground === "still" && matchPath(route.path, pathname));
 }
 
 export const routerConfig = [

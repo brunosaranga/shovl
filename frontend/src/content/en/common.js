@@ -18,13 +18,15 @@ export const common = {
         none: "—",
     },
 
-    // Scan status (backend: pending | running | complete | failed | interrupted)
+    // Scan status (backend: pending | running | paused | complete | failed | interrupted | stopped)
     status: {
         pending: "queued",
         running: "scanning",
+        paused: "paused",
         complete: "completed",
         failed: "failed",
         interrupted: "interrupted",
+        stopped: "stopped",
     },
 
     didNotCount: "this scan did not count against your allowance.",

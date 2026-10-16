@@ -26,8 +26,10 @@ export const dashboard = {
         coverage: "based on {run} of {total} checks.",
         view: "view vulnerability findings",
         running: "this scan is still running.",
+        paused: "this scan is paused.",
         open: "open scan",
-        interrupted: "the scan stopped before it finished.",
+        interrupted: "the scan stopped before it finished, usually because the page was closed.",
+        stopped: "this scan was stopped before it finished.",
     },
 
     guest: {

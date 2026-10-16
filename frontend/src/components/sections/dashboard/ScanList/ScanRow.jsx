@@ -1,7 +1,7 @@
 import Badge from "../../../ui/Badge/Badge";
 import Button from "../../../ui/Button/Button";
 import { useContent } from "../../../../hooks/useContent";
-import { riskTone, statusTone } from "../../../../lib/severity";
+import { isInProgress, riskTone, statusTone } from "../../../../lib/severity";
 import { fill, formatDate } from "../../../../lib/text";
 import styles from "./ScanList.module.css";
 
@@ -59,9 +59,9 @@ export default function ScanRow({ scan, expanded, onToggle }) {
                         </>
                     ) : null}
 
-                    {scan.status === "running" || scan.status === "pending" ? (
+                    {isInProgress(scan.status) ? (
                         <>
-                            <div>{dashboard.row.running}</div>
+                            <div>{scan.status === "paused" ? dashboard.row.paused : dashboard.row.running}</div>
                             <Button to={report} variant="dark" className={styles.panelAction}>
                                 {dashboard.row.open}
                             </Button>
@@ -78,6 +78,13 @@ export default function ScanRow({ scan, expanded, onToggle }) {
                     {scan.status === "interrupted" ? (
                         <>
                             <div>{dashboard.row.interrupted}</div>
+                            <div className={styles.muted}>{common.didNotCount}</div>
+                        </>
+                    ) : null}
+
+                    {scan.status === "stopped" ? (
+                        <>
+                            <div>{scan.results?.error?.message || dashboard.row.stopped}</div>
                             <div className={styles.muted}>{common.didNotCount}</div>
                         </>
                     ) : null}

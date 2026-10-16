@@ -18,9 +18,11 @@ const RISK_TONES = {
 const STATUS_TONES = {
     pending: "accent",
     running: "accent",
+    paused: "accent",
     complete: "neutral",
     failed: "danger",
     interrupted: "neutral",
+    stopped: "neutral",
 };
 
 const upper = (value) => String(value || "").toUpperCase();
@@ -32,8 +34,11 @@ export const statusTone = (status) => STATUS_TONES[status] || "neutral";
 /** The order findings and counts are shown in. */
 export const SEVERITY_ORDER = ["HIGH", "MEDIUM", "LOW", "PASS", "ERROR"];
 
+/** Scans that have not ended yet (the backend's ACTIVE_STATUSES): they count as active. */
+export const isInProgress = (status) => ["pending", "running", "paused"].includes(status);
+
 /** Scans that finished one way or another. */
-export const isFinished = (status) => ["complete", "failed", "interrupted"].includes(status);
+export const isFinished = (status) => ["complete", "failed", "interrupted", "stopped"].includes(status);
 
 /** Findings whose check could not run (severity ERROR), for the coverage note. */
 export const checksNotRun = (findings = []) =>

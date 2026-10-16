@@ -17,6 +17,9 @@ import { useScanSounds } from "../../hooks/useSounds";
 // Runs the scan described in location.state ({ url, verbose, suggest_fix, generate_report })
 // and opens the report when it completes. No ambiance here: the scan track plays once while
 // the scan runs, then the complete or failed cue (hooks/useSounds).
+//
+// Pause and stop go to the backend (hooks/useScanStream): pause holds the scan after the check
+// in flight, stop is recorded before the page leaves, so the dashboard shows it as stopped.
 export default function ScanRunning() {
     const { scan } = useContent();
     const location = useLocation();
@@ -24,7 +27,7 @@ export default function ScanRunning() {
     const { refreshUser } = useSession();
 
     const options = location.state?.url ? location.state : null;
-    const [paused, setPaused] = useState(false);
+    const [stopping, setStopping] = useState(false);
 
     const stream = useScanStream({ options, enabled: Boolean(options) });
     const { blocker, allowNextLeave } = useLeaveGuard(stream.isActive);
@@ -44,17 +47,21 @@ export default function ScanRunning() {
 
     if (!options) return <Navigate to="/" replace />;
 
-    const togglePause = () => {
-        setPaused((value) => {
-            stream.setPaused(!value);
-            return !value;
-        });
+    const togglePause = () => (stream.control === "running" ? stream.pause() : stream.resume());
+
+    const stop = async () => {
+        if (stopping) return;
+        setStopping(true);
+        allowNextLeave();
+        await stream.stop();
+        navigate("/dashboard");
     };
 
-    const stop = () => {
-        allowNextLeave();
-        stream.stop();
-        navigate("/dashboard");
+    // "stop and leave" in the leave dialog: the same stop, then the navigation that was held.
+    const stopAndLeave = async () => {
+        setStopping(true);
+        await stream.stop();
+        blocker.proceed?.();
     };
 
     return (
@@ -62,7 +69,15 @@ export default function ScanRunning() {
             <PageMeta title={scan.meta} />
 
             <PageBody width="narrow" gap="lg">
-                <ScanHeader targetUrl={options.url} active={stream.isActive} paused={paused} onTogglePause={togglePause} onStop={stop} />
+                <ScanHeader
+                    targetUrl={options.url}
+                    active={stream.isActive}
+                    control={stream.control}
+                    canPause={Boolean(stream.scanId) && !stopping}
+                    stopping={stopping}
+                    onTogglePause={togglePause}
+                    onStop={stop}
+                />
                 <ProgressBar value={stream.progress} label={scan.title} />
 
                 {stream.problem ? (
@@ -81,8 +96,10 @@ export default function ScanRunning() {
                 onClose={() => blocker.reset?.()}
                 actions={
                     <>
-                        <Button onClick={() => blocker.reset?.()}>{scan.leave.stay}</Button>
-                        <Button variant="stop" onClick={() => blocker.proceed?.()}>
+                        <Button onClick={() => blocker.reset?.()} disabled={stopping}>
+                            {scan.leave.stay}
+                        </Button>
+                        <Button variant="stop" onClick={stopAndLeave} disabled={stopping}>
                             {scan.leave.leave}
                         </Button>
                     </>

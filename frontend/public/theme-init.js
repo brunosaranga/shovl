@@ -10,6 +10,8 @@
         } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
             theme = "dark";
         }
-    } catch (e) {}
+    } catch {
+        // Storage can be blocked (private mode, strict browser settings): keep the default theme.
+    }
     document.documentElement.dataset.theme = theme;
 })();

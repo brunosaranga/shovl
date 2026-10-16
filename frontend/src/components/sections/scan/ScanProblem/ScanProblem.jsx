@@ -6,17 +6,19 @@ import { fill, formatTime } from "../../../../lib/text";
 // Why a scan didn't run or didn't finish, and what to do next.
 //   refused → allowance, guest on a real domain, unverified domain…  (nothing was counted)
 //   failed  → the scan ran but couldn't produce a result               (not counted)
+//   stopped → stopped elsewhere, or paused for too long                 (not counted)
 //   error   → the connection dropped                                    (marked interrupted, not counted)
+const TITLES = {
+    refused: "refusedTitle",
+    failed: "failedTitle",
+    stopped: "stoppedTitle",
+};
+
 export default function ScanProblem({ problem, options, onRetry }) {
     const { scan, common } = useContent();
     const { actions } = scan.problems;
 
-    const title =
-        problem.kind === "refused"
-            ? scan.problems.refusedTitle
-            : problem.kind === "failed"
-              ? scan.problems.failedTitle
-              : scan.problems.connectionTitle;
+    const title = scan.problems[TITLES[problem.kind] || "connectionTitle"];
 
     const register = ["registration_required", "guest_limit_reached"].includes(problem.code);
     const needsVerify = problem.code === "domain_not_verified";

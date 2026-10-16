@@ -56,6 +56,10 @@ export const faq = {
                     q: "can I close the tab while a scan runs?",
                     a: "not yet. leaving the page stops the scan. stopped scans don't count against your allowance.",
                 },
+                {
+                    q: "what does pause do?",
+                    a: "the check that's running finishes, then the scan holds and nothing more is sent to the API until you resume. a scan paused for 5 minutes in total stops on its own. a paused scan still counts against your allowance; a stopped one doesn't.",
+                },
             ],
         },
         {

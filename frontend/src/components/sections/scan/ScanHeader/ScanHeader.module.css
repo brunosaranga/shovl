@@ -22,6 +22,14 @@
     word-break: break-all;
 }
 
+/* "pausing after the current check..." and friends, under the target. */
+.state {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--text);
+    margin-top: 8px;
+}
+
 .controls {
     display: flex;
     align-items: center;
@@ -41,9 +49,15 @@
     justify-content: center;
 }
 
-.control:active {
+.control:active:not(:disabled) {
     transform: translate(2px, 2px);
     box-shadow: var(--shadow-pressed);
+}
+
+/* Waiting on the server (the scan's id, a resume on its way, a stop): visible but not pressable. */
+.control:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .stop {

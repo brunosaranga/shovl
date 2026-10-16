@@ -3,12 +3,48 @@
     bottom: 0;
     width: 100%;
     height: var(--ground-height);
-    background-size: cover;
-    background-position: bottom center;
-    background-repeat: no-repeat;
     pointer-events: none;
     /* z-index: -1; behind the page content (see .shell in Layout.module.css) */
     z-index: var(--z-ground);
+}
+
+/* The still image and the video are the same 3:2 frame, cropped the same way
+   (cover, anchored to the bottom), so the dunes sit in the same band. */
+.still,
+.video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.8s ease;
+}
+
+.still {
+    background-size: cover;
+    background-position: bottom center;
+    background-repeat: no-repeat;
+}
+
+.video {
+    object-fit: cover;
+    object-position: bottom center;
+    opacity: 0;
+}
+
+/* Crossfade once the video is playing with a transparent sky (see Ground.jsx). */
+.ground[data-layer="video"] .still {
+    opacity: 0;
+}
+
+.ground[data-layer="video"] .video {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .still,
+    .video {
+        transition: none;
+    }
 }
 
 @media (max-width: 768px) {

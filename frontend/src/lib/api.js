@@ -89,6 +89,13 @@ export const domainsApi = {
 export const scansApi = {
     list: () => client.get("/scans/"),
     detail: (id) => client.get(`/scans/${id}/`),
+    // A running scan's controls. 200 { id, status }; 409 { code: "scan_finished", status } once it ended.
+    // Pause and stop take effect between two checks; the stream then sends "paused" or "stopped".
+    pause: (id) => client.post(`/scans/${id}/pause/`),
+    resume: (id) => client.post(`/scans/${id}/resume/`),
+    // Short timeout: the page leaves right after, and an unanswered stop still ends the scan
+    // when the stream closes (it is then marked interrupted instead).
+    stop: (id) => client.post(`/scans/${id}/stop/`, null, { timeout: 5000 }),
 };
 
 // ---- scan stream ---------------------------------------------------------

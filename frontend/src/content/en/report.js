@@ -55,6 +55,10 @@ export const report = {
             title: "still digging.",
             text: "this scan is still running. this page updates when it finishes.",
         },
+        paused: {
+            title: "scan paused.",
+            text: "this scan is paused on its scan page. this page updates when it resumes or ends.",
+        },
         failed: {
             title: "scan failed.",
             text: "the scan could not produce a result.",
@@ -62,6 +66,10 @@ export const report = {
         interrupted: {
             title: "scan interrupted.",
             text: "the scan stopped before it finished, usually because the page was closed.",
+        },
+        stopped: {
+            title: "scan stopped.",
+            text: "this scan was stopped before it finished.",
         },
     },
 };
