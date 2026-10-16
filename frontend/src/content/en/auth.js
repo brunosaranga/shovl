@@ -1,5 +1,3 @@
-import incidentReport from '../../assets/images/incident-report-asset.jpg'
-
 export const auth = {
     meta: {
         signin: "sign in | shovl",
@@ -8,7 +6,8 @@ export const auth = {
 
     intro: {
         title: "Securing your APIs from commit to production.",
-        graphic: incidentReport,
+        // The image itself is imported in AuthIntro.jsx; only its text lives here.
+        graphicAlt: "illustration of an incident report",
     },
 
     tabs: {
