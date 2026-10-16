@@ -5,6 +5,7 @@ export const common = {
     footer: "shovl beta engine: librana",
     logoAlt: "shovl logo",
     homeLabel: "shovl home",
+    contactEmail: "brunoeasaranga@gmail.com", // support, password help, account deletion (used by the FAQ)
     loading: "loading...",
 
     // Overall risk score of a scan (backend: CRITICAL | HIGH | MEDIUM | LOW | INCOMPLETE)

@@ -1,0 +1,99 @@
+// FAQ modal. Desktop: the "?" button in the bottom-right corner. Mobile: "faq" in the account menu.
+// In answers, `backticks` become inline code and {email} becomes a mailto link to common.contactEmail.
+// Keep answers in step with the backend: limits in scans/limits.py, session length in core/settings.py.
+export const faq = {
+    title: "faq",
+    open: "open the faq",
+    close: "close the faq",
+    footer: "still stuck? email {email}",
+
+    sections: [
+        {
+            title: "about shovl",
+            items: [
+                {
+                    q: "what does shovl do?",
+                    a: "it runs six checks against an API address you give it: authentication, object-level access (BOLA), mass assignment, rate limiting, misconfiguration and data exposure. you get a report with a severity for each.",
+                },
+                {
+                    q: "will a scan harm my API?",
+                    a: "on your own domain, shovl only reads. the one check that sends data, mass assignment, is skipped there. the rate-limit test sends up to 15 quick requests and stops as soon as your API pushes back.",
+                },
+                {
+                    q: "why can't I scan any address I like?",
+                    a: "guests can scan practice targets only. your own domains need a free account and proof that you own the domain (a DNS TXT record). private and internal network addresses are always refused.",
+                },
+                {
+                    q: "what are practice targets?",
+                    a: "free public test APIs anyone can scan: postman-echo.com, httpbingo.org, jsonplaceholder.typicode.com and dummyjson.com. they echo or fake their writes, so nothing gets stored. shovl treats them like any other API, so the results are real.",
+                },
+            ],
+        },
+        {
+            title: "results",
+            items: [
+                {
+                    q: "what do the severities mean?",
+                    a: "high: strong evidence of a real problem, like an invalid token getting through. medium: something is open to anyone and shovl can't tell if that's on purpose. low: something couldn't be verified or assessed. could not run: the check didn't finish, which says nothing about your API.",
+                },
+                {
+                    q: "why does my public API show medium?",
+                    a: "an endpoint that answers without a login might be public on purpose. shovl can't know that, so it flags it for you to judge.",
+                },
+                {
+                    q: "why is my rate limiting medium?",
+                    a: "the test stops at 15 requests, so a higher limit won't show up. advertise your limit in response headers (`RateLimit-*` or `X-RateLimit-*`) and the check passes.",
+                },
+                {
+                    q: "why does my report say \"based on 5 of 6 checks\"?",
+                    a: "mass assignment sends data to your API, so it only runs on practice targets. on your own domain it's skipped and the report says so. a check that couldn't finish is left out of the count too.",
+                },
+                {
+                    q: "why did my scan fail?",
+                    a: "shovl couldn't reach the API: the address wasn't found, the connection was refused or timed out, the certificate was invalid, or it redirected to another site. the report says which. failed scans don't count against your allowance.",
+                },
+                {
+                    q: "can I close the tab while a scan runs?",
+                    a: "not yet. leaving the page stops the scan. stopped scans don't count against your allowance.",
+                },
+            ],
+        },
+        {
+            title: "your account",
+            items: [
+                {
+                    q: "how many scans do I get?",
+                    a: "guests get 3 free scans in total, on practice targets only. a free account gets 5 scans per rolling 24 hours, on practice targets and your own verified domains.",
+                },
+                {
+                    q: "what happens to my guest scans?",
+                    a: "they're kept for 30 days. create a free account, or sign in to one you have, and they move there for good. scans you ran today still count toward today's total.",
+                },
+                {
+                    q: "why was I signed out?",
+                    a: "sessions last 16 hours during the beta. sign in again and everything is where you left it.",
+                },
+                {
+                    q: "I forgot my password.",
+                    a: "there's no reset yet. email {email} from the address you signed up with and we'll sort it out.",
+                },
+                {
+                    q: "does shovl send emails?",
+                    a: "not during the beta. if you write to us, we reply from {email}. any other email claiming to be shovl isn't from us.",
+                },
+                {
+                    q: "can I delete my account?",
+                    a: "yes. email {email} from the address you signed up with and we'll delete it, with your scans and domains.",
+                },
+                {
+                    q: "why is the first page load slow?",
+                    a: "the beta runs on a free server that sleeps when nobody's using it. the first visit after a quiet spell can take about a minute while it wakes up.",
+                },
+                {
+                    q: "where is my data stored?",
+                    a: "on servers in Frankfurt, Germany: your email, a hashed password, your domains and your scan results. guest sessions and their scans are deleted after 30 days.",
+                },
+            ],
+        },
+    ],
+};

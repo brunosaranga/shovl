@@ -29,7 +29,7 @@ src/
 ├── styles/                  # tokens.css (design system), reset, base, utilities
 ├── content/en/              # ALL copy, no JSX ({placeholders} filled by lib/text.js)
 ├── context/                 # SessionContext (anonymous | guest | registered), ThemeContext, SoundContext,
-│                            # NavSlotContext
+│                            # NavSlotContext, FaqContext
 ├── hooks/                   # useScanStream, useScanLauncher, useScans, useDomainSetup,
 │                            # useLeaveGuard, useMediaQuery, useContent, useSounds
 ├── lib/                     # api (axios + endpoints + stream), session (token storage),
@@ -37,7 +37,7 @@ src/
 ├── assets/                  # logos/, knobs/, images/, sounds/
 ├── components/
 │   ├── layout/              # Layout (shell), Navbar (+ AccountMenu), NavCenter, Ground, Footer,
-│   │                        # PageBody, PageMeta, AccessGate
+│   │                        # PageBody, PageMeta, AccessGate, Faq (FaqModal + FaqButton)
 │   ├── ui/                  # Button, Card, Badge, Alert, Modal, ProgressBar, Terminal, Knob,
 │   │                        # Logo, Spinner, TextField, Checkbox, CopyField, PageTitle, Pagination,
 │   │                        # ThemeToggle, SoundToggle
@@ -84,6 +84,7 @@ Rules of thumb:
 | "based on 5 of 6 checks" + which checks could not run (mass assignment on own domains) | `sections/report/CoverageNote` |
 | Reports of scans still running refresh themselves every 3s | `hooks/useScans` (`useScanDetail`) |
 | Page title in the navbar's middle slot, URL input there on the desktop landing page | `layout/NavCenter`, `context/NavSlotContext` |
+| FAQ: "?" button bottom right on desktop, "faq" in the account menu on mobile (anonymous visitors get the menu there too); copy and contact email in `content/en/faq.js` and `common.js` | `layout/Faq`, `context/FaqContext`, `layout/Navbar/AccountMenu` |
 | Per-page `<title>` (React 19 hoists it, no helmet) | `layout/PageMeta` |
 | Dark mode without a flash: saved choice, else the system setting; toggle in the navbar | `index.html`, `context/ThemeContext`, `ui/ThemeToggle` |
 | Practice targets + one-click suggestions on the landing page | `lib/targets.js` (`PRACTICE_TARGETS`), `sections/landing/LaunchPanel` |

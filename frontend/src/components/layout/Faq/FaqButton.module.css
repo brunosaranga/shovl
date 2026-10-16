@@ -1,0 +1,40 @@
+/* Lines up with the navbar's 40px side padding. */
+.button {
+    position: fixed;
+    right: 40px;
+    bottom: 32px;
+    z-index: var(--z-nav);
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: var(--surface);
+    color: var(--text);
+    border: var(--border-3);
+    box-shadow: var(--shadow-4);
+    font-family: var(--font-sans);
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 1;
+    cursor: pointer;
+    transition: var(--press);
+}
+
+.button:hover,
+.button:focus-visible {
+    background: var(--accent);
+    color: var(--on-accent);
+}
+
+.button:active {
+    transform: translate(3px, 3px);
+    box-shadow: var(--shadow-pressed);
+}
+
+@media (max-width: 768px) {
+    .button {
+        display: none;
+    }
+}

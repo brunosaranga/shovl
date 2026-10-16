@@ -2,18 +2,26 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import userAvatar from "../../../assets/logos/UserAvatar.svg";
 import { useSession } from "../../../context/SessionContext";
+import { useFaq } from "../../../context/FaqContext";
 import { useContent } from "../../../hooks/useContent";
+import { MOBILE_QUERY, useMediaQuery } from "../../../hooks/useMediaQuery";
 import { menuRoutes, canAccess } from "../../../routes";
 import styles from "./Navbar.module.css";
 
-// Avatar button. Nobody signed in → goes to /signin. Otherwise opens the menu:
+// Avatar button. Opens the menu:
 //   pages from routes.jsx the visitor can open, then
+//   mobile:     "faq" (desktop has the "?" button in the corner instead)
+//   nobody:     "sign in"
 //   guest:      "save your scans" (register) and "sign in" (both keep their scans)
 //   registered: "log out"
+// Nobody signed in on desktop: no menu, the avatar goes straight to /signin.
+// On mobile they get the menu too, or the FAQ would be out of reach.
 // Guests get no "log out": dropping a guest token would lose their scans.
 export default function AccountMenu() {
     const { nav } = useContent();
     const { status, signOut } = useSession();
+    const { openFaq } = useFaq();
+    const isMobile = useMediaQuery(MOBILE_QUERY);
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
     const wrapperRef = useRef(null);
@@ -34,7 +42,7 @@ export default function AccountMenu() {
 
     const avatar = <img src={userAvatar} alt="" className={styles.avatarImage} />;
 
-    if (status === "anonymous") {
+    if (status === "anonymous" && !isMobile) {
         return (
             <Link to="/signin" className={styles.avatar} aria-label={nav.guestSignIn}>
                 {avatar}
@@ -66,7 +74,26 @@ export default function AccountMenu() {
                         </Link>
                     ))}
 
-                    {status === "guest" ? (
+                    {isMobile ? (
+                        <button
+                            type="button"
+                            role="menuitem"
+                            aria-haspopup="dialog"
+                            className={styles.item}
+                            onClick={() => {
+                                close();
+                                openFaq();
+                            }}
+                        >
+                            {nav.faq}
+                        </button>
+                    ) : null}
+
+                    {status === "anonymous" ? (
+                        <Link to="/signin" state={{ mode: "signin" }} role="menuitem" className={styles.item} onClick={close}>
+                            {nav.guestSignIn}
+                        </Link>
+                    ) : status === "guest" ? (
                         <>
                             <Link
                                 to="/signin"

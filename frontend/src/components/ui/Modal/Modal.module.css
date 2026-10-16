@@ -1,8 +1,9 @@
 .backdrop {
     position: fixed;
     inset: 0;
-    /* z-index: 100; */
-    z-index: overlay;
+    /* Was `z-index: overlay;`, which browsers drop as invalid, so the ground, footer and
+       navbar painted over the backdrop. */
+    z-index: var(--z-overlay);
     display: flex;
     align-items: center;
     justify-content: center;

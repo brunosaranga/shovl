@@ -7,5 +7,6 @@ export const nav = {
     },
     guestRegister: "save your scans",
     guestSignIn: "sign in",
+    faq: "faq", // mobile only: on desktop the FAQ has its own "?" button
     logout: "log out",
 };
