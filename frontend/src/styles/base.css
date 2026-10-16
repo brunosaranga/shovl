@@ -1,3 +1,10 @@
+/* Phones draw a blue box over anything tapped. Every control here has its own pressed
+   look, and keyboard focus keeps the :focus-visible outline below. Inherited, so this
+   one line covers the whole app. */
+html {
+    -webkit-tap-highlight-color: transparent;
+}
+
 body {
     font-family: var(--font-sans);
     color: var(--text);
