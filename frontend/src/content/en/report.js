@@ -13,8 +13,23 @@ export const report = {
     },
 
     rerun: "re-run scan",
-    rerunFull: "re-run with full report",
-    summaryOnly: "summary only — the full findings breakdown was skipped because \"generate report\" was off for this scan.",
+
+    // A scan run with "generate report" off opens on the summary view. The breakdown was saved
+    // anyway, so opening it is free: no new scan.
+    view: {
+        note: "summary view: \"generate report\" was off for this scan, so the per-check breakdown is hidden. it was saved with the scan, so opening it doesn't use up a scan.",
+        noteVerbose:
+            "summary view: \"generate report\" was off for this scan, so the per-check breakdown and the raw responses are hidden. both were saved with the scan, so opening them doesn't use up a scan.",
+        show: "show full report",
+        hide: "back to summary",
+    },
+
+    // The summary view's fixes, when "suggest fix" was on.
+    fixes: {
+        title: "how to fix",
+        lead: "one fix per problem, worst first. the full report has the evidence behind each one.",
+        none: "nothing to fix: every check that ran passed.",
+    },
 
     coverage: {
         partial: "based on {run} of {total} checks.",

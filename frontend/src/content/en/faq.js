@@ -49,6 +49,10 @@ export const faq = {
                     a: "mass assignment sends data to your API, so it only runs on practice targets. on your own domain it's skipped and the report says so. a check that couldn't finish is left out of the count too.",
                 },
                 {
+                    q: "what do the three knobs do?",
+                    a: "each one adds to the report. generate report opens it on the full per-check breakdown instead of the summary. suggest fix adds a fix for every problem, even on the summary. verbose shows the live log while the scan runs and keeps the raw responses in the breakdown. the breakdown is always saved, so \"show full report\" opens it later without using up a scan.",
+                },
+                {
                     q: "why did my scan fail?",
                     a: "shovl couldn't reach the API: the address wasn't found, the connection was refused or timed out, the certificate was invalid, or it redirected to another site. the report says which. failed scans don't count against your allowance.",
                 },
