@@ -38,3 +38,24 @@ export function isGroundLoaded() {
 }
 
 setTimeout(groundLoaded, GIVE_UP_MS);
+
+// ---- showing: for the entrance (hooks/useEntrance.js) ------------------------------------
+// Sooner than "loaded": the walking loop has started playing (it may still be downloading),
+// or the still image is up when the loop isn't used. The page fades in after this.
+let showing = false;
+let reveal = () => {};
+const shown = new Promise((resolve) => {
+    reveal = resolve;
+});
+
+/** The ground is on screen and, where it can, walking. Safe to call more than once. */
+export function groundShowing() {
+    if (showing) return;
+    showing = true;
+    reveal();
+}
+
+/** Resolves once the ground is showing. */
+export function whenGroundShowing() {
+    return shown;
+}

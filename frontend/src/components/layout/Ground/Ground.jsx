@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import ground from "../../../assets/images/ground.webp";
 import groundLoop from "../../../assets/videos/ground-loop.webm";
 import { useMediaQuery } from "../../../hooks/useMediaQuery";
-import { groundLoaded } from "../../../lib/groundFirst";
+import { groundLoaded, groundShowing } from "../../../lib/groundFirst";
 import { isGroundStill } from "../../../routes";
 import styles from "./Ground.module.css";
 
@@ -88,7 +88,8 @@ function hasTransparentSky(video) {
 //
 // The ground loads first (lib/groundFirst.js): index.html paints the still image before the
 // app arrives (#ground-boot), this component takes over from it, and tells the rest of the
-// app once the ground has loaded so the sound files can start downloading.
+// app when the ground is showing (the page's entrance fades in then: hooks/useEntrance.js)
+// and when it has loaded (the sound files start downloading then).
 export default function Ground() {
     const { pathname } = useLocation();
     const still = isGroundStill(pathname);
@@ -117,9 +118,13 @@ export default function Ground() {
     // it has loaded when the image has. With the loop, onLoadProgress says when.
     useEffect(() => {
         if (showVideo) return undefined;
+        const done = () => {
+            groundShowing();
+            groundLoaded();
+        };
         const image = new Image();
-        image.onload = groundLoaded;
-        image.onerror = groundLoaded;
+        image.onload = done;
+        image.onerror = done;
         image.src = ground;
         return () => {
             image.onload = null;
@@ -133,14 +138,16 @@ export default function Ground() {
 
     const onPlaying = (event) => {
         if (status !== "pending") return;
-        setStatus(hasTransparentSky(event.currentTarget) ? "playing" : "unsupported");
+        const transparent = hasTransparentSky(event.currentTarget);
+        setStatus(transparent ? "playing" : "unsupported");
+        if (transparent) groundShowing(); // otherwise the still image says so (above)
     };
 
     // which layer shows: the video once it's proven itself (even while halted), else the image
     const layer = showVideo && status === "playing" ? "video" : "image";
 
     return (
-        <div className={styles.ground} data-layer={layer} aria-hidden="true">
+        <div className={styles.ground} data-layer={layer} data-ground="" aria-hidden="true">
             <div className={styles.still} style={{ backgroundImage: `url(${ground})` }} />
             {showVideo && (
                 <video

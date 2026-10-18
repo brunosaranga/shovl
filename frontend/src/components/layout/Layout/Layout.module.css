@@ -12,6 +12,13 @@
     isolation: isolate;
 }
 
+/* The entrance (hooks/useEntrance.js): until it's released, only the ground shows.
+   visibility rather than opacity: it hides from clicks, keyboard and screen readers too, and
+   doesn't change what sits in front of the ground. */
+.shell[data-entrance="hold"] > :not([data-ground]) {
+    visibility: hidden;
+}
+
 /* The only thing that scrolls. */
 .content {
     flex: 1;

@@ -7,6 +7,7 @@ import Ground from "../Ground/Ground";
 import Footer from "../Footer/Footer";
 import FaqButton from "../Faq/FaqButton";
 import FaqModal from "../Faq/FaqModal";
+import { useEntrance } from "../../../hooks/useEntrance";
 import { useRouteAmbiance } from "../../../hooks/useSounds";
 import { isContentOverGround } from "../../../routes";
 import styles from "./Layout.module.css";
@@ -17,16 +18,19 @@ import styles from "./Layout.module.css";
 // The FAQ lives here too: the "?" button on desktop, the account menu on mobile.
 // Pages marked `content: "over-ground"` in routes.jsx scroll over the ground; the others
 // keep the ground in front of their content (the scan page) or layer their own pieces.
+// On the first page of a visit, the ground comes in alone and the rest fades in after it
+// (hooks/useEntrance.js).
 export default function Layout() {
     const [navSlot, setNavSlot] = useState(null);
     const { pathname } = useLocation();
     const overGround = isContentOverGround(pathname);
+    const shellRef = useEntrance();
     useRouteAmbiance();
 
     return (
         <FaqProvider>
             <NavSlotProvider value={navSlot}>
-                <div className={styles.shell}>
+                <div className={styles.shell} ref={shellRef}>
                     <Navbar slotRef={setNavSlot} />
                     <Ground />
                     <Footer />
