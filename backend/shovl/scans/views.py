@@ -3,27 +3,31 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.conf import settings
-from django.http import StreamingHttpResponse, FileResponse
+from django.db import transaction
+from django.db.models import F
+from django.http import HttpResponse, StreamingHttpResponse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
+from rest_framework.throttling import ScopedRateThrottle
 from .renderers import ServerSentEventRenderer
 from django.utils import timezone
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlparse
-import json, logging, os, time
+import json, logging, re, time
 
 from accounts.permissions import REGISTRATION_REQUIRED_MESSAGE
 from . import controls
+from .compare import comparison_for
 from .limits import AllowanceExceeded, start_scan
-from .models import ACTIVE_STATUSES, Scan
-from .serializers import ScanSerializer
+from .models import ACTIVE_STATUSES, Scan, ScanFeedback
+from .serializers import FeedbackSerializer, ScanDetailSerializer, ScanSerializer
 from .validators import target_url_error
 from domains.models import Domain
 from domains.verification import is_practice_target
 from scanner.engine import CHECKS, ScanFailed, build_raw, ensure_usable, preflight, run_check, run_scan
 from scanner.http import TimeBudget
 from scanner.report import format_report
-from reporter.generator import generate_pdf
+from reporter.generator import build_pdf
 
 logger = logging.getLogger(__name__)
 
@@ -209,16 +213,7 @@ class ScanCreateView(APIView):
             scan.risk_score = report["meta"]["risk_score"]
             scan.results = report
             scan.completed_at = timezone.now()
-
-            # Only spend the time/IO building a PDF when the user asked for one and
-            # PDFs are switched on (SHOVL_PDF_REPORTS, off in production by default).
-            # When skipped, pdf_path stays blank and ScanPDFView correctly 404s.
-            if generate_report and settings.SHOVL_PDF_REPORTS:
-                pdf_path = f"reports/scan_{scan.id}.pdf"
-                os.makedirs("reports", exist_ok=True)
-                generate_pdf(report, pdf_path)
-                scan.pdf_path = pdf_path
-
+            # The PDF is built when someone downloads it (ScanPDFView), not here.
             scan.save()
 
             return Response(ScanSerializer(scan).data, status=201)
@@ -241,31 +236,154 @@ class ScanCreateView(APIView):
             )
         
 class ScanDetailView(generics.RetrieveAPIView):
-    serializer_class = ScanSerializer
+    """One scan for the report page, with "since your last scan" and the feedback answer."""
+    serializer_class = ScanDetailSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Scan.objects.filter(user=self.request.user)
-    
+
+
+SCAN_NOT_FOUND = {'detail': 'Scan not found.', 'code': 'not_found'}
+NOT_COMPLETE = {'detail': 'Only a finished scan has a report.', 'code': 'scan_not_complete'}
+
+
+def pdf_filename(scan):
+    """shovl-report-<host>-<date>-<id>.pdf, in plain ASCII so every browser keeps it."""
+    host = (urlparse(scan.target_url).hostname or 'api').lower()
+    host = re.sub(r'[^a-z0-9.-]+', '-', host).strip('.-')[:60] or 'api'
+    day = (scan.completed_at or scan.created_at).strftime('%Y-%m-%d')
+    return f'shovl-report-{host}-{day}-{scan.pk}.pdf'
+
+
+def site_address():
+    """The site's own address for the PDF's footer: the frontend's origin, without https://."""
+    origins = getattr(settings, 'CORS_ALLOWED_ORIGINS', None) or []
+    return re.sub(r'^https?://', '', origins[0]) if origins else ''
+
 
 class ScanPDFView(APIView):
+    """
+    GET /api/scans/<id>/pdf/: the report as a PDF download. The scan's owner only.
+
+    Built in memory from the saved results on every download (reporter/generator.py), so
+    nothing is written to disk and every finished scan has one, whichever knobs were on.
+
+    200 application/pdf, with Content-Disposition naming the file
+    404 {"detail", "code": "not_found"}: no such scan, or not yours
+    409 {"detail", "code": "scan_not_complete"}: still running, failed, interrupted or stopped
+    429: more than the "pdf" rate in settings (per person)
+    503 {"detail", "code": "pdf_disabled"}: switched off with SHOVL_PDF_REPORTS=0
+    """
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'pdf'
+
+    def perform_content_negotiation(self, request, force=False):
+        # A client asking for application/pdf only would otherwise get a 406 before get() runs:
+        # the PDF is returned as a plain response, and errors fall back to JSON.
+        return super().perform_content_negotiation(request, force=True)
 
     def get(self, request, pk):
+        scan = Scan.objects.filter(pk=pk, user=request.user).first()
+        if scan is None:
+            return Response(SCAN_NOT_FOUND, status=status.HTTP_404_NOT_FOUND)
+        if not settings.SHOVL_PDF_REPORTS:
+            return Response(
+                {'detail': 'PDF downloads are switched off for now.', 'code': 'pdf_disabled'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        if scan.status != 'complete' or not isinstance(scan.results, dict):
+            return Response(NOT_COMPLETE, status=status.HTTP_409_CONFLICT)
+
         try:
-            scan = Scan.objects.get(pk=pk, user=request.user)
-        except Scan.DoesNotExist:
-            return Response({'error': 'Scan not found.'}, status=404)
-        
-        if not scan.pdf_path or not os.path.exists(scan.pdf_path):
-            return Response({'error': 'PDF not available.'}, status=404)
-        
-        response = FileResponse(
-            open(scan.pdf_path, 'rb'),
-            content_type='application/pdf'
-        )
-        response['Content-Disposition'] = f'attachment; filename="shovl_report_{pk}.pdf"'
+            data = build_pdf(
+                scan.results,
+                scan_id=scan.pk,
+                target_url=scan.target_url,
+                comparison=comparison_for(scan),
+                site=site_address(),
+            )
+        except Exception:
+            logger.exception('PDF for scan %s could not be built', scan.pk)
+            return Response(
+                {'detail': 'We could not build the PDF for this scan.', 'code': 'pdf_failed'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        Scan.objects.filter(pk=scan.pk).update(pdf_downloads=F('pdf_downloads') + 1)
+
+        response = HttpResponse(data, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{pdf_filename(scan)}"'
+        response['Cache-Control'] = 'no-store'
         return response
+
+
+def feedback_snapshot(scan, user):
+    """What the report showed, copied onto the answer so it outlives the scan (see ScanFeedback)."""
+    results = scan.results if isinstance(scan.results, dict) else {}
+    meta = results.get('meta') or {}
+    summary = results.get('summary') or {}
+    return {
+        'risk_score': scan.risk_score or meta.get('risk_score') or '',
+        'summary': {key: value for key, value in summary.items() if isinstance(value, int)},
+        'checks_run': meta.get('checks_run'),
+        'total_checks': meta.get('total_checks'),
+        'practice_target': is_practice_target(scan.target_url),
+        'guest': bool(getattr(user, 'is_guest', False)),
+        'options': {
+            'generate_report': bool(meta.get('generate_report', True)),
+            'suggest_fix': bool(meta.get('suggest_fix', scan.suggest_fix)),
+            'verbose': bool(meta.get('verbose', scan.verbose)),
+        },
+    }
+
+
+class ScanFeedbackView(APIView):
+    """
+    POST /api/scans/<id>/feedback/: the optional "was this report useful?" answer.
+    Body: any of {"useful": true|false, "comment": "...", "would_pay": "yes"|"maybe"|"no"}.
+    The first answer for a scan must include "useful"; later ones add to or change it.
+
+    200 {"useful", "comment", "would_pay"} (201 the first time)
+    400 field errors, or {"useful": [...]} when the first answer leaves it out
+    404 no such scan, or not yours. 409 the scan didn't complete. 429 too many answers.
+    """
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'feedback'
+
+    def post(self, request, pk):
+        scan = Scan.objects.filter(pk=pk, user=request.user).first()
+        if scan is None:
+            return Response(SCAN_NOT_FOUND, status=status.HTTP_404_NOT_FOUND)
+        if scan.status != 'complete':
+            return Response(NOT_COMPLETE, status=status.HTTP_409_CONFLICT)
+
+        serializer = FeedbackSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        answer = serializer.validated_data
+
+        with transaction.atomic():
+            # Locks the scan row, so two answers sent at once can't both create one.
+            Scan.objects.select_for_update().filter(pk=scan.pk).first()
+            feedback = ScanFeedback.objects.filter(scan=scan).first()
+            created = feedback is None
+            if created:
+                if 'useful' not in answer:
+                    return Response(
+                        {'useful': ['Say whether the report was useful first.']},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                feedback = ScanFeedback(scan=scan, **feedback_snapshot(scan, request.user))
+            for field, value in answer.items():
+                setattr(feedback, field, value)
+            feedback.save()
+
+        return Response(
+            FeedbackSerializer(feedback).data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
 
 
 class ScanControlView(APIView):
@@ -435,25 +553,14 @@ class ScanStreamView(APIView):
                     raw = build_raw(target_url, findings, verbose, suggest_fix, generate_report)
                     report = format_report(raw)
 
-                    # A PDF problem should not throw away a finished scan.
-                    pdf_path = ''
-                    if generate_report and settings.SHOVL_PDF_REPORTS:
-                        try:
-                            os.makedirs('reports', exist_ok=True)
-                            pdf_path = f'reports/scan_{scan.id}.pdf'
-                            generate_pdf(report, pdf_path)
-                        except Exception:
-                            pdf_path = ''
-                            logger.exception('PDF generation failed for scan %s', scan.id)
-
                     # Saved only while the scan has not ended: a stop that arrived in the
                     # last moments stands, and is never overwritten by "complete".
+                    # The PDF is built when someone downloads it (ScanPDFView), not here.
                     saved = Scan.objects.filter(pk=scan.pk, status__in=ACTIVE_STATUSES).update(
                         status='complete',
                         risk_score=report['meta']['risk_score'],
                         results=report,
                         completed_at=timezone.now(),
-                        pdf_path=pdf_path,
                     )
                 except Exception:
                     logger.exception('Building the report failed for scan %s', scan.id)

@@ -95,6 +95,14 @@ REST_FRAMEWORK = {
         if DEBUG
         else ("rest_framework.renderers.JSONRenderer",)
     ),
+    # Per person, for the views that set throttle_scope (scans/views.py). Counted in the
+    # shared cache below, so every gunicorn process sees the same numbers.
+    #   pdf       building a PDF takes a moment of the server's time
+    #   feedback  answers to "was this report useful?"
+    "DEFAULT_THROTTLE_RATES": {
+        "pdf": "30/hour",
+        "feedback": "60/hour",
+    },
 }
 
 # Only the real frontend may call the API. In development that is the Vite
@@ -108,7 +116,8 @@ if not CORS_ALLOWED_ORIGINS:
     raise ImproperlyConfigured(
         "CORS_ALLOWED_ORIGINS must be set in production (the frontend's address)."
     )
-
+# Lets the frontend read the file name of a PDF download (scans/views.py, ScanPDFView).
+CORS_EXPOSE_HEADERS = ["Content-Disposition"]
 
 
 # How long a signed-in session lasts before the user has to sign in again (the
@@ -270,9 +279,9 @@ GUEST_THROTTLE_PROXIES = int(os.getenv("GUEST_THROTTLE_PROXIES", "0"))
 # creation arrives with. Turn it off again once GUEST_THROTTLE_PROXIES is set.
 SHOVL_LOG_CLIENT_IP = os.getenv("SHOVL_LOG_CLIENT_IP") == "1"
 
-# PDF reports are written to the server's own disk, which most hosts wipe on every
-# deploy, and the frontend has no download button yet. Off in production by default.
-SHOVL_PDF_REPORTS = os.getenv("SHOVL_PDF_REPORTS", "1" if DEBUG else "0") == "1"
+# PDF downloads (GET /api/scans/<id>/pdf/). Built in memory when someone asks, never written
+# to disk. On unless switched off with SHOVL_PDF_REPORTS=0 (the report page then says so).
+SHOVL_PDF_REPORTS = os.getenv("SHOVL_PDF_REPORTS", "1") == "1"
 
 
 # Production behind the host's HTTPS proxy.
