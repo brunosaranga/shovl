@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import ground from "../../../assets/images/ground.webp";
 import groundLoop from "../../../assets/videos/ground-loop.webm";
 import { useMediaQuery } from "../../../hooks/useMediaQuery";
+import { groundLoaded } from "../../../lib/groundFirst";
 import { isGroundStill } from "../../../routes";
 import styles from "./Ground.module.css";
 
@@ -53,6 +54,14 @@ function glideTo(video, target) {
     return () => cancelAnimationFrame(frame);
 }
 
+// True once the whole loop is downloaded, or the browser has stopped fetching it with enough
+// to play (it "suspends" the download): from then on nothing else competes with it.
+function isLoaded(video, eventType) {
+    const { buffered, duration } = video;
+    if (buffered.length && duration && buffered.end(buffered.length - 1) >= duration - 0.5) return true;
+    return eventType === "suspend" && video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA;
+}
+
 // True when the video's sky came through transparent. Safari plays WebM but drops the
 // transparency (the sky turns solid), so it keeps the still image instead.
 function hasTransparentSky(video) {
@@ -76,6 +85,10 @@ function hasTransparentSky(video) {
 // and it picks up again from the same spot on the next page.
 // Visitors who ask for reduced motion, and browsers that can't show the transparency
 // (or won't autoplay), keep the still image.
+//
+// The ground loads first (lib/groundFirst.js): index.html paints the still image before the
+// app arrives (#ground-boot), this component takes over from it, and tells the rest of the
+// app once the ground has loaded so the sound files can start downloading.
 export default function Ground() {
     const { pathname } = useLocation();
     const still = isGroundStill(pathname);
@@ -94,6 +107,29 @@ export default function Ground() {
         video.muted = true;
         return glideTo(video, still ? 0 : WALK_RATE);
     }, [still, showVideo]);
+
+    // index.html's boot ground has done its job once this one is on the page.
+    useEffect(() => {
+        document.getElementById("ground-boot")?.remove();
+    }, []);
+
+    // Without the loop (reduced motion, Safari, an error) the still image is the whole ground:
+    // it has loaded when the image has. With the loop, onLoadProgress says when.
+    useEffect(() => {
+        if (showVideo) return undefined;
+        const image = new Image();
+        image.onload = groundLoaded;
+        image.onerror = groundLoaded;
+        image.src = ground;
+        return () => {
+            image.onload = null;
+            image.onerror = null;
+        };
+    }, [showVideo]);
+
+    const onLoadProgress = (event) => {
+        if (isLoaded(event.currentTarget, event.type)) groundLoaded();
+    };
 
     const onPlaying = (event) => {
         if (status !== "pending") return;
@@ -118,6 +154,9 @@ export default function Ground() {
                     disablePictureInPicture
                     tabIndex={-1}
                     onPlaying={onPlaying}
+                    onProgress={onLoadProgress}
+                    onSuspend={onLoadProgress}
+                    onCanPlayThrough={onLoadProgress}
                     onError={() => setStatus("unsupported")}
                 />
             )}

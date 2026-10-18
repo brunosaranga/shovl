@@ -53,6 +53,14 @@ export const faq = {
                     a: "each one adds to the report. generate report opens it on the full per-check breakdown instead of the summary. suggest fix adds a fix for every problem, even on the summary. verbose shows the live log while the scan runs and keeps the raw responses in the breakdown. the breakdown is always saved, so \"show full report\" opens it later without using up a scan.",
                 },
                 {
+                    q: "can I download a report?",
+                    a: "yes. every finished report has a \"download pdf\" button. the PDF has the score, every finding with its fix when suggest fix was on, and what changed since your last scan, ready to hand to a client or a teammate. it's free during the beta and doesn't use up a scan.",
+                },
+                {
+                    q: "what does \"since your last scan\" show?",
+                    a: "scan the same address again and the report compares it with your last finished scan of it: which checks got fixed, which got better or worse, and which are new problems. http and https count as the same address, so moving to HTTPS shows up as a fix.",
+                },
+                {
                     q: "why did my scan fail?",
                     a: "shovl couldn't reach the API: the address wasn't found, the connection was refused or timed out, the certificate was invalid, or it redirected to another site. the report says which. failed scans don't count against your allowance.",
                 },
@@ -99,7 +107,7 @@ export const faq = {
                 },
                 {
                     q: "where is my data stored?",
-                    a: "on servers in Frankfurt, Germany: your email, a hashed password, your domains and your scan results. guest sessions and their scans are deleted after 30 days.",
+                    a: "on servers in Frankfurt, Germany: your email, a hashed password, your domains, your scan results, and any answer you give under a report. guest sessions and their scans are deleted after 30 days. when a scan is deleted, an answer given under it stays, without your account or the scanned address.",
                 },
             ],
         },

@@ -6,8 +6,9 @@ import { riskTone } from "../../../../lib/severity";
 import { formatDateTime } from "../../../../lib/text";
 import styles from "./ReportMeta.module.css";
 
-// Top strip: target, when it ran, the overall risk score, and re-run.
-export default function ReportMeta({ meta, targetUrl, onReRun }) {
+// Top strip: target, when it ran, the overall risk score, and the actions:
+// "download pdf" (free, any finished scan) and "re-run scan" (uses up a scan).
+export default function ReportMeta({ meta, targetUrl, onReRun, onDownload, downloading = false }) {
     const { report, common } = useContent();
     const risk = String(meta?.risk_score || "").toUpperCase();
 
@@ -29,7 +30,14 @@ export default function ReportMeta({ meta, targetUrl, onReRun }) {
                     </Badge>
                 </div>
             </div>
-            <Button onClick={onReRun}>{report.rerun}</Button>
+            <div className={styles.actions}>
+                {onDownload ? (
+                    <Button onClick={onDownload} disabled={downloading} aria-busy={downloading}>
+                        {downloading ? report.pdf.preparing : report.pdf.download}
+                    </Button>
+                ) : null}
+                <Button onClick={onReRun}>{report.rerun}</Button>
+            </div>
         </Card>
     );
 }

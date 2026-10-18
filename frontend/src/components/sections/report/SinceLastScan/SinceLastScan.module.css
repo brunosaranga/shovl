@@ -1,0 +1,136 @@
+/* Same deck and card language as Findings and FixList. */
+.deck {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.head {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    letter-spacing: -1px;
+    text-transform: lowercase;
+}
+
+.link {
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.card {
+    border: var(--border-3);
+    background: var(--surface);
+    box-shadow: var(--shadow-5);
+}
+
+/* Risk before → after, and one chip per kind of change. */
+.summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    padding: 16px 20px;
+    background: var(--surface-raised);
+}
+
+.risk {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.label {
+    font-weight: 700;
+}
+
+.counts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* One row per check that changed. */
+.list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: var(--border-2);
+}
+
+.row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 120px;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    font-size: 13px;
+}
+
+.row + .row {
+    border-top: 1px solid var(--border-soft);
+}
+
+.name {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.move {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.change {
+    text-align: right;
+    font-weight: 700;
+}
+
+.nothing,
+.note {
+    margin: 0;
+    padding: 14px 20px;
+    font-size: 13px;
+    border-top: var(--border-2);
+    background: var(--surface-soft);
+}
+
+.note {
+    border-top: 1px solid var(--border-soft);
+    font-size: 12px;
+}
+
+/* The first scan of an address: one quiet line. */
+.first {
+    margin: 0;
+    font-size: 13px;
+}
+
+@media (max-width: 768px) {
+    .row {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px 12px;
+    }
+
+    .move {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+
+    .change {
+        grid-row: 1;
+        grid-column: 2;
+    }
+}

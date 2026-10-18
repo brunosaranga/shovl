@@ -21,14 +21,18 @@ import NotFound from "./pages/NotFound/NotFound";
 //   page, the 404 included, plays it.
 // ground: "still" brings the walking ground to a halt on that page (layout/Ground): we stop
 //   to dig while a scan runs, and stay put if it fails. Leaving walks on from the same spot.
+// content: "over-ground" lets the page's content scroll over the ground, so nothing you need
+//   to read or click hides behind it. Without it the ground covers the bottom of the page:
+//   on purpose on the scan page (we're digging into it); the landing and sign-in pages
+//   layer their own pieces (layout/Layout).
 export const pageRoutes = [
     { path: "/", element: <Landing />, access: "public" },
     { path: "/signin", element: <Auth />, access: "public" },
-    { path: "/verify", element: <Verify />, access: "registered", ambiance: false },
+    { path: "/verify", element: <Verify />, access: "registered", ambiance: false, content: "over-ground" },
     { path: "/scan/running", element: <ScanRunning />, access: "session", ambiance: false, ground: "still" },
-    { path: "/scan/:scanId/report", element: <Report />, access: "session" },
-    { path: "/dashboard", element: <Dashboard />, access: "session", menuKey: "dashboard" },
-    { path: "/settings", element: <Settings />, access: "registered", menuKey: "settings" },
+    { path: "/scan/:scanId/report", element: <Report />, access: "session", content: "over-ground" },
+    { path: "/dashboard", element: <Dashboard />, access: "session", menuKey: "dashboard", content: "over-ground" },
+    { path: "/settings", element: <Settings />, access: "registered", menuKey: "settings", content: "over-ground" },
 ];
 
 export const menuRoutes = pageRoutes.filter((route) => route.menuKey);
@@ -52,6 +56,11 @@ export function hasAmbiance(pathname) {
 /** Does the ground stand still on the page at this path? */
 export function isGroundStill(pathname) {
     return pageRoutes.some((route) => route.ground === "still" && matchPath(route.path, pathname));
+}
+
+/** Does the page at this path scroll its content over the ground (instead of under it)? */
+export function isContentOverGround(pathname) {
+    return pageRoutes.some((route) => route.content === "over-ground" && matchPath(route.path, pathname));
 }
 
 export const routerConfig = [

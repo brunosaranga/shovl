@@ -18,6 +18,11 @@
 // <audio>.volume), and a running context can start the scan track without a new gesture.
 // The files are served from the same origin as the app. From another origin (a CDN) they
 // would need CORS headers and crossOrigin="anonymous" on the <audio> element.
+//
+// The ground loads first (lib/groundFirst.js): no sound file is downloaded until it has.
+// A sound asked for before then (a click in the first seconds of a first visit) starts once
+// the ground is in; the ambiance on some browsers only at the next click.
+import { isGroundLoaded, whenGroundLoaded } from "./groundFirst";
 import ambianceUrl from "../assets/sounds/shovl_sound_fx_ambiance.mp3";
 import scanRunningUrl from "../assets/sounds/shovl_sound_fx_scan_running.mp3";
 import errorUrl from "../assets/sounds/shovl_sound_fx_error.mp3";
@@ -146,7 +151,8 @@ function decode(data) {
 function load(url) {
     if (decoded.has(url)) return Promise.resolve(decoded.get(url));
     if (!loading.has(url)) {
-        const promise = fetch(url)
+        const promise = whenGroundLoaded()
+            .then(() => fetch(url))
             .then((response) => {
                 if (!response.ok) throw new Error(`sound ${response.status}`);
                 return response.arrayBuffer();
@@ -274,7 +280,8 @@ function sync(fade = FADE.out) {
     if (!state.interacted || !ctx) return;
     const audible = !state.muted;
 
-    if (audible && state.ambianceWanted && !state.hidden && !state.scanWanted) startAmbiance();
+    // The ambiance streams a 4 MB file: it waits for the ground (see the top of this file).
+    if (audible && state.ambianceWanted && !state.hidden && !state.scanWanted && isGroundLoaded()) startAmbiance();
     else stopAmbiance(fade);
 
     if (audible && state.scanWanted) startScanVoice();
@@ -297,6 +304,9 @@ function onVisibility() {
 function notify() {
     listeners.forEach((listener) => listener());
 }
+
+// Whatever the page asked for while the ground was loading starts now.
+whenGroundLoaded().then(() => sync(FADE.out));
 
 // ---- public API ----------------------------------------------------------------------
 /** Installs the gesture and visibility listeners. Returns the uninstall function. */

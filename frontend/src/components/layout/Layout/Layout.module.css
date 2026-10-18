@@ -17,3 +17,11 @@
     flex: 1;
     overflow-y: auto;
 }
+
+/* Report, dashboard, settings, verify (routes.jsx): the content scrolls over the ground
+   instead of under it. The ground still shows below the content (PageBody's bottom padding),
+   and the footer line sits under the content too. The navbar (--z-nav) stays on top. */
+.content[data-layer="over-ground"] {
+    position: relative;
+    z-index: var(--z-content);
+}

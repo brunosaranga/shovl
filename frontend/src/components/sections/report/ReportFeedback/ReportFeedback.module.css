@@ -1,0 +1,146 @@
+/* The feedback block: the report's card language, with the neon shadow that marks it as
+   something we're asking rather than something the scan found. */
+.card {
+    border: var(--border-3);
+    background: var(--surface);
+    box-shadow: 5px 5px 0 var(--accent);
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 16px;
+}
+
+.head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+}
+
+.title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    letter-spacing: -1px;
+    text-transform: lowercase;
+}
+
+.lead {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* A plain text button: "skip", "done", "change". */
+.quiet {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-size: 12px;
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.part {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-soft);
+}
+
+.question {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.textarea {
+    width: 100%;
+    resize: vertical;
+    min-height: 72px;
+    padding: 10px 12px;
+    border: var(--border-2);
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+    outline: none;
+}
+
+.textarea:focus-visible {
+    box-shadow: var(--shadow-2);
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.count {
+    font-size: 11px;
+}
+
+/* yes / maybe / no: outlined until picked, then neon. */
+.choice {
+    background: var(--surface);
+    color: var(--text);
+    border: var(--border-2);
+    box-shadow: var(--shadow-2);
+    font-family: var(--font-sans);
+    font-weight: 900;
+    font-size: 12px;
+    padding: 4px 14px;
+    cursor: pointer;
+    transition: var(--press);
+}
+
+.choice:active:not(:disabled) {
+    transform: translate(1px, 1px);
+    box-shadow: var(--shadow-pressed);
+}
+
+.choice:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.picked {
+    background: var(--accent);
+    color: var(--on-accent);
+}
+
+.error {
+    margin: 0;
+    color: var(--danger);
+    font-size: 12px;
+}
+
+.thanks {
+    margin: 16px 0 0;
+    font-size: 13px;
+}
+
+@media (max-width: 768px) {
+    .card {
+        padding: 16px;
+    }
+
+    /* 16px keeps phones from zooming in when the box is tapped. */
+    .textarea {
+        font-size: 16px;
+    }
+}

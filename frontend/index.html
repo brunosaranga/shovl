@@ -32,6 +32,29 @@
             rel="stylesheet"
         />
 
+        <!-- The ground loads first (src/lib/groundFirst.js). Preloaded at high priority, and
+             painted by #ground-boot below before the app's JavaScript arrives; the app's own
+             ground (layout/Ground) takes over in the same spot and removes #ground-boot.
+             Same size and place as Ground.module.css: 400px tall, on the bottom edge, above
+             the 64px mobile navbar. -->
+        <link rel="preload" as="image" type="image/webp" href="/src/assets/images/ground.webp" fetchpriority="high" />
+        <style>
+            #ground-boot {
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: 400px;
+                background: url("/src/assets/images/ground.webp") bottom center / cover no-repeat;
+                pointer-events: none;
+            }
+            @media (max-width: 768px) {
+                #ground-boot {
+                    bottom: 64px;
+                }
+            }
+        </style>
+
         <!-- Sets the theme before React loads, so dark-mode visitors never see a white flash.
              It is a plain blocking script, so it still runs before the first paint. It lives in
              public/theme-init.js instead of inline so the Content-Security-Policy can allow
@@ -39,6 +62,7 @@
         <script src="/theme-init.js"></script>
     </head>
     <body>
+        <div id="ground-boot" aria-hidden="true"></div>
         <div id="root"></div>
         <script type="module" src="/src/main.jsx"></script>
     </body>

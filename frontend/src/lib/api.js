@@ -96,6 +96,13 @@ export const scansApi = {
     // Short timeout: the page leaves right after, and an unanswered stop still ends the scan
     // when the stream closes (it is then marked interrupted instead).
     stop: (id) => client.post(`/scans/${id}/stop/`, null, { timeout: 5000 }),
+    // The report as a PDF, built by the API on request. A Blob; lib/download.js saves it.
+    // 409 { code: "scan_not_complete" }, 503 { code: "pdf_disabled" }, 429 too many.
+    // A long timeout: the free API may be waking up.
+    pdf: (id) => client.get(`/scans/${id}/pdf/`, { responseType: "blob", timeout: 90000 }),
+    // "was this report useful?": any of { useful, comment, would_pay }. The first answer
+    // needs `useful`. Returns { useful, comment, would_pay }.
+    feedback: (id, body) => client.post(`/scans/${id}/feedback/`, body),
 };
 
 // ---- scan stream ---------------------------------------------------------

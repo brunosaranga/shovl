@@ -26,6 +26,13 @@
     word-break: break-all;
 }
 
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
 @media (max-width: 768px) {
     .card {
         flex-direction: column;

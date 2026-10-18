@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { NavSlotProvider } from "../../../context/NavSlotContext";
 import { FaqProvider } from "../../../context/FaqContext";
 import Navbar from "../Navbar/Navbar";
@@ -8,14 +8,19 @@ import Footer from "../Footer/Footer";
 import FaqButton from "../Faq/FaqButton";
 import FaqModal from "../Faq/FaqModal";
 import { useRouteAmbiance } from "../../../hooks/useSounds";
+import { isContentOverGround } from "../../../routes";
 import styles from "./Layout.module.css";
 
 // The shell every page sits in: fixed navbar, the ground graphic, the footer, and a
 // scrolling content area. Pages put things in the navbar's middle slot with <NavCenter>.
 // It also switches the ambiance loop on or off as the page changes (routes.jsx says where).
 // The FAQ lives here too: the "?" button on desktop, the account menu on mobile.
+// Pages marked `content: "over-ground"` in routes.jsx scroll over the ground; the others
+// keep the ground in front of their content (the scan page) or layer their own pieces.
 export default function Layout() {
     const [navSlot, setNavSlot] = useState(null);
+    const { pathname } = useLocation();
+    const overGround = isContentOverGround(pathname);
     useRouteAmbiance();
 
     return (
@@ -25,7 +30,7 @@ export default function Layout() {
                     <Navbar slotRef={setNavSlot} />
                     <Ground />
                     <Footer />
-                    <main id="main" className={styles.content}>
+                    <main id="main" className={styles.content} data-layer={overGround ? "over-ground" : undefined}>
                         <Outlet />
                     </main>
                     <FaqButton />
