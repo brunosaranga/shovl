@@ -10,6 +10,7 @@ import { useSession } from "../../context/SessionContext";
 import { useContent } from "../../hooks/useContent";
 import { MOBILE_QUERY, useMediaQuery } from "../../hooks/useMediaQuery";
 import { useScanLauncher } from "../../hooks/useScanLauncher";
+import { useScanOptions } from "../../hooks/useScanOptions";
 import { fill } from "../../lib/text";
 import styles from "./Landing.module.css";
 
@@ -20,7 +21,8 @@ export default function Landing() {
     const { launch, urlError, consentError, launchError, busy, clearUrlError } = useScanLauncher();
 
     const [url, setUrl] = useState("");
-    const [options, setOptions] = useState({ verbose: false, generateReport: true, suggestFix: false });
+    // Remembered until a refresh (hooks/useScanOptions.js).
+    const [options, setOptions] = useScanOptions();
     const [consent, setConsent] = useState(false);
     const urlRef = useRef(null);
     const consentRef = useRef(null);
