@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.utils import timezone
 from accounts.permissions import IsRegisteredUser
+from watch.services import domain_verified_again
 from .models import Domain
 from .serializers import DomainSerializer
 from .verification import verify_dns, verify_file, is_practice_target
@@ -51,6 +52,8 @@ class DomainVerifyView(APIView):
             domain.verified = True
             domain.verified_at = timezone.now()
             domain.save()
+            # shovl watch: watches paused by rule A start again.
+            domain_verified_again(domain)
             return Response({"status": "verified"})
         
         return Response(

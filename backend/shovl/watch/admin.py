@@ -7,7 +7,9 @@ from .models import Watch
 @admin.register(Watch)
 class WatchAdmin(admin.ModelAdmin):
     """
-    Every watched API. The schedule and the pause are changed through the two actions, so paused_reason and paused_at alwats move together. "Due now" is the quick way to try the runner: the watch is picked up at the next scheduled run.
+    Every watched API. The schedule and the pause are changed through the two actions, so
+    paused_reason and paused_at always move together. "Due now" is the quick way to try the
+    runner: the watch is picked up at the next scheduled run.
     """
 
     list_display = (
@@ -17,6 +19,7 @@ class WatchAdmin(admin.ModelAdmin):
         "next_run_at",
         "last_run_at",
         "consecutive_failures",
+        "last_error",
     )
     list_filter = ("active", "paused_reason")
     search_fields = ("target_url", "user__email")
@@ -27,6 +30,8 @@ class WatchAdmin(admin.ModelAdmin):
         "last_run_at",
         "last_scan",
         "consecutive_failures",
+        "verification_failures",
+        "last_error",
         "paused_reason",
         "paused_at",
         "created_at",

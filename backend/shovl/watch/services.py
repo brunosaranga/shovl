@@ -1,15 +1,16 @@
 """
+The rules of shovl watch in one place: which APIs can be watched, which watches fit the plan,
+what a report says about its API, and what happens when someone watches, swaps, turns off or
+resumes one. The views and the scan endpoints call these; nothing else changes Watch rows.
 
-The rules of shovl watch in one place: which API can be watched, which watches fit the plan, what a report says about its API, and what happens when someone watches, swaps, turns off or resumes one. The views and the scan endpoints call these; nothing else changes Watch rows.
-
-    watch_after_scan(scan)          a manual scan completed: start watching its API if it qualifies
-    scan_watch_state(scan)          the badge on a report: watching, paused, off or not watched and why
-    watch_scan(user, scan)          "watch this API" / "watch this one instead" on a report
-    set_active(user, watch, on)     Settings: turn one API off, or back on
-    resume_watch(watch)             start a paused watch again
-
+    watch_after_scan(scan)        a manual scan completed: start watching its API if it qualifies
+    scan_watch_state(scan)        the badge on a report: watching, paused, off or not watched, and why
+    watch_scan(user, scan)        "watch this API" / "watch this one instead" on a report
+    set_active(user, watch, on)   Settings: turn one API off, or back on
+    resume_watch(watch)           start a paused watch again
+    domain_lost_verification(d)   re-checks failed: domain pending, watches off
+    domain_verified_again(d)      verified again: those watches start again
 """
-
 import random
 from datetime import timedelta
 from urllib.parse import urlsplit
@@ -25,13 +26,13 @@ from scans.models import TRIGGER_MANUAL
 
 from .models import Watch, watch_key
 
-# A watch's runs are spread over this much time after its slot, so a rush of scans finishing together (a post going out, say) doesn't land in one runner pass.
-
+# A watch's runs are spread over this much time after its slot, so a rush of scans finishing
+# together (a post going out, say) doesn't land in one runner pass.
 SPREAD = timedelta(hours=1)
 
 
 class WatchRefused(Exception):
-    """Raised whena watch can't be started or turned on. Carries what the view needs."""
+    """Raised when a watch can't be started or turned on. Carries what the view needs."""
 
     def __init__(self, code, http_status, detail, **extra):
         super().__init__(detail)
@@ -40,16 +41,14 @@ class WatchRefused(Exception):
         self.detail = detail
         self.extra = extra
 
-
     def as_response_data(self):
-        return{"detail": self.detail, "code": self.code, **self.extra}
+        return {"detail": self.detail, "code": self.code, **self.extra}
 
 
-
-# ----------- small helpers ------------------
+# ---------- small helpers ----------------------------------------------------------------
 
 def verified_domain_for(user, url):
-    """The account's verified domain for this address, or None (guests and practive targets never have one.)"""
+    """The account's verified domain for this address, or None (guests and practice targets never have one)."""
     host = urlsplit(url or "").hostname
     if not host or user.is_guest or is_practice_target(url):
         return None
@@ -57,7 +56,7 @@ def verified_domain_for(user, url):
 
 
 def in_plan_ids(user, plan=None):
-    """Ids of the watches that fit the plan: th account's first N active watches by activation."""
+    """Ids of the watches that fit the plan: the account's first N active watches by activation."""
     plan = plan or effective_plan(user)
     active = Watch.objects.filter(user=user, active=True).order_by("activated_at", "pk").values_list("pk", flat=True)
     if plan.watch_slots is None:
@@ -81,12 +80,13 @@ def _spread():
 
 
 def next_run_from(base, plan):
-    """The next scheduled scan: one cadence after base, plaus a random part of the spread."""
+    """The next scheduled scan: one cadence after base, plus a random part of the spread."""
     return base + plan.watch_cadence + _spread()
 
 
 def _lock_account(user):
-    # Two requests (or two scans finishing together) can't both take the last slot. The lock takes effect on Postgres, like the one in scans/limits.py
+    # Two requests (or two scans finishing together) can't both take the last slot. The lock
+    # takes effect on Postgres, like the one in scans/limits.py.
     get_user_model().objects.select_for_update().get(pk=user.pk)
 
 
@@ -94,14 +94,14 @@ def _when(scan):
     return scan.completed_at or scan.created_at
 
 
-
-# ------------ a scan completed -----------------------------------
+# ---------- a scan completed ---------------------------------------------------------------
 
 def watch_after_scan(scan):
     """
-    
-    Called when a manual scan completes. Starts a watch for its API when the scan is of the account's own verified domain, the account's switch is on and the plan has room. An API that already has a watch keeps it (its address follows the newest scan, http to https say), and one the person turned off stays off. Returns the watch covering the API, or None.
-    
+    Called when a manual scan completes. Starts a watch for its API when the scan is of the
+    account's own verified domain, the account's switch is on and the plan has room. An API
+    that already has a watch keeps it (its address follows the newest scan, http to https say),
+    and one the person turned off stays off. Returns the watch covering this API, or None.
     """
     if scan.status != "complete" or scan.trigger != TRIGGER_MANUAL:
         return None
@@ -135,8 +135,7 @@ def watch_after_scan(scan):
         )
 
 
-
-# --------- what a report says ----------------------
+# ---------- what a report says -------------------------------------------------------------
 
 def _full_action(plan):
     # One slot: swap it ("watch this one instead"). More: the person picks which to turn off.
@@ -145,21 +144,20 @@ def _full_action(plan):
 
 def scan_watch_state(scan):
     """
-    
-    The badge ona report, about the scan's API:
+    The badge on a report, about the scan's API:
 
-        status          watching | paused | off | not_watched
-        reason          why it isn't plainly watching (None when it is):
-                            paused:         verification | failures
-                            off:            account_off (the Settings switch) | turned_off (this API)
-                            not_watched:    not_started | plan_full | over_plan | unverified
-        action          the button to offer: watch | swap | resume | settings | None
-        next_run_at     when it's next scanned (watching only)
-        cadence_days    days between scans on the account's plan
-        watch_slots     APIs the plan watches (None = no limit)
-        watch_id        the watch's id, when there is one
+        status        watching | paused | off | not_watched
+        reason        why it isn't plainly watching (None when it is):
+                        paused:      verification | failures
+                        off:         account_off (the Settings switch) | turned_off (this API)
+                        not_watched: not_started | plan_full | over_plan | unverified
+        action        the button to offer: watch | swap | resume | settings | None
+        next_run_at   when it's next scanned (watching only)
+        cadence_days  days between scans on the account's plan
+        watch_slots   APIs the plan watches (None = no limit)
+        watch_id      the watch's id, when there is one
 
-    None when there;s nothing to say: a practive target, a guest, or an address without a host.
+    None when there's nothing to say: a practice target, a guest, or an address without a host.
     """
     user = scan.user
     key = watch_key(scan.target_url)
@@ -202,9 +200,7 @@ def scan_watch_state(scan):
     return state("watching")
 
 
-
-
-# --------- the person acts ------------------
+# ---------- the person acts ----------------------------------------------------------------
 
 def watch_scan(user, scan, instead=False):
     """
@@ -268,9 +264,6 @@ def watch_scan(user, scan, instead=False):
         return watch, True
 
 
-
-# -------- settings on/off, and resume --------------------
-
 def set_active(user, watch, active):
     """Settings: turn one API off, or back on (if the plan has room). Returns the watch."""
     if not active:
@@ -304,3 +297,33 @@ def resume_watch(watch):
     if watch.is_paused:
         watch.resume()
     return watch
+
+
+# ---------- the domain's verification ------------------------------------------------------
+
+def domain_lost_verification(domain, now=None):
+    """
+    Rule A: the runner's re-check failed MAX_FAILURES times in a row.
+    The domain goes back to pending (manual scans of it need verifying
+    again too) and every watch on it pauses.
+    """
+    now = now or timezone.now()
+    with transaction.atomic():
+        Domain.objects.filter(pk=domain.pk).update(
+            verified=False,
+            verified_at=None,
+        )
+        Watch.objects.filter(domain=domain, paused_reason="").update(
+            paused_reason=Watch.PAUSED_VERIFICATION,
+            paused_at=now,
+        )
+
+
+def domain_verified_again(domain):
+    """The domain passed verification again: its paused watches restart."""
+    paused = Watch.objects.filter(
+        domain=domain,
+        paused_reason=Watch.PAUSED_VERIFICATION,
+    )
+    for watch in paused:
+        watch.resume()
