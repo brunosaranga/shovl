@@ -94,6 +94,12 @@ export const domainsApi = {
 // shovl watch (backend watch/views.py).
 export const watchesApi = {
     list: () => client.get("/watches/"),
+    // "watch this API" from a report: 201 started, 200 already watching, both { watch, state }
+    // (state = the report's badge, refreshed). 409 { code: "plan_full", can_swap } when the
+    // plan is full; send again with instead: true to swap on a one-slot plan.
+    watch: (scanId, instead = false) => client.post("/watches/", { scan: Number(scanId), instead }),
+    // Settings: turn one API on or off. 409 { code: "plan_full" } when turning on with no room.
+    setActive: (id, active) => client.patch(`/watches/${id}/`, { active }),
     resume: (id) => client.post(`/watches/${id}/resume/`),
 };
 

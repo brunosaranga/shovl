@@ -14,6 +14,7 @@ import Findings from "../../components/sections/report/Findings/Findings";
 import ScanState from "../../components/sections/report/ScanState/ScanState";
 import SinceLastScan from "../../components/sections/report/SinceLastScan/SinceLastScan";
 import ReportFeedback from "../../components/sections/report/ReportFeedback/ReportFeedback";
+import WatchBadge from "../../components/sections/report/WatchBadge/WatchBadge";
 import { useContent } from "../../hooks/useContent";
 import { usePdfDownload } from "../../hooks/usePdfDownload";
 import { useScanDetail } from "../../hooks/useScans";
@@ -21,7 +22,8 @@ import { useScanOutcomeSound, useSoundCue } from "../../hooks/useSounds";
 import styles from "./Report.module.css";
 
 // The scan options only add to the report, never hide each other:
-//   always          → score, coverage, severity counts, "since your last scan", the PDF
+//   always          → score, coverage, severity counts, "since your last scan", the PDF,
+//                     and whether shovl watch re-scans this API (your own verified domains)
 //   generate report → the per-check breakdown (findings) is shown straight away
 //   suggest fix     → a fix for every problem: inside each finding, or, on the summary view,
 //                     in its own "how to fix" section
@@ -85,6 +87,7 @@ export default function Report() {
                             downloading={pdf.busy}
                         />
                         {pdf.error ? <Alert role="alert">{report.pdf.errors[pdf.error]}</Alert> : null}
+                        <WatchBadge key={scan.id} scanId={scan.id} targetUrl={scan.target_url} initial={scan.watch} />
                         <CoverageNote meta={meta} findings={results.findings} summary={results.summary} />
                         <SeverityMatrix summary={results.summary} />
                         <SinceLastScan comparison={scan.comparison} />

@@ -1,0 +1,173 @@
+/* Settings → shovl watch. Rows of "label + note | switch", then the watched APIs as a list in
+   the bell's style (a tab on top, bordered rows). */
+.watch {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.rowText {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.label {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.note {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
+
+.problem {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--danger);
+}
+
+/* ---- watched APIs ------------------------------------------------------------ */
+
+.listBlock {
+    display: flex;
+    flex-direction: column;
+    margin-top: 6px;
+}
+
+.listTitle {
+    align-self: flex-start;
+    padding: 6px 10px;
+    background: var(--text);
+    color: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.list {
+    list-style: none;
+    border: var(--border-2);
+}
+
+.empty {
+    padding: 14px 16px;
+    border: var(--border-2);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    padding: 14px 16px;
+    border-bottom: var(--border-2);
+}
+
+.item:last-child {
+    border-bottom: none;
+}
+
+/* The switch stays beside the text on a phone; a row with a button too wraps it below. */
+.itemText {
+    flex: 1 1 150px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.target {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+    overflow-wrap: break-word;
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* Neon while watched, yellow while paused, an outline when off. */
+.dot {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border: var(--border-2);
+    background: var(--surface);
+}
+
+.item[data-tone="on"] .dot {
+    background: var(--accent);
+}
+
+.item[data-tone="paused"] .dot {
+    background: var(--sev-medium);
+}
+
+.controls {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.action {
+    padding: 6px 12px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border: var(--border-2);
+    box-shadow: var(--shadow-2);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: var(--press);
+}
+
+.action:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.action:focus-visible {
+    outline: 3px solid var(--text);
+    outline-offset: 2px;
+}
+
+.action:active:not(:disabled) {
+    transform: translate(1px, 1px);
+    box-shadow: var(--shadow-pressed);
+}
+
+.item .problem {
+    flex-basis: 100%;
+}
+
+@media (max-width: 560px) {
+    .row {
+        align-items: flex-start;
+    }
+
+    .item {
+        padding: 13px 14px;
+    }
+}

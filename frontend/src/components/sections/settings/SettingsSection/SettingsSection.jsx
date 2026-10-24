@@ -11,13 +11,13 @@ export default function SettingsSection({ title, children }) {
     );
 }
 
-// label · value · optional action, on a three-column grid.
+// label · value · optional action, on a three-column grid (stacked on phones).
 export function SettingsRow({ label, value, action }) {
     return (
         <div className={styles.row}>
             <span className={styles.label}>{label}</span>
             <span className={styles.value}>{value}</span>
-            <span>{action}</span>
+            {action ? <span className={styles.action}>{action}</span> : null}
         </div>
     );
 }

@@ -14,6 +14,41 @@ export const report = {
 
     rerun: "re-run scan",
 
+    // shovl watch, under the report's top strip (sections/report/WatchBadge). The API says
+    // which state the scan's API is in (status + reason) and which button to offer (action).
+    watch: {
+        info: "what is shovl watch?",
+        states: {
+            watching: "this API is being watched",
+            verification: "watch paused: verification no longer passes",
+            failures: "watch paused: the last 3 scheduled scans failed",
+            account_off: "shovl watch is off for your account",
+            turned_off: "not watched: you turned this API off",
+            not_started: "not watched yet",
+            plan_full_one: "not watched: your plan watches one API",
+            plan_full: "not watched: your plan's {n} APIs are all in use",
+            over_plan: "not watched: past your plan's {n} API(s)",
+            unverified: "not watched: verify this domain first",
+        },
+        // Inside the (i).
+        about: "shovl watch re-scans this API every {days} days and tells you when something gets worse.",
+        next: "next scan: {date}.",
+        record: "leave the verification record in place: if it disappears for a few hours, the domain goes back to pending and the watch pauses.",
+        settings: "turn it off any time in settings.",
+        whyOne: "every watched API is a scan we run on our own servers. the free plan covers one so you can see it working; more APIs come with Pro.",
+        swapNote: "watching this one instead stops the watch on your other API. no extra scan runs: the next one is a cadence after the newest scan.",
+        actions: {
+            watch: "watch this API",
+            swap: "watch this one instead",
+            swapConfirm: "sure? the other API stops being watched",
+            resume: "resume watch",
+            verify: "verify domain",
+            settings: "open settings",
+            busy: "one moment...",
+        },
+        failed: "that didn't work. try again in a moment.",
+    },
+
     // "download pdf": built from the saved scan, so any finished scan has one, for free.
     pdf: {
         download: "download pdf",

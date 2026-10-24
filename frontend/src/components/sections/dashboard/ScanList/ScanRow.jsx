@@ -6,6 +6,7 @@ import { fill, formatDate } from "../../../../lib/text";
 import styles from "./ScanList.module.css";
 
 // One scan in the list. Opening it shows a summary that depends on how the scan ended.
+// Scheduled scans (shovl watch) carry a "watch" tag next to their status.
 export default function ScanRow({ scan, expanded, onToggle }) {
     const { dashboard, common } = useContent();
     const risk = String(scan.risk_score || "").toUpperCase();
@@ -17,9 +18,18 @@ export default function ScanRow({ scan, expanded, onToggle }) {
         <div className={styles.card}>
             <div className={expanded ? `${styles.header} ${styles.open}` : styles.header}>
                 <div className={styles.left}>
-                    <Badge tone={statusTone(scan.status)} size="md" textCase="lower">
-                        {common.status[scan.status] || scan.status}
-                    </Badge>
+                    <span className={styles.badges}>
+                        <Badge tone={statusTone(scan.status)} size="md" textCase="lower">
+                            {common.status[scan.status] || scan.status}
+                        </Badge>
+                        {scan.trigger === "watch" ? (
+                            <span className={styles.watchTag} title={dashboard.row.watchTitle}>
+                                <Badge tone="accent" size="md" textCase="lower">
+                                    {dashboard.row.watch}
+                                </Badge>
+                            </span>
+                        ) : null}
+                    </span>
                     <span className={styles.target}>{scan.target_url}</span>
                 </div>
 

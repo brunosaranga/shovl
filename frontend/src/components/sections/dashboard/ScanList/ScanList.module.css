@@ -46,6 +46,18 @@
     flex-shrink: 0;
 }
 
+.badges {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+}
+
+.watchTag {
+    display: inline-flex;
+    cursor: help;
+}
+
 .target {
     font-weight: 700;
     font-size: 15px;

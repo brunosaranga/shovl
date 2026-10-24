@@ -21,6 +21,8 @@ export const dashboard = {
 
     row: {
         toggle: "show scan details",
+        watch: "watch", // a scheduled scan, run by shovl watch
+        watchTitle: "a scheduled scan by shovl watch: it didn't count against your allowance",
         summary: "scan summary",
         counts: "{HIGH} high · {MEDIUM} medium · {LOW} low · {PASS} passed",
         coverage: "based on {run} of {total} checks.",
