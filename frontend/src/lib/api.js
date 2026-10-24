@@ -78,12 +78,31 @@ export const accountsApi = {
     register: (body) => client.post("/accounts/register/", body), // { email, password, tos_agreed }
     upgrade: (body) => client.post("/accounts/upgrade/", body), // guest token in the header
     me: () => client.get("/accounts/me/"),
+    // The two switches only: { watch_enabled?, notifications_muted? }. Returns the /me/ body.
+    updateMe: (body) => client.patch("/accounts/me/", body),
 };
 
 export const domainsApi = {
     list: () => client.get("/domains/"),
     add: (hostname) => client.post("/domains/", { hostname }),
     verify: (id) => client.post(`/domains/${id}/verify/`),
+    // The unverified cache. Pending domains only: a verified one gets 409 { code: "domain_verified" }.
+    remove: (id) => client.delete(`/domains/${id}/`),
+    removePending: () => client.delete("/domains/pending/"), // 200 { removed }
+};
+
+// shovl watch (backend watch/views.py).
+export const watchesApi = {
+    list: () => client.get("/watches/"),
+    resume: (id) => client.post(`/watches/${id}/resume/`),
+};
+
+// The bell (backend notifications/views.py).
+//   bell() → { badge, muted, needs_action: [...], news: [...], news_unread, has_more }
+export const notificationsApi = {
+    bell: (before) => client.get("/notifications/", { params: before ? { before } : undefined }),
+    read: (id) => client.post(`/notifications/${id}/read/`),
+    readAll: () => client.post("/notifications/read-all/"),
 };
 
 export const scansApi = {

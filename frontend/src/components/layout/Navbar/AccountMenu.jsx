@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import userAvatar from "../../../assets/logos/UserAvatar.svg";
 import { useSession } from "../../../context/SessionContext";
 import { useFaq } from "../../../context/FaqContext";
+import { useNotifications } from "../../../context/NotificationsContext";
 import { useContent } from "../../../hooks/useContent";
 import { MOBILE_QUERY, useMediaQuery } from "../../../hooks/useMediaQuery";
 import { menuRoutes, canAccess } from "../../../routes";
@@ -10,7 +11,9 @@ import styles from "./Navbar.module.css";
 
 // Avatar button. Opens the menu:
 //   pages from routes.jsx the visitor can open, then
-//   mobile:     "faq" (desktop has the "?" button in the corner instead)
+//   mobile:     "notifications" for registered accounts (desktop has the bell in the
+//               navbar), with a dot on the avatar while there's something new, then
+//               "faq" (desktop has the "?" button in the corner instead)
 //   nobody:     "sign in"
 //   guest:      "save your scans" (register) and "sign in" (both keep their scans)
 //   registered: "log out"
@@ -18,9 +21,10 @@ import styles from "./Navbar.module.css";
 // On mobile they get the menu too, or the FAQ would be out of reach.
 // Guests get no "log out": dropping a guest token would lose their scans.
 export default function AccountMenu() {
-    const { nav } = useContent();
+    const { nav, notifications } = useContent();
     const { status, signOut } = useSession();
     const { openFaq } = useFaq();
+    const bell = useNotifications();
     const isMobile = useMediaQuery(MOBILE_QUERY);
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
@@ -64,6 +68,7 @@ export default function AccountMenu() {
                 onClick={() => setOpen((value) => !value)}
             >
                 {avatar}
+                {isMobile && bell.enabled && bell.badge ? <span className={styles.dot} aria-hidden="true" /> : null}
             </button>
 
             {open ? (
@@ -73,6 +78,22 @@ export default function AccountMenu() {
                             {nav.items[route.menuKey]}
                         </Link>
                     ))}
+
+                    {isMobile && bell.enabled ? (
+                        <button
+                            type="button"
+                            role="menuitem"
+                            aria-haspopup="dialog"
+                            className={styles.item}
+                            onClick={() => {
+                                close();
+                                bell.openBell();
+                            }}
+                        >
+                            {notifications.menuItem}
+                            {bell.badge ? <span className={styles.itemCount}>{bell.badge > 9 ? "9+" : bell.badge}</span> : null}
+                        </button>
+                    ) : null}
 
                     {isMobile ? (
                         <button

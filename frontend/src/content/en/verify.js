@@ -3,6 +3,9 @@ export const verify = {
     pageTitle: "domain verification",
 
     settingUp: "setting up verification for {hostname}...",
+    // Verify only (from the bell): no scan afterwards.
+    verifyOnlyNote:
+        "verifying only: no scan starts. if shovl watch was watching this domain, it picks up again once this passes. leave the record in place afterwards.",
     setupFailed: "setup failed.",
 
     title: "prove ownership.",

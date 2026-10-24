@@ -1,0 +1,473 @@
+/* Built on layout/Faq/FaqModal.module.css: same panel, header, tabs and rows, so the two
+   dialogs read as one family. No padding on the dialog itself, so a click that lands on it
+   (not a child) can only be on the backdrop. */
+.dialog {
+    width: min(640px, calc(100vw - 32px));
+    max-width: none;
+    max-height: min(760px, calc(100dvh - 48px));
+    padding: 0;
+    margin: auto;
+    background: var(--surface);
+    color: var(--text);
+    border: var(--border-3);
+    box-shadow: var(--shadow-8);
+    overflow: hidden;
+}
+
+.dialog[open] {
+    display: flex;
+    flex-direction: column;
+    animation: bell-in 0.14s ease-out;
+}
+
+/* A literal colour: older browsers don't pass custom properties to ::backdrop. */
+.dialog::backdrop {
+    background: rgb(14 0 24 / 0.45);
+}
+
+@keyframes bell-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dialog[open] {
+        animation: none;
+    }
+
+    .arrow {
+        transition: none;
+    }
+}
+
+/* ---- header ---------------------------------------------------------------- */
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+    padding: 18px 24px;
+    border-bottom: var(--border-3);
+}
+
+.title {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    line-height: 1;
+}
+
+.tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.textButton,
+.iconButton {
+    flex: none;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    color: var(--text);
+    border: var(--border-2);
+    box-shadow: var(--shadow-2);
+    cursor: pointer;
+    transition: var(--press);
+}
+
+.textButton {
+    padding: 0 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.iconButton {
+    width: 36px;
+    padding: 0;
+}
+
+.iconButton[aria-pressed="true"] {
+    background: var(--text);
+    color: var(--surface);
+}
+
+.textButton:disabled,
+.iconButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    box-shadow: none;
+}
+
+.textButton:focus-visible,
+.iconButton:focus-visible {
+    background: var(--accent);
+    color: var(--on-accent);
+}
+
+.textButton:active:not(:disabled),
+.iconButton:active:not(:disabled) {
+    transform: translate(1px, 1px);
+    box-shadow: var(--shadow-pressed);
+}
+
+.icon {
+    width: 18px;
+    height: 18px;
+}
+
+.closeIcon {
+    width: 16px;
+    height: 16px;
+}
+
+.mutedNote {
+    padding: 10px 24px;
+    border-bottom: var(--border-2);
+    background: var(--surface-raised);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* ---- body ------------------------------------------------------------------- */
+
+.body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+}
+
+/* A tab on top of the list it labels. */
+.sectionTitle {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 6px 10px;
+    background: var(--text);
+    color: var(--surface);
+}
+
+.count {
+    padding: 2px 5px;
+    background: var(--accent);
+    color: var(--on-fill);
+    font-weight: 800;
+}
+
+.list {
+    border: var(--border-2);
+}
+
+.empty {
+    padding: 14px 16px;
+    border: var(--border-2);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.error {
+    padding: 12px 16px;
+    border: var(--border-2);
+    background: var(--danger);
+    color: var(--on-danger);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.more {
+    align-self: flex-start;
+    margin-top: 12px;
+    padding: 6px 12px;
+    background: var(--surface);
+    color: var(--text);
+    border: var(--border-2);
+    box-shadow: var(--shadow-2);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--press);
+}
+
+.more:focus-visible {
+    background: var(--accent);
+    color: var(--on-accent);
+}
+
+.more:active {
+    transform: translate(1px, 1px);
+    box-shadow: var(--shadow-pressed);
+}
+
+/* ---- rows ------------------------------------------------------------------- */
+
+.item {
+    border-bottom: var(--border-2);
+}
+
+.item:last-child {
+    border-bottom: none;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 16px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.row::-webkit-details-marker {
+    display: none;
+}
+
+.row:focus-visible {
+    background: var(--accent);
+    color: var(--on-accent);
+    outline: none;
+}
+
+.item[open] > .row {
+    border-bottom: var(--border-1);
+}
+
+.rowText {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.rowTitle {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.rowInfo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.3;
+}
+
+.newChip {
+    padding: 1px 5px;
+    background: var(--accent);
+    color: var(--on-fill);
+    border: var(--border-1);
+    font-weight: 800;
+}
+
+/* → when closed, ↓ when open. */
+.arrow {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+    transition: transform 0.12s ease;
+}
+
+.item[open] .arrow {
+    transform: rotate(90deg);
+}
+
+.detail {
+    padding: 14px 16px 16px;
+    background: var(--surface-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.summary {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* The lower row of buttons. */
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.actions:empty {
+    display: none;
+}
+
+.action {
+    padding: 6px 12px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border: var(--border-2);
+    box-shadow: var(--shadow-2);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: var(--press);
+}
+
+.action.danger {
+    background: var(--surface);
+    color: var(--text);
+}
+
+.action:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.action:focus-visible {
+    outline: 3px solid var(--text);
+    outline-offset: 2px;
+}
+
+.action:active:not(:disabled) {
+    transform: translate(1px, 1px);
+    box-shadow: var(--shadow-pressed);
+}
+
+/* ---- inside an alert ---------------------------------------------------------- */
+
+.alert {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.alertLine {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.changes {
+    list-style: none;
+    border: var(--border-1);
+    background: var(--surface);
+}
+
+.change {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    padding: 8px 10px;
+    border-bottom: var(--border-1);
+    font-family: var(--font-sans);
+    font-size: 13px;
+}
+
+.change:last-child {
+    border-bottom: none;
+}
+
+.changeName {
+    font-weight: 700;
+}
+
+.changeBadges {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+}
+
+.changeKind {
+    font-weight: 700;
+}
+
+/* Hover only where a pointer hovers: on touch a tapped row would stay neon. */
+@media (hover: hover) {
+    .textButton:hover:not(:disabled),
+    .iconButton:hover:not(:disabled),
+    .row:hover,
+    .more:hover {
+        background: var(--accent);
+        color: var(--on-accent);
+    }
+
+    .action.danger:hover:not(:disabled) {
+        background: var(--danger);
+        color: var(--on-danger);
+    }
+}
+
+@media (max-width: 768px) {
+    .dialog {
+        max-height: calc(100dvh - 32px);
+        box-shadow: var(--shadow-4);
+    }
+
+    .header {
+        padding: 14px 16px;
+    }
+
+    .title {
+        font-size: 28px;
+    }
+
+    .mutedNote {
+        padding: 10px 16px;
+    }
+
+    .body {
+        padding: 20px 16px;
+        gap: 24px;
+    }
+
+    .row {
+        padding: 13px 14px;
+    }
+
+    .detail {
+        padding: 12px 14px 14px;
+    }
+}

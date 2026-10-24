@@ -1,0 +1,64 @@
+/* Same square as the sound and theme toggles next to it (ui/SoundToggle). */
+.bell {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: var(--surface);
+    color: var(--text);
+    border: var(--border-2);
+    box-shadow: var(--shadow-2);
+    cursor: pointer;
+    transition: var(--press);
+}
+
+.bell:focus-visible {
+    background: var(--accent);
+    color: var(--on-accent);
+}
+
+.bell:active {
+    transform: translate(1px, 1px);
+    box-shadow: var(--shadow-pressed);
+}
+
+.icon {
+    width: 18px;
+    height: 18px;
+}
+
+/* A neon chip hanging off the top-right corner. */
+.badge {
+    position: absolute;
+    top: -9px;
+    right: -9px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: var(--on-fill);
+    border: var(--border-2);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+@media (hover: hover) {
+    .bell:hover {
+        background: var(--accent);
+        color: var(--on-accent);
+    }
+}
+
+@media (max-width: 768px) {
+    .bell {
+        display: none;
+    }
+}

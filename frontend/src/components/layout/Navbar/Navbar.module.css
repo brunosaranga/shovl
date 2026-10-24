@@ -38,6 +38,7 @@
 }
 
 .avatar {
+    position: relative;
     display: block;
     height: 40px;
     width: 40px;
@@ -56,6 +57,29 @@
     width: 100%;
     height: 100%;
     display: block;
+}
+
+/* Mobile: the bell lives in this menu, so a neon dot on the avatar says something is new. */
+.dot {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border: 2px solid var(--text);
+    pointer-events: none;
+}
+
+.itemCount {
+    margin-left: 8px;
+    padding: 1px 6px;
+    background: var(--accent);
+    color: var(--on-fill);
+    border: var(--border-1);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .menu {

@@ -10,6 +10,7 @@ import { settings } from "./settings";
 import { errors } from "./errors";
 import { notFound } from "./notFound";
 import { faq } from "./faq";
+import { notifications } from "./notifications";
 
 export const en = {
     common,
@@ -24,4 +25,5 @@ export const en = {
     errors,
     notFound,
     faq,
+    notifications,
 };

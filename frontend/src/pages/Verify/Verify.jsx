@@ -15,28 +15,36 @@ import { extractHostname, isPracticeTarget } from "../../lib/targets";
 import { fill } from "../../lib/text";
 import styles from "./Verify.module.css";
 
-// Prove you own a domain (DNS TXT record), then the scan starts.
-// Arrives with the scan options in location.state (from the landing page or sign-in).
+// Prove you own a domain (DNS TXT record). Two ways in, both through location.state:
+//   scan:         { url, ...scan options } from the landing page or sign-in. Once verified,
+//                 the scan starts.
+//   verify only:  { verifyOnly: true, hostname, from } from the bell ("verify domain"). Once
+//                 verified, back to `from`; no scan starts. A domain shovl watch's rule A put
+//                 back to pending gets its paused watches restarted by the backend.
 // No ambiance on this page (routes.jsx); errors still play the error cue.
 export default function Verify() {
     const { verify } = useContent();
     const navigate = useNavigate();
     const location = useLocation();
-    const options = location.state?.url ? location.state : null;
+    const verifyOnly = Boolean(location.state?.verifyOnly && location.state?.hostname);
+    const options = !verifyOnly && location.state?.url ? location.state : null;
     const targetUrl = options?.url || "";
-    const hostname = extractHostname(targetUrl);
-    const practice = isPracticeTarget(targetUrl);
+    const hostname = verifyOnly ? location.state.hostname : extractHostname(targetUrl);
+    const backTo = verifyOnly ? location.state.from || "/dashboard" : null;
+    const practice = !verifyOnly && isPracticeTarget(targetUrl);
 
-    const { domain, loading, error } = useDomainSetup(options && !practice ? hostname : null);
+    const { domain, loading, error } = useDomainSetup(verifyOnly || (options && !practice) ? hostname : null);
     const [failed, setFailed] = useState(false);
     useSoundCue("error", !loading && error ? error : null);
 
-    // Verified on an earlier visit: skip straight to the scan.
+    // Already verified (an earlier visit, or another tab): straight on.
     useEffect(() => {
-        if (domain?.verified) navigate("/scan/running", { state: options, replace: true });
-    }, [domain, options, navigate]);
+        if (!domain?.verified) return;
+        if (verifyOnly) navigate(backTo, { replace: true });
+        else navigate("/scan/running", { state: options, replace: true });
+    }, [domain, options, verifyOnly, backTo, navigate]);
 
-    if (!options) return <Navigate to="/" replace />;
+    if (!options && !verifyOnly) return <Navigate to="/" replace />;
     if (practice) return <Navigate to="/scan/running" state={options} replace />;
 
     const recordName = `_shovl-verify.${hostname}`;
@@ -61,7 +69,8 @@ export default function Verify() {
 
                 {!loading && !error && domain && !domain.verified ? (
                     <>
-                        <VerifyIntro targetUrl={targetUrl} />
+                        <VerifyIntro targetUrl={verifyOnly ? hostname : targetUrl} />
+                        {verifyOnly ? <p className={styles.status}>{verify.verifyOnlyNote}</p> : null}
                         <DnsInstructions recordName={recordName} token={domain.verification_token} />
 
                         {failed ? (
@@ -76,7 +85,9 @@ export default function Verify() {
 
                         <VerifyAction
                             domainId={domain.id}
-                            onVerified={() => navigate("/scan/running", { state: options })}
+                            onVerified={() =>
+                                verifyOnly ? navigate(backTo, { replace: true }) : navigate("/scan/running", { state: options })
+                            }
                             onFailed={() => setFailed(true)}
                         />
                     </>
