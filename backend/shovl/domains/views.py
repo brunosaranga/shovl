@@ -60,3 +60,37 @@ class DomainVerifyView(APIView):
             {"status": "failed", "detail": "Verification record not found."},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
+# The unverified cache: domains added on the verify page but never verified (also the ones
+# shovl watch's rule A put back to pending). Verified domains can't be removed here yet.
+DOMAIN_NOT_FOUND = {"detail": "Domain not found.", "code": "not_found"}
+DOMAIN_VERIFIED = {
+    "detail": "Verified domains can't be removed here yet.",
+    "code": "domain_verified",
+}
+
+
+class DomainDetailView(APIView):
+    """DELETE /api/domains/<id>/   remove one pending domain (and any watch on it). 204."""
+    permission_classes = [IsRegisteredUser]
+
+    def delete(self, request, pk):
+        domain = Domain.objects.filter(pk=pk, user=request.user).first()
+        if domain is None:
+            return Response(DOMAIN_NOT_FOUND, status=status.HTTP_404_NOT_FOUND)
+        if domain.verified:
+            return Response(DOMAIN_VERIFIED, status=status.HTTP_409_CONFLICT)
+        domain.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PendingDomainsView(APIView):
+    """DELETE /api/domains/pending/   empty the unverified cache. 200 {"removed": n}."""
+    permission_classes = [IsRegisteredUser]
+
+    def delete(self, request):
+        pending = Domain.objects.filter(user=request.user, verified=False)
+        removed = pending.count()
+        pending.delete()
+        return Response({"removed": removed})

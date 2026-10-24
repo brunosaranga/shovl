@@ -21,6 +21,7 @@ from django.utils import timezone
 
 from accounts.plans import effective_plan
 from domains.models import Domain
+from notifications.services import watch_started
 from domains.verification import is_practice_target
 from scans.models import TRIGGER_MANUAL
 
@@ -126,13 +127,16 @@ def watch_after_scan(scan):
             return existing
         if not has_room(user, plan):
             return None
-        return Watch.objects.create(
+        watch = Watch.objects.create(
             user=user,
             domain=domain,
             target_url=scan.target_url,
             activated_at=timezone.now(),
             next_run_at=next_run_from(_when(scan), plan),
         )
+        # The bell: "shovl watch is on" the first time, else "now watching".
+        watch_started(watch, automatic=True)
+        return watch
 
 
 # ---------- what a report says -------------------------------------------------------------
@@ -252,6 +256,8 @@ def watch_scan(user, scan, instead=False):
                 activated_at=now,
                 next_run_at=next_run_from(base, plan),
             )
+            # The person did this: the bell only says so if it's their first.
+            watch_started(watch, automatic=False)
             return watch, True
 
         # Turned off before, or active but past the plan's slots: bring it back as the newest.

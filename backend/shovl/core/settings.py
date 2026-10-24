@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "domains", # Phase 3
     "scans", # Phase 3
     "watch", # shovl watch: scheduled scans
+    "notifications", # the bell
     "corsheaders",
     "rest_framework",
 ]

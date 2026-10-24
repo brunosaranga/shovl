@@ -29,6 +29,8 @@ from scanner.report import format_report
 from scans.compare import RANK, comparison_for
 from scans.models import ACTIVE_STATUSES, TRIGGER_WATCH, Scan
 
+from notifications.services import record_outcome
+
 from . import services
 from .models import Watch
 
@@ -318,4 +320,9 @@ def run_pass(budget_seconds=BUDGET_SECONDS, clock=time.monotonic,
             logger.exception("Watch %s failed in the runner", watch.pk)
             outcome = Outcome(watch, "failed", reason="runner_error")
         summary.outcomes.append(outcome)
+        try:
+            # The bell: an alert when the API got worse.
+            record_outcome(outcome)
+        except Exception:
+            logger.exception("No notification for watch %s", watch.pk)
     return summary
