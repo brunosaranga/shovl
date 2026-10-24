@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     "accounts", # Phase 3
     "domains", # Phase 3
     "scans", # Phase 3
+    "watch", # shovl watch: scheduled scans
     "corsheaders",
     "rest_framework",
 ]
@@ -282,6 +283,15 @@ SHOVL_LOG_CLIENT_IP = os.getenv("SHOVL_LOG_CLIENT_IP") == "1"
 # PDF downloads (GET /api/scans/<id>/pdf/). Built in memory when someone asks, never written
 # to disk. On unless switched off with SHOVL_PDF_REPORTS=0 (the report page then says so).
 SHOVL_PDF_REPORTS = os.getenv("SHOVL_PDF_REPORTS", "1") == "1"
+
+# shovl watch: days between two scheduled scans of one API on the free plan (accounts/plans.py).
+# 30 by default; set WATCH_FREE_CADENCE_DAYS=7 for the beta, and delete it to go back.
+try:
+    SHOVL_WATCH_FREE_CADENCE_DAYS = int(os.getenv("WATCH_FREE_CADENCE_DAYS", "30"))
+except ValueError:
+    raise ImproperlyConfigured("WATCH_FREE_CADENCE_DAYS must be a whole number of days.")
+if SHOVL_WATCH_FREE_CADENCE_DAYS < 1:
+    raise ImproperlyConfigured("WATCH_FREE_CADENCE_DAYS must be at least 1.")
 
 
 # Production behind the host's HTTPS proxy.

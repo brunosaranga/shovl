@@ -61,8 +61,8 @@ class ScanFeedbackAdmin(admin.ModelAdmin):
 class ScanAdmin(admin.ModelAdmin):
     """Scans, to look at what a report showed. Read-only: results are what the scanner saved."""
 
-    list_display = ("id", "target_url", "user", "status", "risk_score", "pdf_downloads", "created_at")
-    list_filter = ("status", "risk_score")
+    list_display = ("id", "target_url", "user", "status", "trigger", "risk_score", "pdf_downloads", "created_at")
+    list_filter = ("status", "trigger", "risk_score")
     search_fields = ("target_url", "user__email")
     date_hierarchy = "created_at"
     list_select_related = ("user",)

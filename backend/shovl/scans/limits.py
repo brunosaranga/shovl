@@ -6,6 +6,8 @@ Scan allowance for the beta.
 
     A scan counts from the moment it starts, paused time included. Scans that failed, were interrupted or were stopped do not count, but every attempt couunts toward a higher hard ceiling, so failures cannot be used for unlimited free scanning. Staff accounts are exempt.
 
+    Scheduled scans (shovl watch, trigger "watch") are left out of everything here: the allowance, the ceiling and the stale-scan sweep. Their limit is the plan (accounts/plans.py), and the watch runner looks after its own unfinished scans.
+
     Change the nu,bers below, nothing else needs to move.
 """
 
@@ -16,7 +18,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 
-from .models import ACTIVE_STATUSES, Scan
+from .models import ACTIVE_STATUSES, TRIGGER_WATCH, Scan
 
 User = get_user_model()
 
@@ -66,8 +68,8 @@ class AllowanceExceeded(Exception):
 
 
 def _scope(user, now):
-    """Every scan that could count for this user: all of a guest's, or a registered user's last 24 hours. """
-    scans = Scan.objects.filter(user=user)
+    """Every scan that could count for this user: all of a guest's, or a registered user's last 24 hours. Scheduled scans never do."""
+    scans = Scan.objects.filter(user=user).exclude(trigger=TRIGGER_WATCH)
     if not user.is_guest:
         scans = scans.filter(created_at__gte=now - DAY)
     return scans

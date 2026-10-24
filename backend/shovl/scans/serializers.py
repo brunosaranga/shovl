@@ -2,6 +2,8 @@ import re
 
 from rest_framework import serializers
 
+from watch.services import scan_watch_state
+
 from .compare import comparison_for
 from .models import Scan, ScanFeedback
 
@@ -18,6 +20,7 @@ class ScanSerializer(serializers.ModelSerializer):
             "risk_score",
             "results",
             "pdf_path",
+            "trigger",
             "created_at",
             "completed_at",
         ]
@@ -26,6 +29,7 @@ class ScanSerializer(serializers.ModelSerializer):
             "risk_score",
             "results",
             "pdf_path",
+            "trigger",
             "completed_at",
         ]
 
@@ -36,14 +40,20 @@ class ScanDetailSerializer(ScanSerializer):
       comparison  "since your last scan" (scans/compare.py), or null when there is nothing to
                   compare with or the scan did not complete
       feedback    the answer to "was this report useful?", or null
-    The list endpoint leaves both out: they cost a query or two per scan.
+      watch       shovl watch's badge for this scan's API (watch/services.py, scan_watch_state),
+                  or null for practice targets and guests
+    The list endpoint leaves all three out: they cost a query or two per scan.
     """
 
     comparison = serializers.SerializerMethodField()
     feedback = serializers.SerializerMethodField()
+    watch = serializers.SerializerMethodField()
 
     class Meta(ScanSerializer.Meta):
-        fields = ScanSerializer.Meta.fields + ["comparison", "feedback"]
+        fields = ScanSerializer.Meta.fields + ["comparison", "feedback", "watch"]
+
+    def get_watch(self, scan):
+        return scan_watch_state(scan)
 
     def get_comparison(self, scan):
         return comparison_for(scan)

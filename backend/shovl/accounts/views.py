@@ -13,6 +13,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from scans.limits import scans_remaining
 
+from .permissions import IsRegisteredUser
+from .plans import effective_plan
 from .serializers import RegisterSerializer, UpgradeSerializer, LoginSerializer
 from .throttles import GuestCreationThrottle
 from .tokens import issue_tokens
@@ -134,14 +136,55 @@ class UpgradeView(APIView):
 
 
 
-class MeView(generics.RetrieveAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+# What PATCH /api/accounts/me/ may change. Everything else (email, plan, staff...) is ignored.
+ACCOUNT_SWITCHES = ('watch_enabled', 'notifications_muted')
+
+
+def me_data(user):
+    plan = effective_plan(user)
+    return {
+        'id': user.id,
+        'email': user.email,
+        'is_guest': user.is_guest,
+        # {"limit", "used", "remaining", "period"}, or null for accounts with no limit.
+        'allowance': scans_remaining(user),
+        # What the account gets right now (accounts/plans.py). watch_slots null = no limit.
+        'plan': {
+            'name': plan.name,
+            'watch_slots': plan.watch_slots,
+            'watch_cadence_days': plan.watch_cadence.days,
+        },
+        # Settings: shovl watch on or off, and the bell's mute.
+        'watch_enabled': user.watch_enabled,
+        'notifications_muted': user.notifications_muted,
+    }
+
+
+class MeView(APIView):
+    """
+    GET   /api/accounts/me/   the account, its allowance, its plan and its two switches.
+    PATCH /api/accounts/me/   {"watch_enabled": bool, "notifications_muted": bool}, either or both.
+                              Registered accounts only. Returns the same body as GET.
+    """
+
+    def get_permissions(self):
+        if self.request.method == 'PATCH':
+            return [IsRegisteredUser()]
+        return [permissions.IsAuthenticated()]
 
     def get(self, request):
-        return Response({
-            'id': request.user.id,
-            'email': request.user.email,
-            'is_guest': request.user.is_guest,
-            # {"limit", "used", "remaining", "period"}, or null for accounts with no limit.
-            'allowance': scans_remaining(request.user),
-        })
+        return Response(me_data(request.user))
+
+    def patch(self, request):
+        data = request.data if isinstance(request.data, dict) else {}
+        changes = {name: data[name] for name in ACCOUNT_SWITCHES if name in data}
+        errors = {name: ['Must be true or false.'] for name, value in changes.items() if not isinstance(value, bool)}
+        if errors:
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+        user = request.user
+        for name, value in changes.items():
+            setattr(user, name, value)
+        if changes:
+            user.save(update_fields=list(changes))
+        return Response(me_data(user))

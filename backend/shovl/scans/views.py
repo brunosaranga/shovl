@@ -28,6 +28,7 @@ from scanner.engine import CHECKS, ScanFailed, build_raw, ensure_usable, preflig
 from scanner.http import TimeBudget
 from scanner.report import format_report
 from reporter.generator import build_pdf
+from watch.services import watch_after_scan
 
 logger = logging.getLogger(__name__)
 
@@ -139,6 +140,17 @@ def mark_failed(scan, reason, message):
     )
 
 
+def start_watch(scan_id):
+    """
+    shovl watch: a manual scan just completed, so start watching its API if it qualifies
+    (watch/services.py). A problem here is logged and never fails the scan.
+    """
+    try:
+        watch_after_scan(Scan.objects.select_related('user').get(pk=scan_id))
+    except Exception:
+        logger.exception('Starting a watch failed for scan %s', scan_id)
+
+
 # Create your views here.
 class ScanListView(generics.ListAPIView):
     serializer_class = ScanSerializer
@@ -215,6 +227,7 @@ class ScanCreateView(APIView):
             scan.completed_at = timezone.now()
             # The PDF is built when someone downloads it (ScanPDFView), not here.
             scan.save()
+            start_watch(scan.pk)
 
             return Response(ScanSerializer(scan).data, status=201)
         
@@ -572,6 +585,8 @@ class ScanStreamView(APIView):
                 if not saved:
                     yield stopped_event(scan.id)
                     return
+                # Before "complete", so the report the page opens next already shows the watch.
+                start_watch(scan.id)
                 yield sse({'status': 'complete', 'scan_id': scan.id, 'risk_score': report['meta']['risk_score']})
 
             finally:
