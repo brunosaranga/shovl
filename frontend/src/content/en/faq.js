@@ -1,6 +1,8 @@
 // FAQ modal. Desktop: the "?" button in the bottom-right corner. Mobile: "faq" in the account menu.
 // In answers, `backticks` become inline code and {email} becomes a mailto link to common.contactEmail.
-// Keep answers in step with the backend: limits in scans/limits.py, session length in core/settings.py.
+// Keep answers in step with the backend: limits in scans/limits.py, session length in core/settings.py,
+// shovl watch's slots and cadence in accounts/plans.py (the free cadence is WATCH_FREE_CADENCE_DAYS,
+// weekly during the beta), its three tries in watch/models.py (MAX_FAILURES).
 export const faq = {
     title: "faq",
     open: "open the faq",
@@ -75,11 +77,48 @@ export const faq = {
             ],
         },
         {
+            title: "shovl watch",
+            items: [
+                {
+                    q: "what is shovl watch?",
+                    a: "shovl watch re-scans your API on a schedule and tells you when something gets worse. it starts by itself when a scan of one of your own verified domains finishes and your plan has room. what it finds lands in the bell (on a phone: \"notifications\" in the account menu).",
+                },
+                {
+                    q: "how often does it scan?",
+                    a: "a free account watches one API: every week during the beta, every month after it. Pro, coming later, watches five APIs every week. settings shows when each one is next due.",
+                },
+                {
+                    q: "why does the free plan watch only one API?",
+                    a: "every watched API is a scan we run on our own servers, week after week. one is enough to see it working. to watch a different API, open its report and choose \"watch this one instead\": no extra scan runs, and the other API stops being watched.",
+                },
+                {
+                    q: "do scheduled scans use up my allowance?",
+                    a: "no. they're tagged \"watch\" on your dashboard and don't count toward your daily scans. they run the same read-only checks as any scan of your own domain, so mass assignment stays off.",
+                },
+                {
+                    q: "when do I get an alert?",
+                    a: "when a scheduled scan finds a new problem, a check that got worse, or a higher risk score than the scan before it. the alert in the bell lists what changed and opens the report. no change, no alert: the scan still shows on your dashboard.",
+                },
+                {
+                    q: "why should I keep the verification record?",
+                    a: "before every scheduled scan, shovl checks that your DNS record (or file) is still there. if it's missing three times in a row, an hour or more apart, the domain goes back to pending, its watches pause and the bell asks you to verify it again. verifying restarts them; until then, scans you start of that domain need it verified too.",
+                },
+                {
+                    q: "how do I turn it off?",
+                    a: "in settings, under shovl watch: one switch stops every scheduled scan, and each watched API has its own. \"mute the bell\" keeps the scans running but stops news from adding to the bell's count. things that need you, like a paused watch, still count.",
+                },
+                {
+                    q: "what's the unverified cache?",
+                    a: "domains you started verifying but didn't finish, plus any that lost verification. it's folded under verified domains in settings: remove them one at a time, or empty it. removing a domain also ends any watch on it. the bell lists them too, with a verify button.",
+                },
+            ],
+        },
+        {
             title: "your account",
             items: [
                 {
                     q: "how many scans do I get?",
-                    a: "guests get 3 free scans in total, on practice targets only. a free account gets 5 scans per rolling 24 hours, on practice targets and your own verified domains.",
+                    a: "guests get 3 free scans in total, on practice targets only. a free account gets 5 scans per rolling 24 hours, on practice targets and your own verified domains. scheduled scans by shovl watch don't count.",
                 },
                 {
                     q: "what happens to my guest scans?",
@@ -95,7 +134,7 @@ export const faq = {
                 },
                 {
                     q: "does shovl send emails?",
-                    a: "not during the beta. if you write to us, we reply from {email}. any other email claiming to be shovl isn't from us.",
+                    a: "not during the beta: shovl watch's alerts land in the bell. if you write to us, we reply from {email}. any other email claiming to be shovl isn't from us.",
                 },
                 {
                     q: "can I delete my account?",
@@ -107,7 +146,7 @@ export const faq = {
                 },
                 {
                     q: "where is my data stored?",
-                    a: "on servers in Frankfurt, Germany: your email, a hashed password, your domains, your scan results, and any answer you give under a report. guest sessions and their scans are deleted after 30 days. when a scan is deleted, an answer given under it stays, without your account or the scanned address.",
+                    a: "on servers in Frankfurt, Germany: your email, a hashed password, your domains, your scan results, the APIs shovl watch scans for you, the bell's notifications, and any answer you give under a report. guest sessions and their scans are deleted after 30 days. when a scan is deleted, an answer given under it stays, without your account or the scanned address.",
                 },
             ],
         },

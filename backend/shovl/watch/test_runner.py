@@ -1,7 +1,7 @@
 """
 The runner (watch/runner.py), the run_watches command, rule A (three failed re-checks put the
-domain back to pending and pause its watches) and watches restarting when the domain is
-verified again.
+domain back to pending and pause its watches), watches restarting when the domain is
+verified again, and watches coming forward when their plan's cadence gets shorter.
 
 Nothing here touches the network: the engine and the verification checks are replaced.
 
@@ -422,6 +422,105 @@ class PassTests(RunnerTestCase):
         self.assertEqual(runner.run_pass().stale, 1)
 
 
+class PullInTests(RunnerTestCase):
+    """A shorter cadence (the beta's weekly free scans, an upgrade to Pro) brings far-off runs forward."""
+
+    def assertAbout(self, when, expected):
+        # next_run_from adds a random part of the spread.
+        self.assertGreaterEqual(when, expected)
+        self.assertLessEqual(when, expected + services.SPREAD)
+
+    def test_a_watch_booked_on_the_old_free_cadence_comes_forward(self):
+        start = timezone.now() - timedelta(days=1)
+        watch = make_watch(self.user, self.domain, due_in=timedelta(days=29), activated_at=start)
+        with self.settings(SHOVL_WATCH_FREE_CADENCE_DAYS=7):
+            moved = runner.pull_in(timezone.now())
+        watch.refresh_from_db()
+        self.assertEqual([w.pk for w in moved], [watch.pk])
+        self.assertAbout(watch.next_run_at, start + timedelta(days=7))
+
+    def test_an_upgrade_to_pro_counts_from_the_last_scheduled_scan(self):
+        last = timezone.now() - timedelta(days=2)
+        watch = make_watch(self.user, self.domain, due_in=timedelta(days=28), last_run_at=last)
+        self.assertEqual(runner.pull_in(timezone.now()), [])  # free, 30 days: right where it is
+        self.user.plan = User.PLAN_PRO
+        self.user.save()
+        runner.pull_in(timezone.now())
+        watch.refresh_from_db()
+        self.assertAbout(watch.next_run_at, last + timedelta(days=7))
+
+    def test_a_watch_already_a_cadence_old_is_due_and_runs_in_the_same_pass(self):
+        self.user.plan = User.PLAN_PRO
+        self.user.save()
+        watch = make_watch(
+            self.user, self.domain, due_in=timedelta(days=10), last_run_at=timezone.now() - timedelta(days=20)
+        )
+        summary = runner.run_pass()
+        self.assertEqual((summary.pulled, summary.due, summary.count("complete")), (1, 1, 1))
+        watch.refresh_from_db()
+        self.assertEqual(watch.last_scan.trigger, TRIGGER_WATCH)
+
+    def test_left_alone(self):
+        self.user.plan = User.PLAN_PRO
+        self.user.save()
+        within = make_watch(self.user, self.domain, f"https://{HOST}/a", due_in=timedelta(days=6))
+        retry = make_watch(self.user, self.domain, f"https://{HOST}/b", due_in=timedelta(hours=1), consecutive_failures=1)
+        paused = make_watch(self.user, self.domain, f"https://{HOST}/c", due_in=timedelta(days=29))
+        paused.pause(Watch.PAUSED_FAILURES)
+        Watch.objects.filter(pk=paused.pk).update(next_run_at=timezone.now() + timedelta(days=29))
+        off = make_watch(self.user, self.domain, f"https://{HOST}/d", due_in=timedelta(days=29), active=False)
+        before = {w.pk: Watch.objects.get(pk=w.pk).next_run_at for w in [within, retry, paused, off]}
+        self.assertEqual(runner.pull_in(timezone.now()), [])
+        after = {pk: Watch.objects.get(pk=pk).next_run_at for pk in before}
+        self.assertEqual(before, after)
+
+    def test_never_later_a_longer_cadence_waits_for_its_next_run(self):
+        self.user.plan = User.PLAN_PRO
+        self.user.save()
+        watch = make_watch(self.user, self.domain, due_in=timedelta(days=5))
+        self.user.plan = User.PLAN_FREE
+        self.user.save()
+        self.assertEqual(runner.pull_in(timezone.now()), [])
+        watch.refresh_from_db()
+        self.assertLess(watch.next_run_at, timezone.now() + timedelta(days=5, minutes=1))
+
+    def test_once_only(self):
+        make_watch(self.user, self.domain, due_in=timedelta(days=29), activated_at=timezone.now())
+        with self.settings(SHOVL_WATCH_FREE_CADENCE_DAYS=7):
+            self.assertEqual(len(runner.pull_in(timezone.now())), 1)
+            self.assertEqual(runner.pull_in(timezone.now()), [])
+
+    def test_a_dry_run_changes_nothing(self):
+        watch = make_watch(self.user, self.domain, due_in=timedelta(days=29))
+        booked = Watch.objects.get(pk=watch.pk).next_run_at
+        with self.settings(SHOVL_WATCH_FREE_CADENCE_DAYS=7):
+            self.assertEqual(len(runner.pull_in(timezone.now(), dry_run=True)), 1)
+        self.assertEqual(Watch.objects.get(pk=watch.pk).next_run_at, booked)
+
+    def test_a_watch_changed_meanwhile_keeps_its_new_booking(self):
+        watch = make_watch(self.user, self.domain, due_in=timedelta(days=29))
+        soon = timezone.now() + timedelta(days=3)
+        original = Watch.objects.filter
+
+        def stale_read(*args, **kwargs):
+            queryset = original(*args, **kwargs)
+            if "next_run_at" in kwargs and "pk" in kwargs:
+                # Someone rebooked it between the read and the update.
+                Watch.objects.all().update(next_run_at=soon)
+            return queryset
+
+        with self.settings(SHOVL_WATCH_FREE_CADENCE_DAYS=7), patch.object(Watch.objects, "filter", side_effect=stale_read):
+            self.assertEqual(runner.pull_in(timezone.now()), [])
+        watch.refresh_from_db()
+        self.assertEqual(watch.next_run_at, soon)
+
+    def test_a_problem_here_never_stops_the_pass(self):
+        make_watch(self.user, self.domain)
+        with patch.object(runner, "pull_in", side_effect=RuntimeError("bug")), self.assertLogs("watch.runner", level="ERROR"):
+            summary = runner.run_pass()
+        self.assertEqual((summary.pulled, summary.count("complete")), (0, 1))
+
+
 class CommandTests(RunnerTestCase):
     def call(self, *args):
         out = StringIO()
@@ -448,6 +547,19 @@ class CommandTests(RunnerTestCase):
         self.verify_dns.return_value = False
         make_watch(self.user, self.domain)
         self.assertIn("verification failed (1 of 3), retry in 1 hour", self.call())
+
+    def test_the_first_line_gives_the_cadences(self):
+        with self.settings(SHOVL_WATCH_FREE_CADENCE_DAYS=7):
+            first = self.call().splitlines()[0]
+        self.assertEqual(first, "shovl watch: free plan every 7 days, pro every 7 days")
+        self.assertIn("free plan every 30 days", self.call("--dry-run"))
+
+    def test_watches_brought_forward_are_counted(self):
+        make_watch(self.user, self.domain, due_in=timedelta(days=29))
+        with self.settings(SHOVL_WATCH_FREE_CADENCE_DAYS=7):
+            dry = self.call("--dry-run")
+            self.assertIn("1 watch(es) would come forward", dry)
+            self.assertIn("1 brought forward", self.call())
 
     def test_a_budget_below_one_is_refused(self):
         with self.assertRaises(CommandError):

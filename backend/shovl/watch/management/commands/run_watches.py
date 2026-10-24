@@ -2,15 +2,19 @@
 python manage.py run_watches [--budget SECONDS] [--dry-run]
 
 Runs the scheduled scans that are due (watch/runner.py). On Render this
-is the cron job, every 15 minutes. Each line names a watch by its id
-and host + path only: query strings can hold API keys, and these lines
-end up in the host's logs.
+is the cron job. Each line names a watch by its id and host + path
+only: query strings can hold API keys, and these lines end up in the
+host's logs.
+
+The first line gives each plan's cadence, so the logs show whether
+WATCH_FREE_CADENCE_DAYS reached the job.
 """
 from urllib.parse import urlsplit
 
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
+from accounts.plans import free_plan, pro_plan
 from watch import runner
 from watch.models import Watch
 
@@ -18,6 +22,12 @@ from watch.models import Watch
 def where(watch):
     parts = urlsplit(watch.target_url)
     return f"{parts.hostname}{parts.path or '/'}"
+
+
+def cadences():
+    free = free_plan().watch_cadence.days
+    pro = pro_plan().watch_cadence.days
+    return f"shovl watch: free plan every {free} days, pro every {pro} days"
 
 
 def describe(outcome):
@@ -61,8 +71,18 @@ class Command(BaseCommand):
         if options["budget"] < 1:
             raise CommandError("--budget must be at least 1.")
 
+        self.stdout.write(cadences())
+
         if options["dry_run"]:
-            due = runner.due_watches(timezone.now())
+            now = timezone.now()
+            forward = runner.pull_in(now, dry_run=True)
+            self.stdout.write(f"{len(forward)} watch(es) would come forward")
+            for watch in forward:
+                when = watch.next_run_at.strftime("%Y-%m-%d %H:%M")
+                self.stdout.write(
+                    f"  watch {watch.pk} {where(watch)}, to {when} UTC"
+                )
+            due = runner.due_watches(now)
             self.stdout.write(f"{len(due)} watch(es) due")
             for watch in due:
                 when = watch.next_run_at.strftime("%Y-%m-%d %H:%M")
@@ -82,5 +102,6 @@ class Command(BaseCommand):
             f"{summary.count('unverified')} unverified, "
             f"{summary.count('paused')} paused, "
             f"{summary.left} left for the next run, "
-            f"{summary.stale} stale scan(s) tidied"
+            f"{summary.stale} stale scan(s) tidied, "
+            f"{summary.pulled} brought forward"
         )

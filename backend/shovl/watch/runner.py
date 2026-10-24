@@ -1,18 +1,19 @@
 """
 shovl watch's runner: one pass over the watches that are due.
-The run_watches command (Render's cron job, every 15 minutes) calls
-run_pass().
+The run_watches command (Render's cron job) calls run_pass().
 
 One pass:
   1. Scheduled scans left "running" by a killed run become interrupted.
-  2. Due watches are picked, most overdue first (see due_watches).
-  3. One at a time, until the time budget is spent:
+  2. Watches booked further ahead than their plan now allows come
+     forward (a shorter free cadence, an upgrade to Pro; see pull_in).
+  3. Due watches are picked, most overdue first (see due_watches).
+  4. One at a time, until the time budget is spent:
        claim     next run an hour ahead, a failure counted up front
        re-check  the domain's verification, once per domain per pass
        scan      same engine as the dashboard, writes off
        book      success: failures back to 0, next run in its slot
                  failure: tried again in an hour
-  4. Watches left over are still due and go first next pass.
+  5. Watches left over are still due and go first next pass.
 """
 import logging
 import time
@@ -22,7 +23,7 @@ from datetime import timedelta
 from django.db.models import F
 from django.utils import timezone
 
-from accounts.plans import effective_plan
+from accounts.plans import effective_plan, free_plan, pro_plan
 from domains.verification import verify_dns, verify_file
 from scanner.engine import ScanFailed, run_scan
 from scanner.report import format_report
@@ -65,6 +66,7 @@ class PassSummary:
     due: int = 0
     left: int = 0
     stale: int = 0
+    pulled: int = 0
     outcomes: list = field(default_factory=list)
 
     def count(self, result):
@@ -107,6 +109,48 @@ def due_watches(now):
         if watch.pk in in_plan[watch.user_id]:
             due.append(watch)
     return due
+
+
+def pull_in(now, dry_run=False):
+    """
+    Watches booked further ahead than their plan allows now come
+    forward. That happens when the free plan's cadence gets shorter
+    (WATCH_FREE_CADENCE_DAYS=7 for the beta) or an account moves to
+    Pro: a watch booked 30 days out would otherwise wait the 30 days.
+
+    Only a watch due more than one cadence (plus the spread) from now
+    moves, so a retry an hour out is never touched. It moves to one
+    cadence after its last scheduled scan (or its start), plus the
+    usual spread, or to now when that's already past: always earlier,
+    never later. Returns the watches moved (dry_run: that would move).
+    """
+    shortest = min(free_plan().watch_cadence, pro_plan().watch_cadence)
+    candidates = Watch.objects.filter(
+        active=True,
+        paused_reason="",
+        next_run_at__gt=now + shortest + services.SPREAD,
+    ).select_related("user")
+    plans = {}
+    moved = []
+    for watch in candidates:
+        if watch.user_id not in plans:
+            plans[watch.user_id] = effective_plan(watch.user)
+        plan = plans[watch.user_id]
+        if watch.next_run_at <= now + plan.watch_cadence + services.SPREAD:
+            continue
+        base = watch.last_run_at or watch.activated_at
+        when = max(services.next_run_from(base, plan), now)
+        if not dry_run:
+            # Conditional, like claim(): a watch changed since it was
+            # read (turned back on, say) keeps its new booking.
+            changed = Watch.objects.filter(
+                pk=watch.pk, next_run_at=watch.next_run_at,
+            ).update(next_run_at=when)
+            if not changed:
+                continue
+        watch.next_run_at = when
+        moved.append(watch)
+    return moved
 
 
 def claim(watch, now):
@@ -304,6 +348,11 @@ def run_pass(budget_seconds=BUDGET_SECONDS, clock=time.monotonic,
     started = clock()
     now = now or timezone.now()
     summary = PassSummary(stale=sweep_stale_scans(now))
+    try:
+        summary.pulled = len(pull_in(now))
+    except Exception:
+        # Housekeeping: a bug here never stops the scans that are due.
+        logger.exception("Bringing watches forward failed")
     due = due_watches(now)
     summary.due = len(due)
     checked = {}
