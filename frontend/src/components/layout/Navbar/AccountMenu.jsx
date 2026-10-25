@@ -7,7 +7,6 @@ import { useNotifications } from "../../../context/NotificationsContext";
 import { useContent } from "../../../hooks/useContent";
 import { MOBILE_QUERY, useMediaQuery } from "../../../hooks/useMediaQuery";
 import { menuRoutes, canAccess } from "../../../routes";
-import LegalLinks from "../../sections/legal/LegalLinks/LegalLinks";
 import styles from "./Navbar.module.css";
 
 // Avatar button. Opens the menu:
@@ -18,7 +17,6 @@ import styles from "./Navbar.module.css";
 //   nobody:     "sign in"
 //   guest:      "save your scans" (register) and "sign in" (both keep their scans)
 //   registered: "log out"
-//   then the legal links (pricing · terms · privacy · refunds) as the last row
 // Nobody signed in on desktop: no menu, the avatar goes straight to /signin.
 // On mobile they get the menu too, or the FAQ would be out of reach.
 // Guests get no "log out": dropping a guest token would lose their scans.
@@ -145,8 +143,6 @@ export default function AccountMenu() {
                             {nav.logout}
                         </button>
                     )}
-
-                    <LegalLinks variant="menu" onNavigate={close} />
                 </div>
             ) : null}
         </div>

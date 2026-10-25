@@ -23,3 +23,18 @@
         padding-bottom: calc(var(--nav-height) + 32px);
     }
 }
+
+/* Phones: the legal links under the launch card, in a small box of their own: depending on the
+   screen's height they land on the sky or on the dunes, and the box keeps them readable on
+   both, in both themes. Above the ground's layer, so they can be tapped. */
+.mobileLinks {
+    position: relative;
+    z-index: var(--z-content);
+    width: fit-content;
+    max-width: calc(100% - 32px);
+    margin: 30px auto 0;
+    padding: 6px 10px;
+    background: var(--surface);
+    border: var(--border-2);
+    box-shadow: var(--shadow-2);
+}

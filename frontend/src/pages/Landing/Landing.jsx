@@ -6,6 +6,7 @@ import BrandHeader from "../../components/sections/landing/BrandHeader/BrandHead
 import ScanOptions from "../../components/sections/landing/ScanOptions/ScanOptions";
 import BrandHero from "../../components/sections/landing/BrandHero/BrandHero";
 import LaunchPanel from "../../components/sections/landing/LaunchPanel/LaunchPanel";
+import LegalLinks from "../../components/sections/legal/LegalLinks/LegalLinks";
 import { useSession } from "../../context/SessionContext";
 import { useContent } from "../../hooks/useContent";
 import { MOBILE_QUERY, useMediaQuery } from "../../hooks/useMediaQuery";
@@ -74,6 +75,13 @@ export default function Landing() {
                         urlRef.current?.focus();
                     }}
                 />
+
+                {/* Phones: the legal links under the card (desktop has them in the footer). */}
+                {isMobile ? (
+                    <div className={styles.mobileLinks}>
+                        <LegalLinks />
+                    </div>
+                ) : null}
             </div>
         </>
     );

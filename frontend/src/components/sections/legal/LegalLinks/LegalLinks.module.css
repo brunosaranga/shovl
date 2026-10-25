@@ -35,22 +35,6 @@
     color: var(--text);
 }
 
-/* The last row of the account menu: two by two, no dots, so it never wraps mid-row. */
-.menu {
-    display: grid;
-    grid-template-columns: repeat(2, max-content);
-    justify-content: start;
-    gap: 4px 16px;
-    padding: 9px 11px;
-    background: var(--surface-soft);
-    color: var(--text);
-    font-size: 12px;
-}
-
-.menu .separator {
-    display: none;
-}
-
 @media (hover: hover) {
     .link:hover {
         background: var(--accent);

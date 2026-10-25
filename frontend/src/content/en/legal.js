@@ -13,7 +13,7 @@
 // as registered, "a sole trader registered in Mozambique", the registration number and NUIT,
 // and the address you register with.
 export const operator = {
-    name: "Bruno Ernesto Adão Saranga",
+    name: "Bruno Saranga",
     description: "an individual based in Maputo, Mozambique",
 };
 
