@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Button from "../../../ui/Button/Button";
 import Checkbox from "../../../ui/Checkbox/Checkbox";
+import LinkedText from "../../../ui/LinkedText/LinkedText";
 import { useContent } from "../../../../hooks/useContent";
 import { PRACTICE_TARGETS } from "../../../../lib/targets";
 import { fill } from "../../../../lib/text";
@@ -38,7 +39,7 @@ export default function LaunchPanel({
                 <div className={styles.card}>
                     {showConsent ? (
                         <Checkbox
-                            label={landing.consent}
+                            label={<LinkedText text={landing.consent} newTab />}
                             checked={consent}
                             onChange={onConsentChange}
                             invalid={consentError}

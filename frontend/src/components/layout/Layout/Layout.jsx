@@ -37,7 +37,7 @@ export default function Layout() {
                     <div className={styles.shell} ref={shellRef}>
                         <Navbar slotRef={setNavSlot} />
                         <Ground />
-                        <Footer />
+                        <Footer links={!overGround} />
                         <main id="main" className={styles.content} data-layer={overGround ? "over-ground" : undefined}>
                             <Outlet />
                         </main>

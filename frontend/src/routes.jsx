@@ -9,6 +9,8 @@ import Report from "./pages/Report/Report";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Settings from "./pages/Settings/Settings";
 import NotFound from "./pages/NotFound/NotFound";
+import Pricing from "./pages/Pricing/Pricing";
+import Legal from "./pages/Legal/Legal";
 
 // Single source of truth: the router AND the account menu read this list.
 //
@@ -33,6 +35,11 @@ export const pageRoutes = [
     { path: "/scan/:scanId/report", element: <Report />, access: "session", content: "over-ground" },
     { path: "/dashboard", element: <Dashboard />, access: "session", menuKey: "dashboard", content: "over-ground" },
     { path: "/settings", element: <Settings />, access: "registered", menuKey: "settings", content: "over-ground" },
+    // Linked from the footer, the account menu and the consent ticks (sections/legal/LegalLinks).
+    { path: "/pricing", element: <Pricing />, access: "public", content: "over-ground" },
+    { path: "/terms", element: <Legal doc="terms" />, access: "public", content: "over-ground" },
+    { path: "/privacy", element: <Legal doc="privacy" />, access: "public", content: "over-ground" },
+    { path: "/refunds", element: <Legal doc="refunds" />, access: "public", content: "over-ground" },
 ];
 
 export const menuRoutes = pageRoutes.filter((route) => route.menuKey);

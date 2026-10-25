@@ -69,6 +69,7 @@ export const settings = {
             staff: "Staff",
             guest: "Guest",
         },
+        compare: "compare plans",
         scans: "Scans",
         remaining: "{remaining} of {limit} left today",
         unlimited: "unlimited",

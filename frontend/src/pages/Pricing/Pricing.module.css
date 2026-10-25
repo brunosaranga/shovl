@@ -1,0 +1,73 @@
+.lead {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.plans {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+    align-items: stretch;
+}
+
+.cta {
+    width: 100%;
+    text-align: center;
+    display: block;
+}
+
+.current {
+    display: block;
+    padding: 10px 20px;
+    border: var(--border-2);
+    background: var(--surface-soft);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.notes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px 22px;
+    background: var(--surface);
+    border: var(--border-2);
+    box-shadow: var(--shadow-4);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.early {
+    font-family: var(--font-mono);
+    font-weight: 700;
+}
+
+.links {
+    margin-top: 6px;
+    padding-top: 12px;
+    border-top: var(--border-2);
+}
+
+.noteList {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+@media (max-width: 768px) {
+    .plans {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 28px;
+    }
+
+    .lead {
+        font-size: 14px;
+    }
+}

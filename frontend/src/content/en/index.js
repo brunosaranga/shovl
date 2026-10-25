@@ -11,6 +11,8 @@ import { errors } from "./errors";
 import { notFound } from "./notFound";
 import { faq } from "./faq";
 import { notifications } from "./notifications";
+import { legal } from "./legal";
+import { pricing } from "./pricing";
 
 export const en = {
     common,
@@ -26,4 +28,6 @@ export const en = {
     notFound,
     faq,
     notifications,
+    legal,
+    pricing,
 };

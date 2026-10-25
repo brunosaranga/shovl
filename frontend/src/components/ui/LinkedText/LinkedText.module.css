@@ -1,0 +1,21 @@
+.link {
+    color: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
+    overflow-wrap: anywhere;
+}
+
+.link:focus-visible {
+    outline: 2px solid var(--text);
+    outline-offset: 2px;
+}
+
+@media (hover: hover) {
+    .link:hover {
+        background: var(--accent);
+        color: var(--on-accent);
+        text-decoration: none;
+    }
+}

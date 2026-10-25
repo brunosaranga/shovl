@@ -1,6 +1,7 @@
 import { useState } from "react";
 import TextField from "../../ui/TextField/TextField";
 import Checkbox from "../../ui/Checkbox/Checkbox";
+import LinkedText from "../../ui/LinkedText/LinkedText";
 import { useSession } from "../../../context/SessionContext";
 import { useSound } from "../../../context/SoundContext";
 import { useContent } from "../../../hooks/useContent";
@@ -76,7 +77,7 @@ export default function AuthForm({ mode, notice, onSuccess }) {
                 errors={fields.password}
             />
 
-            {isRegister ? <Checkbox label={auth.consent} checked={consent} onChange={setConsent} /> : null}
+            {isRegister ? <Checkbox label={<LinkedText text={auth.consent} newTab />} checked={consent} onChange={setConsent} /> : null}
 
             {problem?.message ? (
                 <p className={styles.error} role="alert">

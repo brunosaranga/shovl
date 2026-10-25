@@ -22,7 +22,8 @@ export const auth = {
         passwordHint: "at least 10 characters. not a common password, not all numbers, not your email.",
     },
 
-    consent: "I own or have explicit permission to test any URL I submit to shovl",
+    // [label](/path) becomes a link (opens in a new tab here).
+    consent: "I own or have explicit permission to test any URL I submit to shovl, and I accept the [terms](/terms) and [privacy policy](/privacy)",
 
     submit: {
         signin: "Sign In",

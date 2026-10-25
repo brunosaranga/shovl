@@ -1,0 +1,109 @@
+.header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    padding: 16px 28px;
+    background: var(--text);
+    color: var(--text-inverse);
+}
+
+.heading {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+}
+
+.updated {
+    font-family: var(--font-mono);
+    font-size: 12px;
+}
+
+.body {
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+}
+
+.intro {
+    font-size: 16px;
+}
+
+.intro + .section {
+    padding-top: 22px;
+    border-top: var(--border-2);
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.title {
+    align-self: flex-start;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.3;
+    padding: 4px 8px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border: var(--border-1);
+}
+
+.list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.list li {
+    position: relative;
+    padding-left: 22px;
+}
+
+/* A small square, the site's shape for everything. */
+.list li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 0.62em;
+    width: 8px;
+    height: 8px;
+    background: var(--text);
+}
+
+.footer {
+    padding: 14px 28px;
+    border-top: var(--border-2);
+    background: var(--surface-soft);
+}
+
+@media (max-width: 560px) {
+    .header {
+        padding: 14px 18px;
+    }
+
+    .heading {
+        font-size: 22px;
+    }
+
+    .body {
+        padding: 20px 18px;
+        font-size: 15px;
+    }
+
+    .footer {
+        padding: 12px 18px;
+    }
+}

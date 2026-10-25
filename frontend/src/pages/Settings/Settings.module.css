@@ -41,3 +41,22 @@
     color: var(--accent);
     font-weight: bold;
 }
+
+.compare {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
+    white-space: nowrap;
+}
+
+@media (hover: hover) {
+    .compare:hover {
+        background: var(--accent);
+        color: var(--on-accent);
+        text-decoration: none;
+    }
+}

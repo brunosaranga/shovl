@@ -1,0 +1,124 @@
+.card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: var(--border-3);
+    box-shadow: var(--shadow-6);
+    color: var(--text);
+}
+
+/* Pro: a neon shadow instead of the dark one. */
+.card[data-featured] {
+    box-shadow: 8px 8px 0 var(--accent);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 24px;
+    background: var(--text);
+    color: var(--text-inverse);
+}
+
+.name {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+}
+
+.badge {
+    padding: 2px 8px;
+    background: var(--accent);
+    color: var(--on-fill);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.priceRow {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 24px 24px 0;
+}
+
+.price {
+    font-family: var(--font-display);
+    font-size: 56px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1;
+}
+
+.period {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.note {
+    padding: 8px 24px 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+}
+
+.features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 24px 0;
+    padding-top: 18px;
+    border-top: var(--border-2);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.features li {
+    position: relative;
+    padding-left: 26px;
+}
+
+.features li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-weight: 900;
+}
+
+.action {
+    margin-top: auto;
+    padding: 24px;
+}
+
+@media (max-width: 560px) {
+    .header {
+        padding: 12px 18px;
+    }
+
+    .priceRow {
+        padding: 20px 18px 0;
+    }
+
+    .price {
+        font-size: 48px;
+    }
+
+    .note {
+        padding: 8px 18px 0;
+    }
+
+    .features {
+        margin: 18px 18px 0;
+    }
+
+    .action {
+        padding: 20px 18px;
+    }
+}

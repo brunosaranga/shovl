@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import PageMeta from "../../components/layout/PageMeta/PageMeta";
 import NavCenter from "../../components/layout/NavCenter/NavCenter";
 import PageBody from "../../components/layout/PageBody/PageBody";
@@ -103,7 +104,15 @@ export default function Settings() {
                 </SettingsSection>
 
                 <SettingsSection title={settings.plan.title}>
-                    <SettingsRow label={settings.plan.plan} value={planName} />
+                    <SettingsRow
+                        label={settings.plan.plan}
+                        value={planName}
+                        action={
+                            <Link to="/pricing" className={styles.compare}>
+                                {settings.plan.compare}
+                            </Link>
+                        }
+                    />
                     <SettingsRow
                         label={settings.plan.scans}
                         value={allowance ? fill(settings.plan.remaining, allowance) : settings.plan.unlimited}
