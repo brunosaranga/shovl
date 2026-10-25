@@ -4,7 +4,7 @@ export const settings = {
     loadFailed: "couldn't load your watched APIs and domains. reload the page to try again.",
 
     account: {
-        title: "Account",
+        title: "account",
         email: "Email",
     },
 
@@ -39,7 +39,7 @@ export const settings = {
     },
 
     domains: {
-        title: "Verified Domains",
+        title: "verified domains",
         empty: "no verified domains yet. scanning one of your own domains adds it here.",
         verified: "✓",
         verifiedLabel: "verified",
@@ -61,7 +61,7 @@ export const settings = {
     },
 
     plan: {
-        title: "Subscription",
+        title: "subscription",
         plan: "Plan:",
         names: {
             free: "Free",
