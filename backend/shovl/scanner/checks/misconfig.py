@@ -1,8 +1,15 @@
+import re
+
 import requests
 
 from .. import http
 
 SEVERITY_ORDER = {"PASS": 0, "LOW": 1, "MEDIUM": 2, "HIGH": 3}
+
+# A version number in a header's value: "nginx/1.18.0", "Apache/2.4.41 (Ubuntu)", "PHP/8.1.2".
+VERSION = re.compile(r"\d+\.\d+")
+# Headers whose only job is to name the software behind a site.
+FRAMEWORK_HEADERS = ("X-Powered-By", "X-AspNet-Version", "X-AspNetMvc-Version")
 
 
 def _raise_to(result, severity):
@@ -34,9 +41,18 @@ def run(target_url: str, token: str = None, verbose: bool = False, budget=None) 
             _raise_to(result, "HIGH")
             result["detail"].append("API not served over HTTPS")
 
-        if "Server" in r.headers:
-            _raise_to(result, "MEDIUM")
-            result["detail"].append(f"Server header exposed: {r.headers['Server']}")
+        # A Server header that only names the software ("cloudflare", "nginx") is near
+        # universal and usually set by a CDN or the host, not the API: nothing to report. One
+        # that gives the version tells an attacker which known vulnerabilities to try (LOW).
+        server = r.headers.get("Server", "")
+        if VERSION.search(server):
+            _raise_to(result, "LOW")
+            result["detail"].append(f"Server header reveals the software version: {server}")
+
+        for name in FRAMEWORK_HEADERS:
+            if r.headers.get(name):
+                _raise_to(result, "LOW")
+                result["detail"].append(f"{name} header reveals the framework: {r.headers[name]}")
 
         if r.headers.get("Access-Control-Allow-Origin") == "*":
             _raise_to(result, "MEDIUM")

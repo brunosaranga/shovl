@@ -1,5 +1,5 @@
 """
-Tests for how the authentication and BOLA checks judge what they see.
+Tests for how the authentication, BOLA and misconfiguration checks judge what they see.
 
 Run with:  python manage.py test scanner
 
@@ -12,7 +12,7 @@ import requests
 from django.test import SimpleTestCase
 
 from scanner import engine, evidence, http
-from scanner.checks import auth, bola, mass_assignment, rate_limit
+from scanner.checks import auth, bola, mass_assignment, misconfig, rate_limit
 
 BASE = "https://api.example.com/items"
 
@@ -525,3 +525,56 @@ class RateLimitTests(SimpleTestCase):
         with mock.patch("scanner.http.get", side_effect=http.ScanRequestError("timeout")):
             result = rate_limit.run(BASE)
         self.assertEqual((result["severity"], result["reason"]), ("ERROR", "timeout"))
+
+def headers_reply(**headers):
+    response = reply(404, kind="text/html", text="<h1>Not Found</h1>")
+    for name, value in headers.items():
+        response.headers[name.replace("_", "-")] = value
+    return response
+
+
+def run_misconfig(response, url="https://api.example.com"):
+    with serve(lambda url, headers: response):
+        return misconfig.run(url, verbose=True)
+
+
+class MisconfigTests(SimpleTestCase):
+    def test_a_server_name_without_a_version_is_not_a_finding(self):
+        # What a CDN or host sets in front of almost every API (shovll's own scan, 25 Oct 2026)
+        for server in ("cloudflare", "nginx", "Apache", "AmazonS3", "Google Frontend"):
+            with self.subTest(server=server):
+                result = run_misconfig(headers_reply(Server=server))
+                self.assertEqual(result["severity"], "PASS")
+                self.assertEqual(result["detail"], ["No misconfigurations detected"])
+
+    def test_a_server_version_is_low_and_quoted(self):
+        for server in ("nginx/1.18.0", "Apache/2.4.41 (Ubuntu)", "Microsoft-IIS/10.0", "Jetty(9.4.43.v20210629)"):
+            with self.subTest(server=server):
+                result = run_misconfig(headers_reply(Server=server))
+                self.assertEqual(result["severity"], "LOW")
+                self.assertEqual(result["detail"], [f"Server header reveals the software version: {server}"])
+
+    def test_framework_headers_are_low(self):
+        result = run_misconfig(headers_reply(X_Powered_By="Express", X_AspNet_Version="4.0.30319"))
+        self.assertEqual(result["severity"], "LOW")
+        self.assertIn("X-Powered-By header reveals the framework: Express", result["detail"])
+        self.assertIn("X-AspNet-Version header reveals the framework: 4.0.30319", result["detail"])
+
+    def test_header_names_are_matched_whatever_their_case(self):
+        result = run_misconfig(headers_reply(**{"x_powered_by": "PHP/8.1.2"}))
+        self.assertEqual(result["severity"], "LOW")
+
+    def test_a_cors_wildcard_is_still_medium_and_outranks_low(self):
+        result = run_misconfig(headers_reply(Server="nginx/1.18.0", Access_Control_Allow_Origin="*"))
+        self.assertEqual(result["severity"], "MEDIUM")
+        self.assertEqual(len(result["detail"]), 2)
+
+    def test_plain_http_is_still_high(self):
+        result = run_misconfig(headers_reply(Server="cloudflare"), url="http://api.example.com")
+        self.assertEqual(result["severity"], "HIGH")
+        self.assertEqual(result["detail"], ["API not served over HTTPS"])
+
+    def test_verbose_keeps_the_headers(self):
+        result = run_misconfig(headers_reply(Server="cloudflare"))
+        self.assertEqual(result["raw"]["status_code"], 404)
+        self.assertEqual(result["raw"]["headers"]["Server"], "cloudflare")

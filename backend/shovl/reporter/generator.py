@@ -80,7 +80,7 @@ SEVERITY_LABEL = {
 SEVERITY_MEANING = [
     ("HIGH", "strong evidence of a real problem, like an invalid token getting through."),
     ("MEDIUM", "something is open to anyone, and shovll can't tell whether that's on purpose."),
-    ("LOW", "something couldn't be verified or assessed."),
+    ("LOW", "a minor issue, or something that couldn't be verified or assessed."),
     ("PASS", "the check found nothing wrong."),
     ("ERROR", "the check didn't finish, which says nothing about the API."),
 ]
@@ -339,7 +339,7 @@ def risk_explanation(risk, summary):
         return ("the worst finding is something open to anyone, which may or may not be on purpose. "
                 "go through the medium findings and decide which ones should be closed.")
     if risk == "LOW" and problems:
-        return "nothing serious found. the low findings are things shovll couldn't fully verify."
+        return "nothing serious found. the low findings are minor issues or things shovll couldn't fully verify."
     if risk == "LOW":
         return "every check that ran passed."
     if risk == "INCOMPLETE":

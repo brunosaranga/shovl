@@ -87,7 +87,15 @@ export default function Report() {
                             downloading={pdf.busy}
                         />
                         {pdf.error ? <Alert role="alert">{report.pdf.errors[pdf.error]}</Alert> : null}
-                        <WatchBadge key={scan.id} scanId={scan.id} targetUrl={scan.target_url} initial={scan.watch} />
+                        {/* Keys: per scan, so another report starts fresh, and different from
+                            ReportFeedback's. Two siblings sharing a key made React leave the old
+                            badge behind on every re-render (one more per PDF download). */}
+                        <WatchBadge
+                            key={`watch-${scan.id}`}
+                            scanId={scan.id}
+                            targetUrl={scan.target_url}
+                            initial={scan.watch}
+                        />
                         <CoverageNote meta={meta} findings={results.findings} summary={results.summary} />
                         <SeverityMatrix summary={results.summary} />
                         <SinceLastScan comparison={scan.comparison} />
@@ -115,7 +123,7 @@ export default function Report() {
                             </>
                         )}
 
-                        <ReportFeedback key={scan.id} scanId={scan.id} initial={scan.feedback} />
+                        <ReportFeedback key={`feedback-${scan.id}`} scanId={scan.id} initial={scan.feedback} />
                     </>
                 ) : null}
             </PageBody>

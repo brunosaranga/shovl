@@ -144,6 +144,10 @@ MIDDLEWARE = [
     'core.health.HealthCheckMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    # A general limit per client address on every route (core/ratelimit.py). After CORS, so a
+    # 429 still carries the CORS headers the frontend needs to read it, and after the security
+    # middleware, so it carries those headers too.
+    'core.ratelimit.RateLimitMiddleware',
     # Serves the admin's CSS and JS in production (collected by collectstatic).
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -280,6 +284,16 @@ GUEST_THROTTLE_PROXIES = int(os.getenv("GUEST_THROTTLE_PROXIES", "0"))
 # Temporary, for setting the number above on a new host: logs the addresses each guest
 # creation arrives with. Turn it off again once GUEST_THROTTLE_PROXIES is set.
 SHOVL_LOG_CLIENT_IP = os.getenv("SHOVL_LOG_CLIENT_IP") == "1"
+
+# The API's general limit: requests per minute from one client address, on every route
+# (core/ratelimit.py). Counted per gunicorn process, so with WEB_CONCURRENCY=2 a client can
+# get up to twice this. Far above what the frontend sends while someone uses it. 0 = off.
+try:
+    SHOVL_API_RATE_LIMIT_PER_MINUTE = int(os.getenv("API_RATE_LIMIT_PER_MINUTE", "120"))
+except ValueError:
+    raise ImproperlyConfigured("API_RATE_LIMIT_PER_MINUTE must be a whole number (0 turns it off).")
+if SHOVL_API_RATE_LIMIT_PER_MINUTE < 0:
+    raise ImproperlyConfigured("API_RATE_LIMIT_PER_MINUTE can't be negative (0 turns it off).")
 
 # PDF downloads (GET /api/scans/<id>/pdf/). Built in memory when someone asks, never written
 # to disk. On unless switched off with SHOVL_PDF_REPORTS=0 (the report page then says so).

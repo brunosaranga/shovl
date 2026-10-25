@@ -34,7 +34,8 @@ function writeClosed(scanId, value) {
 // answer, two optional extras: a comment, and whether they'd pay for weekly scans with an
 // email when something changes. Each is saved as soon as it's given
 // (POST /api/scans/<id>/feedback/; the admin shows answers next to what the report showed).
-// Render it with key={scan.id}, so another report starts fresh.
+// Render it with a key per scan (pages/Report: `feedback-<id>`), so another report starts
+// fresh. The key must differ from its siblings' keys.
 export default function ReportFeedback({ scanId, initial = null }) {
     const { report } = useContent();
     const copy = report.feedback;

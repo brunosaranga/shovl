@@ -6,8 +6,8 @@ import styles from "./LegalLinks.module.css";
 const PAGES = ["pricing", "terms", "privacy", "refunds"];
 
 // pricing · terms · privacy · refunds. Paddle asks for the legal pages to be reachable from the
-// site's navigation: the row sits on the landing (the desktop footer, and under the launch card
-// on phones) and at the bottom of the legal and pricing pages themselves.
+// site's navigation: the row sits on the landing (in the footer, on the ground: desktop and
+// phones) and at the bottom of the legal and pricing pages themselves.
 //   variant: footer (white, on the ground) | page
 export default function LegalLinks({ variant = "page" }) {
     const { legal } = useContent();

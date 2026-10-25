@@ -36,7 +36,7 @@ export const faq = {
             items: [
                 {
                     q: "what do the severities mean?",
-                    a: "high: strong evidence of a real problem, like an invalid token getting through. medium: something is open to anyone and shovll can't tell if that's on purpose. low: something couldn't be verified or assessed. could not run: the check didn't finish, which says nothing about your API.",
+                    a: "high: strong evidence of a real problem, like an invalid token getting through. medium: something is open to anyone and shovll can't tell if that's on purpose. low: a minor issue, like a header naming the server's version, or something that couldn't be verified or assessed. could not run: the check didn't finish, which says nothing about your API.",
                 },
                 {
                     q: "why does my public API show medium?",

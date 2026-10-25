@@ -17,8 +17,22 @@
     pointer-events: none;
 }
 
+/* Phones: the navbar sits at the bottom and the ground ends right on top of it
+   (Ground.module.css). The beta line stays hidden; on the landing the legal links show, on
+   the dunes just above the navbar. The launch card comes later in the page at the same layer,
+   so on a short screen it passes over them while scrolling, and the landing's bottom padding
+   lets it scroll clear (pages/Landing/Landing.module.css). */
 @media (max-width: 768px) {
     .footer {
         visibility: hidden;
+    }
+
+    .footer[data-links] {
+        visibility: visible;
+        bottom: calc(var(--nav-height) + 8px);
+    }
+
+    .footer[data-links] .line {
+        display: none;
     }
 }

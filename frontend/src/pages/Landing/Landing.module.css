@@ -14,27 +14,13 @@
 
 /* Phones: the landing joins the page's flow, so <main> (the one thing that scrolls, see
    Layout.module.css) can scroll it when a short screen can't fit the card under "dig deeper".
-   Same positions as before; the padding lets the card's last line clear the bottom navbar,
-   with a little room. On a tall phone everything fits and nothing scrolls. */
+   Same positions as before; the padding lets the card's last line clear the bottom navbar and
+   the legal links on the dunes above it (components/layout/Footer), with a little room. On a
+   tall phone everything fits and nothing scrolls. */
 @media (max-width: 768px) {
     .landing {
         position: static;
         height: auto;
-        padding-bottom: calc(var(--nav-height) + 32px);
+        padding-bottom: calc(var(--nav-height) + 48px);
     }
-}
-
-/* Phones: the legal links under the launch card, in a small box of their own: depending on the
-   screen's height they land on the sky or on the dunes, and the box keeps them readable on
-   both, in both themes. Above the ground's layer, so they can be tapped. */
-.mobileLinks {
-    position: relative;
-    z-index: var(--z-content);
-    width: fit-content;
-    max-width: calc(100% - 32px);
-    margin: 30px auto 0;
-    padding: 6px 10px;
-    background: var(--surface);
-    border: var(--border-2);
-    box-shadow: var(--shadow-2);
 }
