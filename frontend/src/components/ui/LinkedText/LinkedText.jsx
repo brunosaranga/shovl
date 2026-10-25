@@ -9,6 +9,7 @@ const TOKEN = /\[([^\]]+)\]\(([^)\s]+)\)|\{(\w+)\}/g;
 // Copy from content/ with links in it:
 //   "[label](/path)"  a link inside the site ("[label](https://…)" opens in a new tab)
 //   "{email}"         the support address, as a mailto link
+//   "{securityEmail}" the security address, as a mailto link
 //   "{key}"           any other value from `values`
 // newTab: open site links in a new tab too, for links inside a form (the consent ticks), so a
 // half-filled form isn't lost.
@@ -35,10 +36,11 @@ export default function LinkedText({ text, values = {}, newTab = false }) {
                     </Link>
                 )
             );
-        } else if (key === "email") {
+        } else if (key === "email" || key === "securityEmail") {
+            const address = key === "email" ? common.contactEmail : common.securityEmail;
             parts.push(
-                <a key={id} href={`mailto:${common.contactEmail}`} className={styles.link}>
-                    {common.contactEmail}
+                <a key={id} href={`mailto:${address}`} className={styles.link}>
+                    {address}
                 </a>
             );
         } else {

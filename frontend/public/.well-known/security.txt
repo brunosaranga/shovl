@@ -1,4 +1,4 @@
-Contact: mailto:brunoeasaranga@gmail.com
+Contact: mailto:security@shovll.com
 Expires: 2027-10-01T00:00:00.000Z
 Preferred-Languages: en, pt
 Canonical: https://shovll.com/.well-known/security.txt

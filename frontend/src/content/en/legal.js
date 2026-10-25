@@ -7,7 +7,8 @@
 // accounts/plans.py, hosting in the deployment notes.
 //
 // In the text: [label](/path) becomes a link, {email} the support address (common.contactEmail),
-// {operator} who runs shovll (below). A string in `body` is a paragraph, an array is a list.
+// {securityEmail} the security address (common.securityEmail), {operator} who runs shovll
+// (below). A string in `body` is a paragraph, an array is a list.
 
 // Who runs shovll. When you register, change it to match the registration: your full legal name
 // as registered, "a sole trader registered in Mozambique", the registration number and NUIT,
@@ -190,7 +191,7 @@ export const legal = {
                         "Render hosts the site and the API, in Frankfurt, Germany.",
                         "Neon hosts the database, in Frankfurt, Germany.",
                         "GitHub runs the daily job that deletes expired guest sessions.",
-                        "Google (Gmail) handles the emails you send to {email}.",
+                        "Cloudflare forwards the emails you send to our shovll.com addresses, like {email}, to Gmail (Google), where they're read and answered.",
                         "Paddle, once Pro is on sale, handles payments as the merchant of record. Paddle collects your payment details itself; we receive your name, email, country and subscription status, never your card number.",
                     ],
                     "When you run a scan, our servers send the requests to the address you chose, so the scanned API sees our servers, not you.",
@@ -226,6 +227,7 @@ export const legal = {
                 h: "security",
                 body: [
                     "Everything travels over HTTPS, passwords are hashed, the data sits in EU data centres, and access is limited to the person who runs shovll. No system is perfectly secure; if something goes wrong that affects your data, we'll tell you.",
+                    "Found a security problem in shovll itself? Please email {securityEmail} before making it public.",
                 ],
             },
             {

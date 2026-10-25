@@ -5,7 +5,12 @@ export const common = {
     footer: "shovll beta engine: librana",
     logoAlt: "shovll logo",
     homeLabel: "shovll home",
-    contactEmail: "brunoeasaranga@gmail.com", // support, password help, account deletion (used by the FAQ)
+    // Cloudflare Email Routing forwards both to Bruno's Gmail; replies come from there.
+    // Support, password help, account deletion (FAQ, legal pages, pricing): {email} in copy.
+    contactEmail: "support@shovll.com",
+    // Security problems in shovll itself (privacy page, public/.well-known/security.txt):
+    // {securityEmail} in copy.
+    securityEmail: "security@shovll.com",
     loading: "loading...",
 
     // Overall risk score of a scan (backend: CRITICAL | HIGH | MEDIUM | LOW | INCOMPLETE)

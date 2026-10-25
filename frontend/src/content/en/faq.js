@@ -134,7 +134,7 @@ export const faq = {
                 },
                 {
                     q: "does shovll send emails?",
-                    a: "not during the beta: shovll watch's alerts land in the bell. if you write to us, we reply from {email}. any other email claiming to be shovll isn't from us.",
+                    a: "not during the beta: shovll watch's alerts land in the bell. if you write to {email}, Bruno, who runs shovll, replies personally. shovll itself sends no automated emails yet, so any automated email claiming to be from shovll isn't from us.",
                 },
                 {
                     q: "can I delete my account?",
