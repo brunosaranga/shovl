@@ -4,6 +4,9 @@
 // {email} the support address.
 export const pricing = {
     meta: "pricing | shovll",
+    // Search results and link previews (scripts/seo-pages.mjs). Keep it in step with the plans.
+    description:
+        "Start free: 5 scans a day, PDF reports and shovll watch on one API. Pro, opening soon at $19 a month, watches 5 APIs every week.",
     title: "pricing",
     lead: "start free. go Pro when shovll watch becomes part of how you ship.",
     perMonth: "/ month",

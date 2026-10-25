@@ -18,6 +18,12 @@ export default defineConfig([
         },
     },
     {
+        // Build scripts run in Node (scripts/seo-pages.mjs, after vite build).
+        files: ["scripts/**/*.mjs"],
+        extends: [js.configs.recommended],
+        languageOptions: { globals: globals.node },
+    },
+    {
         // Providers export their hook next to the component, and routes.jsx exports config.
         files: ["src/context/**", "src/routes.jsx", "src/components/layout/NavCenter/**"],
         rules: {

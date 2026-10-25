@@ -33,6 +33,9 @@ export const legal = {
 
     terms: {
         meta: "terms | shovll",
+        // Search results and link previews (scripts/seo-pages.mjs)
+        description:
+            "The terms of service for shovll, the API security scanner: what you may scan, accounts, plans and payments, and liability.",
         title: "terms",
         heading: "terms of service",
         updated: UPDATED,
@@ -148,6 +151,8 @@ export const legal = {
 
     privacy: {
         meta: "privacy | shovll",
+        description:
+            "What personal data shovll keeps, why, who else handles it, and how to see, correct or delete yours.",
         title: "privacy",
         heading: "privacy policy",
         updated: UPDATED,
@@ -245,6 +250,8 @@ export const legal = {
 
     refunds: {
         meta: "refunds | shovll",
+        description:
+            "shovll's refund policy: a full refund of any Pro payment within 14 days, no questions asked, and cancel anytime.",
         title: "refunds",
         heading: "refund policy",
         updated: UPDATED,

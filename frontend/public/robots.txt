@@ -1,0 +1,10 @@
+# shovll.com: everything public may be indexed. The app's signed-in pages are left out:
+# they only show a sign-in prompt to a crawler.
+User-agent: *
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /scan/
+Disallow: /verify
+Disallow: /signin
+
+Sitemap: https://shovll.com/sitemap.xml

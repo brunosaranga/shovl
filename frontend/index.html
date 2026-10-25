@@ -3,11 +3,18 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <!-- First: the old Render address forwards to shovll.com (public/canonical-host.js). -->
+        <script src="/canonical-host.js"></script>
         <title>shovll | break your API before someone else does</title>
         <meta
             name="description"
             content="Break your API before someone else does. Free beta scanner for auth, BOLA, mass assignment, rate limits, data exposure and misconfiguration."
         />
+        <!-- The address search engines should list. The public pages get their own copy of this
+             <head> at build time, with their own title, description and addresses
+             (scripts/seo-pages.mjs): keep these tags on one line each, as they are, so it can
+             find them. -->
+        <link rel="canonical" href="https://shovll.com/" />
 
         <!-- Link previews (LinkedIn, X, Slack, WhatsApp). The image is public/og-image.jpg:
              1200 x 627 and about 100 KB. Keep it a JPEG well under 300 KB: WhatsApp shows no
@@ -28,8 +35,40 @@
         <meta property="og:image:alt" content="The shovll landing page" />
         <meta name="twitter:card" content="summary_large_image" />
 
-        <!-- <link rel="icon" type="image/svg+xml" href="/shovl-logo.svg" /> -->
-        <link rel="icon" type="image/svg+xml" href="/src/assets/logos/shovl-logo.svg" />
+        <!-- The shovll hand. Fixed addresses (public/), so search results and bookmarks keep
+             finding it: SVG for browsers, a 48 px .ico for everything else (Google wants a
+             multiple of 48), and the home-screen icon for phones. -->
+        <link rel="icon" href="/favicon.ico" sizes="48x48" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+        <!-- Who and what the site is, for search engines: the site's name ("shovll", shown
+             above the result) and the brand behind it. A data block, not a script: browsers
+             don't run it, so the Content-Security-Policy is unaffected. -->
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@graph": [
+                    {
+                        "@type": "WebSite",
+                        "@id": "https://shovll.com/#website",
+                        "name": "shovll",
+                        "alternateName": "shovll.com",
+                        "url": "https://shovll.com/",
+                        "publisher": { "@id": "https://shovll.com/#organization" }
+                    },
+                    {
+                        "@type": "Organization",
+                        "@id": "https://shovll.com/#organization",
+                        "name": "shovll",
+                        "url": "https://shovll.com/",
+                        "logo": "https://shovll.com/logo-512.png",
+                        "email": "support@shovll.com",
+                        "description": "shovll is an API security scanner: it breaks your API before someone else does."
+                    }
+                ]
+            }
+        </script>
 
         <!-- Fonts (Arbutus, Inter, JetBrains Mono) are served by the site itself: src/styles/fonts.css.
              No Google Fonts, so a visit sends nothing to a third party. -->
@@ -64,6 +103,14 @@
         <script src="/theme-init.js"></script>
     </head>
     <body>
+        <noscript>
+            <p>
+                shovll is a free beta API security scanner: it checks your API for broken authentication, BOLA,
+                mass assignment, missing rate limits, data exposure and misconfiguration. Turn on JavaScript to
+                use it. <a href="/pricing">pricing</a> · <a href="/terms">terms</a> · <a href="/privacy">privacy</a>
+                · <a href="/refunds">refunds</a>
+            </p>
+        </noscript>
         <div id="ground-boot" aria-hidden="true"></div>
         <div id="root"></div>
         <script type="module" src="/src/main.jsx"></script>

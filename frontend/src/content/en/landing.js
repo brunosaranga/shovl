@@ -1,5 +1,8 @@
 export const landing = {
     meta: "shovll | break your API before someone else does",
+    // The page's main heading, for search engines and screen readers (hidden on screen: the
+    // wordmark and tagline say it visually). index.html holds the landing's description.
+    heading: "shovll: break your API before someone else does",
 
     url: {
         label: "URL:",

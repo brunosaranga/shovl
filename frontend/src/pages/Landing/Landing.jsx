@@ -52,6 +52,10 @@ export default function Landing() {
             {isMobile ? <BrandHeader /> : <NavCenter>{urlInput}</NavCenter>}
 
             <div className={styles.landing}>
+                {/* The page's one heading, for search engines and screen readers. On screen the
+                    wordmark and tagline say the same thing. */}
+                <h1 className="visually-hidden">{landing.heading}</h1>
+
                 <ScanOptions options={options} onChange={setOptions} />
 
                 {isMobile ? <div className={styles.mobileInput}>{urlInput}</div> : null}
