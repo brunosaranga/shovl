@@ -8,7 +8,7 @@ from .encoders import StorableJSONEncoder
 # allowance counts them while they last (scans/limits.py).
 ACTIVE_STATUSES = ("pending", "running", "paused")
 
-# What started a scan. Scheduled scans (shovl watch) never count against the allowance.
+# What started a scan. Scheduled scans (shovll watch) never count against the allowance.
 TRIGGER_MANUAL = "manual"
 TRIGGER_WATCH = "watch"
 
@@ -29,7 +29,7 @@ class Scan(models.Model):
     ]
     TRIGGER_CHOICES = [
         (TRIGGER_MANUAL, "Manual"),
-        (TRIGGER_WATCH, "shovl watch"),
+        (TRIGGER_WATCH, "shovll watch"),
     ]
 
     user = models.ForeignKey(
@@ -50,7 +50,7 @@ class Scan(models.Model):
     # How many times this report was downloaded as a PDF. For the beta question "do people
     # want a report they can hand over?": see which scans (own domains or practice) get them.
     pdf_downloads = models.PositiveIntegerField(default=0)
-    # "manual": started from the app. "watch": run on a schedule by shovl watch (watch/),
+    # "manual": started from the app. "watch": run on a schedule by shovll watch (watch/),
     # which shows on the dashboard and in "since your last scan" but not in the allowance.
     trigger = models.CharField(max_length=10, choices=TRIGGER_CHOICES, default=TRIGGER_MANUAL)
     created_at = models.DateTimeField(auto_now_add=True)

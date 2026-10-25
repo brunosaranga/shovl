@@ -18,5 +18,5 @@ report = format_report(raw)
 print(json.dumps(report, indent=2))
 
 # Generate PDF
-output = generate_pdf(report, output_path="shovl_report.pdf")
+output = generate_pdf(report, output_path="shovll_report.pdf")
 print(f"\nPDF generated: {output}")

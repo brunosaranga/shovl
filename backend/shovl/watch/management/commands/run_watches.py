@@ -27,7 +27,7 @@ def where(watch):
 def cadences():
     free = free_plan().watch_cadence.days
     pro = pro_plan().watch_cadence.days
-    return f"shovl watch: free plan every {free} days, pro every {pro} days"
+    return f"shovll watch: free plan every {free} days, pro every {pro} days"
 
 
 def describe(outcome):
@@ -52,7 +52,7 @@ def describe(outcome):
 
 
 class Command(BaseCommand):
-    help = "shovl watch: run the scheduled scans that are due."
+    help = "shovll watch: run the scheduled scans that are due."
 
     def add_arguments(self, parser):
         parser.add_argument(

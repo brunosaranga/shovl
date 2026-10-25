@@ -14,7 +14,7 @@ export function usePdfDownload(scanId) {
         setState({ scanId, busy: true, error: null });
         try {
             const response = await scansApi.pdf(scanId);
-            const name = filenameFrom(response.headers?.["content-disposition"], `shovl-report-${scanId}.pdf`);
+            const name = filenameFrom(response.headers?.["content-disposition"], `shovll-report-${scanId}.pdf`);
             saveBlob(response.data, name);
             setState({ scanId, busy: false, error: null });
         } catch (error) {

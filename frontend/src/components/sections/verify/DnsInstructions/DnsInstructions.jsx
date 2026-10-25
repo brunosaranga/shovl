@@ -4,7 +4,7 @@ import { useContent } from "../../../../hooks/useContent";
 import styles from "./DnsInstructions.module.css";
 
 // The TXT record the backend looks for (domains/verification.py):
-//   host:  _shovl-verify.<hostname>     value: <verification_token>
+//   host:  _shovll-verify.<hostname>    value: <verification_token>
 export default function DnsInstructions({ recordName, token }) {
     const { verify } = useContent();
 

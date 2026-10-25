@@ -17,7 +17,7 @@ import styles from "./Settings.module.css";
 
 const asList = (data) => (Array.isArray(data) ? data : []);
 
-// Only what the backend supports today: the account email, shovl watch, domains and the plan.
+// Only what the backend supports today: the account email, shovll watch, domains and the plan.
 // (Editing, API keys and account deletion come back when their endpoints exist.)
 //
 // The domain and watch lists load together and reload after every change made here; the bell

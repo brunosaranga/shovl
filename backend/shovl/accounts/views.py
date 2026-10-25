@@ -154,7 +154,7 @@ def me_data(user):
             'watch_slots': plan.watch_slots,
             'watch_cadence_days': plan.watch_cadence.days,
         },
-        # Settings: shovl watch on or off, and the bell's mute.
+        # Settings: shovll watch on or off, and the bell's mute.
         'watch_enabled': user.watch_enabled,
         'notifications_muted': user.notifications_muted,
     }

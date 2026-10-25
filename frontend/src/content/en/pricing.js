@@ -1,11 +1,11 @@
 // The pricing page (pages/Pricing). Keep it in step with the code: the scan allowance in
-// scans/limits.py, shovl watch's slots and cadence in accounts/plans.py, and the price with
+// scans/limits.py, shovll watch's slots and cadence in accounts/plans.py, and the price with
 // the terms (content/en/legal.js, section 6). In notes and `early`: [label](/path) is a link,
 // {email} the support address.
 export const pricing = {
-    meta: "pricing | shovl",
+    meta: "pricing | shovll",
     title: "pricing",
-    lead: "start free. go Pro when shovl watch becomes part of how you ship.",
+    lead: "start free. go Pro when shovll watch becomes part of how you ship.",
     perMonth: "/ month",
     current: "your plan",
 
@@ -18,7 +18,7 @@ export const pricing = {
                 "5 scans every 24 hours",
                 "your own verified domains, plus practice targets",
                 "PDF reports and \"since your last scan\"",
-                "shovl watch on 1 API: every week during the beta, every month after",
+                "shovll watch on 1 API: every week during the beta, every month after",
                 "alerts in the bell",
             ],
             cta: {
@@ -33,7 +33,7 @@ export const pricing = {
             soon: "soon",
             features: [
                 "everything in Free",
-                "shovl watch on 5 APIs, every week",
+                "shovll watch on 5 APIs, every week",
                 "email alerts when something gets worse (coming soon)",
             ],
             cta: "opening soon",

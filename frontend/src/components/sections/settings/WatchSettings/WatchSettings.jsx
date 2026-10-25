@@ -102,7 +102,7 @@ function WatchRow({ watch, accountOn, onChange }) {
     );
 }
 
-// Settings → shovl watch: the account's switch (do scheduled scans run at all), the plan's
+// Settings → shovll watch: the account's switch (do scheduled scans run at all), the plan's
 // line, the bell's mute (are you told), then each watched API with its own switch.
 //   watches:  GET /api/watches/, or null while loading
 //   onChange: reloads Settings' lists and the bell; returns a promise

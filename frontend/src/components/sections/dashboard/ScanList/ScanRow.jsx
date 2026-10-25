@@ -6,7 +6,7 @@ import { fill, formatDate } from "../../../../lib/text";
 import styles from "./ScanList.module.css";
 
 // One scan in the list. Opening it shows a summary that depends on how the scan ended.
-// Scheduled scans (shovl watch) carry a "watch" tag next to their status.
+// Scheduled scans (shovll watch) carry a "watch" tag next to their status.
 export default function ScanRow({ scan, expanded, onToggle }) {
     const { dashboard, common } = useContent();
     const risk = String(scan.risk_score || "").toUpperCase();

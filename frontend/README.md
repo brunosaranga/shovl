@@ -1,6 +1,6 @@
-# shovl · frontend
+# shovll · frontend
 
-React (Vite) frontend for shovl, the neo-brutalist API security scanner.
+React (Vite) frontend for shovll, the neo-brutalist API security scanner.
 Talks to the Django API in `backend/` (JWT auth, guest sessions, SSE scan stream).
 
 ## Run
@@ -108,7 +108,7 @@ the same name. Playback levels (0 to 1) and fade lengths are at the top of `lib/
 
 ## Before production
 
-- [ ] `.env`: `VITE_API_BASE_URL` = the real API, e.g. `https://api.shovl.example/api`
+- [ ] `.env`: `VITE_API_BASE_URL` = the real API, e.g. `https://api.shovll.example/api`
 - [ ] Backend `CORS_ALLOWED_ORIGINS` = this frontend's exact origin
 - [ ] Fonts: `index.html` loads Arbutus + Inter. `--font-mono` asks for JetBrains Mono, which
       is not loaded, so most visitors see Courier. Add it to the Google Fonts URL if you want it.

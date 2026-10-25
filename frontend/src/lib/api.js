@@ -91,7 +91,7 @@ export const domainsApi = {
     removePending: () => client.delete("/domains/pending/"), // 200 { removed }
 };
 
-// shovl watch (backend watch/views.py).
+// shovll watch (backend watch/views.py).
 export const watchesApi = {
     list: () => client.get("/watches/"),
     // "watch this API" from a report: 201 started, 200 already watching, both { watch, state }

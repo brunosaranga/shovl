@@ -77,7 +77,7 @@ class AnnouncementTests(TestCase):
         services.watch_after_scan(scan_of(self.user))
         item = Notification.objects.get()
         self.assertEqual(item.kind, Notification.KIND_WATCH_ON)
-        self.assertEqual(item.title, f"shovl watch is on for {HOST}/v1")
+        self.assertEqual(item.title, f"shovll watch is on for {HOST}/v1")
         self.assertIn("tells you when something gets worse", item.summary)
         self.assertIn("every 30 days", item.summary)
         self.assertIn("settings", item.summary)

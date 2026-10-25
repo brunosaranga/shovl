@@ -27,5 +27,5 @@ max_requests_jitter = 100
 accesslog = "-"
 errorlog = "-"
 
-# Gunicorn's remote-control socket (a file in the home folder) is not used by shovl.
+# Gunicorn's remote-control socket (a file in the home folder) is not used by shovll.
 control_socket_disable = True

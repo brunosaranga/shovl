@@ -11,12 +11,12 @@ import styles from "./WatchBadge.module.css";
 const CONFIRM_MS = 4000;
 const HOVER = "(hover: hover)";
 
-// The line under the report's top strip: is this API being watched (shovl watch), and if not,
+// The line under the report's top strip: is this API being watched (shovll watch), and if not,
 // why, with the one button that fixes it. The API decides both (GET /api/scans/<id>/ → watch:
 // { status, reason, action, next_run_at, cadence_days, watch_slots }); nothing shows for
 // practice targets and guests (watch: null).
 //
-// The (i) explains shovl watch. It opens on click or tap and stays open until clicked again,
+// The (i) explains shovll watch. It opens on click or tap and stays open until clicked again,
 // Escape or a click elsewhere; with a mouse it also opens while hovered.
 export default function WatchBadge({ scanId, targetUrl, initial }) {
     const { report, errors } = useContent();

@@ -2,7 +2,7 @@
 The bell's rules.
 
 News (stored, read or unread, quieted by mute):
-    watch_started(watch, automatic)  "shovl watch is on" once per account,
+    watch_started(watch, automatic)  "shovll watch is on" once per account,
                                      then "now watching ..." for later
                                      watches that started by themselves
     record_outcome(outcome)          the runner's results: an alert when
@@ -29,7 +29,7 @@ from watch.models import Watch
 from .models import Notification
 
 ONE_LINER = (
-    "shovl watch re-scans your API on a schedule and tells you when "
+    "shovll watch re-scans your API on a schedule and tells you when "
     "something gets worse."
 )
 
@@ -80,7 +80,7 @@ def watch_started(watch, automatic):
             user=user,
             kind=Notification.KIND_WATCH_ON,
             watch=watch,
-            title=_title(f"shovl watch is on for {where(watch.target_url)}"),
+            title=_title(f"shovll watch is on for {where(watch.target_url)}"),
             summary=(
                 f"{ONE_LINER} It's scanned {_every(days)} on your plan. "
                 "Turn it off any time in settings."

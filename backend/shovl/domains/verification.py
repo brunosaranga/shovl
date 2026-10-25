@@ -36,19 +36,35 @@ def is_practice_target(url: str) -> bool:
         for target in practice_targets()
     )
 
+# The DNS record and the file carry the product's name, which changed from shovl to shovll on
+# 25 Oct 2026. The verify page shows the new names; domains verified before the change keep
+# their old record or file and still pass, including the re-check before every scheduled scan
+# (watch/runner.py), which would otherwise put them back to pending. New name first.
+RECORD_PREFIXES = ("_shovll-verify", "_shovl-verify")
+FILE_PREFIXES = ("shovll-verify-", "shovl-verify-")
+
+
 def verify_dns(hostname: str, token: str) -> bool:
-    record = f"_shovl-verify.{hostname}"
+    return any(_record_has_token(f"{prefix}.{hostname}", token) for prefix in RECORD_PREFIXES)
+
+
+def _record_has_token(record: str, token: str) -> bool:
     try:
         answers = dns.resolver.resolve(record, "TXT")
-        for answer  in answers:
+        for answer in answers:
             if token in str(answer):
                 return True
     except Exception:
         return False
     return False
 
+
 def verify_file(hostname: str, token: str) -> bool:
-    url = f"https://{hostname}/shovl-verify-{token}.txt"
+    return any(_file_is_token(hostname, f"{prefix}{token}.txt", token) for prefix in FILE_PREFIXES)
+
+
+def _file_is_token(hostname: str, filename: str, token: str) -> bool:
+    url = f"https://{hostname}/{filename}"
     try:
         # A hostname that changes the meaning of the URL (an "@", "?" or "#" in it) is not a hostname.
         if urlsplit(url).hostname != hostname.lower():

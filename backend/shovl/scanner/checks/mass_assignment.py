@@ -26,8 +26,8 @@ INJECTED_FIELDS = {
 # A harmless field no server has a reason to know. If it comes back, the server
 # returns whatever it is sent (an echo server, or one that stores any field),
 # so a returned field does not show that it was accepted.
-CONTROL_FIELD = "shovl_control_field"
-CONTROL_VALUE = "shovl-control-value"
+CONTROL_FIELD = "shovll_control_field"
+CONTROL_VALUE = "shovll-control-value"
 
 
 def _pairs(node):

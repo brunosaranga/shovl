@@ -1,15 +1,15 @@
 // The terms, the privacy policy and the refund policy (pages/Legal), and the row of links to
 // them and the pricing page (footer, account menu, the bottom of each document).
 //
-// Written for shovl as it works today. Not legal advice: have them checked before relying on
+// Written for shovll as it works today. Not legal advice: have them checked before relying on
 // them, and keep them in step with the code: scan limits in scans/limits.py, the 30-day guest
-// clean-up in accounts/management/commands/purge_guests.py, shovl watch's cadence in
+// clean-up in accounts/management/commands/purge_guests.py, shovll watch's cadence in
 // accounts/plans.py, hosting in the deployment notes.
 //
 // In the text: [label](/path) becomes a link, {email} the support address (common.contactEmail),
-// {operator} who runs shovl (below). A string in `body` is a paragraph, an array is a list.
+// {operator} who runs shovll (below). A string in `body` is a paragraph, an array is a list.
 
-// Who runs shovl. When you register, change it to match the registration: your full legal name
+// Who runs shovll. When you register, change it to match the registration: your full legal name
 // as registered, "a sole trader registered in Mozambique", the registration number and NUIT,
 // and the address you register with.
 export const operator = {
@@ -31,20 +31,20 @@ export const legal = {
     },
 
     terms: {
-        meta: "terms | shovl",
+        meta: "terms | shovll",
         title: "terms",
         heading: "terms of service",
         updated: UPDATED,
         intro: [
-            "These terms are the agreement between you and {operator} (\"shovl\", \"we\", \"us\") for using shovl, on this website and through its API. By creating a guest session, registering or using shovl, you agree to them. If you don't agree, please don't use shovl.",
-            "shovl is in beta: things will change, and some things will break. These terms describe what shovl does today.",
+            "These terms are the agreement between you and {operator} (\"shovll\", \"we\", \"us\") for using shovll, on this website and through its API. By creating a guest session, registering or using shovll, you agree to them. If you don't agree, please don't use shovll.",
+            "shovll is in beta: things will change, and some things will break. These terms describe what shovll does today.",
         ],
         sections: [
             {
-                h: "1. what shovl does",
+                h: "1. what shovll does",
                 body: [
-                    "shovl runs six automated checks against an API address you give it (authentication, object-level access, mass assignment, rate limiting, misconfiguration and data exposure) and shows you a report. With shovl watch, it re-runs those checks on a schedule for your own verified APIs and tells you when something gets worse.",
-                    "shovl is a tool, not a penetration test, an audit or a guarantee. Automated checks miss things, and sometimes flag things that are fine. A clean report doesn't mean your API is secure, and the decisions you make based on a report are yours.",
+                    "shovll runs six automated checks against an API address you give it (authentication, object-level access, mass assignment, rate limiting, misconfiguration and data exposure) and shows you a report. With shovll watch, it re-runs those checks on a schedule for your own verified APIs and tells you when something gets worse.",
+                    "shovll is a tool, not a penetration test, an audit or a guarantee. Automated checks miss things, and sometimes flag things that are fine. A clean report doesn't mean your API is secure, and the decisions you make based on a report are yours.",
                 ],
             },
             {
@@ -53,8 +53,8 @@ export const legal = {
                     "You may only scan APIs that you own, or that you have the owner's explicit permission to test. This is the most important rule in these terms.",
                     [
                         "Guests can scan the public practice targets listed on the site, and nothing else.",
-                        "To scan your own domain, you need a registered account and must prove you control the domain (with a DNS record or a file). Keep that record in place: shovl checks it again before every scheduled scan.",
-                        "A scan sends real requests from our servers to the address you choose, including a short burst of up to 15 quick requests to test rate limiting. On your own domains shovl only reads: the one check that sends data runs on practice targets only.",
+                        "To scan your own domain, you need a registered account and must prove you control the domain (with a DNS record or a file). Keep that record in place: shovll checks it again before every scheduled scan.",
+                        "A scan sends real requests from our servers to the address you choose, including a short burst of up to 15 quick requests to test rate limiting. On your own domains shovll only reads: the one check that sends data runs on practice targets only.",
                         "You're responsible for making sure a scan is allowed, including by the rules of your hosting provider and of anyone else whose systems the address reaches.",
                     ],
                     "If someone makes a claim against us because you scanned something you weren't allowed to, you agree to cover our reasonable costs of dealing with it, as far as the law allows.",
@@ -65,12 +65,12 @@ export const legal = {
                 body: [
                     "Don't:",
                     [
-                        "scan, probe or attack systems you're not allowed to test, or use shovl's results to harm anyone;",
+                        "scan, probe or attack systems you're not allowed to test, or use shovll's results to harm anyone;",
                         "get around domain verification, scan limits or any other safeguard, including by calling the API directly;",
-                        "overload shovl, interfere with how it works, or create accounts automatically;",
-                        "use shovl to break any law, or resell it without our written permission.",
+                        "overload shovll, interfere with how it works, or create accounts automatically;",
+                        "use shovll to break any law, or resell it without our written permission.",
                     ],
-                    "We may suspend or close an account that breaks these terms or puts shovl or other people at risk. Where it's reasonable, we'll tell you first and give you a chance to explain.",
+                    "We may suspend or close an account that breaks these terms or puts shovll or other people at risk. Where it's reasonable, we'll tell you first and give you a chance to explain.",
                 ],
             },
             {
@@ -84,7 +84,7 @@ export const legal = {
             {
                 h: "5. plans",
                 body: [
-                    "The free plan includes a set number of scans and one watched API, as shown on the [pricing page](/pricing). Its limits can change, especially during the beta: for example, shovl watch re-scans the free plan's API every week during the beta and every month after it.",
+                    "The free plan includes a set number of scans and one watched API, as shown on the [pricing page](/pricing). Its limits can change, especially during the beta: for example, shovll watch re-scans the free plan's API every week during the beta and every month after it.",
                     "Pro is a paid monthly subscription. It isn't on sale yet; when it opens, section 6 applies to it.",
                 ],
             },
@@ -104,23 +104,23 @@ export const legal = {
             {
                 h: "7. your data and ours",
                 body: [
-                    "Your account details, domains and scan results are yours. You allow us to store and process them to run shovl, as the [privacy policy](/privacy) explains.",
-                    "shovl's software, design and name are ours. If you send us feedback or ideas, we may use them without owing you anything.",
+                    "Your account details, domains and scan results are yours. You allow us to store and process them to run shovll, as the [privacy policy](/privacy) explains.",
+                    "shovll's software, design and name are ours. If you send us feedback or ideas, we may use them without owing you anything.",
                 ],
             },
             {
                 h: "8. availability",
                 body: [
-                    "We try to keep shovl running, but we don't promise it will always be available, fast or free of errors, especially during the beta. We may change, pause or stop features, and we'll give notice of big changes where we can.",
+                    "We try to keep shovll running, but we don't promise it will always be available, fast or free of errors, especially during the beta. We may change, pause or stop features, and we'll give notice of big changes where we can.",
                 ],
             },
             {
                 h: "9. liability",
                 body: [
-                    "shovl is provided \"as is\". As far as the law allows:",
+                    "shovll is provided \"as is\". As far as the law allows:",
                     [
                         "we're not liable for indirect or consequential losses, such as lost profits, lost data or business interruption;",
-                        "our total liability for any claim connected with shovl is limited to what you paid us in the 12 months before the claim, or USD 50 if you haven't paid anything.",
+                        "our total liability for any claim connected with shovll is limited to what you paid us in the 12 months before the claim, or USD 50 if you haven't paid anything.",
                     ],
                     "Nothing in these terms limits liability that the law doesn't allow to be limited, such as for fraud, or for death or personal injury caused by negligence. If you're a consumer, you keep the rights consumer law gives you.",
                 ],
@@ -128,7 +128,7 @@ export const legal = {
             {
                 h: "10. changes to these terms",
                 body: [
-                    "We may update these terms. If a change matters, we'll tell registered users, on the site or by email, at least 14 days before it applies. If you keep using shovl after that, the new terms apply; if you don't agree with them, you can close your account.",
+                    "We may update these terms. If a change matters, we'll tell registered users, on the site or by email, at least 14 days before it applies. If you keep using shovll after that, the new terms apply; if you don't agree with them, you can close your account.",
                 ],
             },
             {
@@ -140,18 +140,18 @@ export const legal = {
             },
             {
                 h: "12. contact",
-                body: ["shovl is run by {operator}. Email: {email}."],
+                body: ["shovll is run by {operator}. Email: {email}."],
             },
         ],
     },
 
     privacy: {
-        meta: "privacy | shovl",
+        meta: "privacy | shovll",
         title: "privacy",
         heading: "privacy policy",
         updated: UPDATED,
         intro: [
-            "This page explains what personal data shovl keeps, why, who else handles it, and what you can ask us to do with it. shovl is run by {operator}, who is responsible for your data (the \"controller\"). Questions go to {email}.",
+            "This page explains what personal data shovll keeps, why, who else handles it, and what you can ask us to do with it. shovll is run by {operator}, who is responsible for your data (the \"controller\"). Questions go to {email}.",
             "The short version: we keep what's needed to run your account and your scans. Nothing is sold, there are no ads, no analytics and no tracking, and your data is stored in Frankfurt, Germany.",
         ],
         sections: [
@@ -160,11 +160,11 @@ export const legal = {
                 body: [
                     [
                         "Your account: your email address, your password (only as a one-way hash, which can't be read back), when you accepted the terms, your plan and your settings. To run your account.",
-                        "Guest sessions: an account without an email address, and its scans. To let you try shovl without signing up. Deleted 30 days after it was created.",
+                        "Guest sessions: an account without an email address, and its scans. To let you try shovll without signing up. Deleted 30 days after it was created.",
                         "Your domains: the hostnames you add, their verification codes and whether they're verified. To make sure you only scan what you control.",
                         "Your scans: the addresses you scan, the options you chose and the results. With \"verbose\" on, results include the raw responses your API sent back, so they contain whatever your API returned. For your reports, \"since your last scan\" and PDF downloads (built when you ask, never stored).",
-                        "shovl watch: the APIs being watched, their schedule, and the notifications in your bell. To run scheduled scans and tell you what they found.",
-                        "Report feedback: your answers and comment under a report, with a copy of the report's summary. To improve shovl. If the scan is deleted, the answer stays, without your account or the scanned address.",
+                        "shovll watch: the APIs being watched, their schedule, and the notifications in your bell. To run scheduled scans and tell you what they found.",
+                        "Report feedback: your answers and comment under a report, with a copy of the report's summary. To improve shovll. If the scan is deleted, the answer stays, without your account or the scanned address.",
                         "Network addresses: when a guest session is created, your IP address is counted for up to an hour, to limit how many sessions one network can create. Our hosting provider also keeps short-lived server logs (IP address, time, request) for security and fixing errors.",
                         "Emails you send us: your address and your message, to reply.",
                     ],
@@ -173,19 +173,19 @@ export const legal = {
             {
                 h: "the legal basis",
                 body: [
-                    "We use your data to provide the service you signed up for (a contract with you), and for our legitimate interests in keeping shovl secure, preventing abuse and improving it. Once payments exist, we'll also keep payment records because tax law requires it. Nothing here relies on consent, and we don't send marketing emails.",
+                    "We use your data to provide the service you signed up for (a contract with you), and for our legitimate interests in keeping shovll secure, preventing abuse and improving it. Once payments exist, we'll also keep payment records because tax law requires it. Nothing here relies on consent, and we don't send marketing emails.",
                 ],
             },
             {
                 h: "in your browser",
                 body: [
-                    "shovl keeps a few things in your browser's local storage: your session, your theme and sound settings, and whether you skipped a feedback question. They're needed for the site to work. shovl doesn't use tracking cookies, analytics or ads, and its fonts are served by shovl itself, so visiting sends nothing to anyone else.",
+                    "shovll keeps a few things in your browser's local storage: your session, your theme and sound settings, and whether you skipped a feedback question. They're needed for the site to work. shovll doesn't use tracking cookies, analytics or ads, and its fonts are served by shovll itself, so visiting sends nothing to anyone else.",
                 ],
             },
             {
                 h: "who else handles it",
                 body: [
-                    "A few providers process data for us, only to run shovl:",
+                    "A few providers process data for us, only to run shovll:",
                     [
                         "Render hosts the site and the API, in Frankfurt, Germany.",
                         "Neon hosts the database, in Frankfurt, Germany.",
@@ -200,7 +200,7 @@ export const legal = {
             {
                 h: "where it's stored",
                 body: [
-                    "Your data is stored in Frankfurt, Germany. shovl is run from Mozambique, and our providers may access data from other countries (the United States, for example) under their own safeguards, such as the European Commission's standard contractual clauses.",
+                    "Your data is stored in Frankfurt, Germany. shovll is run from Mozambique, and our providers may access data from other countries (the United States, for example) under their own safeguards, such as the European Commission's standard contractual clauses.",
                 ],
             },
             {
@@ -225,12 +225,12 @@ export const legal = {
             {
                 h: "security",
                 body: [
-                    "Everything travels over HTTPS, passwords are hashed, the data sits in EU data centres, and access is limited to the person who runs shovl. No system is perfectly secure; if something goes wrong that affects your data, we'll tell you.",
+                    "Everything travels over HTTPS, passwords are hashed, the data sits in EU data centres, and access is limited to the person who runs shovll. No system is perfectly secure; if something goes wrong that affects your data, we'll tell you.",
                 ],
             },
             {
                 h: "children",
-                body: ["shovl is for people who build and run APIs. It isn't meant for anyone under 16."],
+                body: ["shovll is for people who build and run APIs. It isn't meant for anyone under 16."],
             },
             {
                 h: "changes",
@@ -242,7 +242,7 @@ export const legal = {
     },
 
     refunds: {
-        meta: "refunds | shovl",
+        meta: "refunds | shovll",
         title: "refunds",
         heading: "refund policy",
         updated: UPDATED,

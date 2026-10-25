@@ -15,7 +15,7 @@ export const notifications = {
     needsTitle: "needs action",
     needsEmpty: "nothing needs you right now.",
     newsTitle: "news",
-    newsEmpty: "no news yet. when shovl watch starts on one of your APIs, you'll hear about it here.",
+    newsEmpty: "no news yet. when shovll watch starts on one of your APIs, you'll hear about it here.",
     older: "show older",
     loading: "loading...",
     failed: "couldn't load notifications. they'll try again when you change page.",

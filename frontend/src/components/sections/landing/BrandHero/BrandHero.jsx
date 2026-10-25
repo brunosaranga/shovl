@@ -2,7 +2,7 @@ import shovelGraphic from "../../../../assets/logos/ShovelGraphic.svg";
 import { useContent } from "../../../../hooks/useContent";
 import styles from "./BrandHero.module.css";
 
-// The big shovel and "shovl" wordmark behind the dig-deeper button (desktop only).
+// The big shovel and "shovll" wordmark behind the dig-deeper button (desktop only).
 export default function BrandHero() {
     const { common } = useContent();
     return (

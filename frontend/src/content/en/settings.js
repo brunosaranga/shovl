@@ -1,5 +1,5 @@
 export const settings = {
-    meta: "settings | shovl",
+    meta: "settings | shovll",
     pageTitle: "settings",
     loadFailed: "couldn't load your watched APIs and domains. reload the page to try again.",
 
@@ -8,11 +8,11 @@ export const settings = {
         email: "Email",
     },
 
-    // shovl watch: the account switch, the bell's mute and the watched APIs.
+    // shovll watch: the account switch, the bell's mute and the watched APIs.
     watch: {
-        title: "shovl watch",
-        switchLabel: "shovl watch",
-        about: "shovl watch re-scans your API on a schedule and tells you when something gets worse.",
+        title: "shovll watch",
+        switchLabel: "shovll watch",
+        about: "shovll watch re-scans your API on a schedule and tells you when something gets worse.",
         on: "on",
         off: "off",
         plan: "Your plan",

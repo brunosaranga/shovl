@@ -1,5 +1,5 @@
 """
-The rules of shovl watch in one place: which APIs can be watched, which watches fit the plan,
+The rules of shovll watch in one place: which APIs can be watched, which watches fit the plan,
 what a report says about its API, and what happens when someone watches, swaps, turns off or
 resumes one. The views and the scan endpoints call these; nothing else changes Watch rows.
 
@@ -134,7 +134,7 @@ def watch_after_scan(scan):
             activated_at=timezone.now(),
             next_run_at=next_run_from(_when(scan), plan),
         )
-        # The bell: "shovl watch is on" the first time, else "now watching".
+        # The bell: "shovll watch is on" the first time, else "now watching".
         watch_started(watch, automatic=True)
         return watch
 
@@ -211,7 +211,7 @@ def watch_scan(user, scan, instead=False):
     "watch this API" on a report: start (or turn back on) the watch for the scan's API.
     With instead=True on a one-slot plan, the account's other watches are turned off first
     ("watch this one instead"). Never adds a scan of its own: the next run is one cadence after
-    the newest scan of this API that shovl knows about.
+    the newest scan of this API that shovll knows about.
 
     Returns (watch, changed). Raises WatchRefused.
     """

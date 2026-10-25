@@ -1,10 +1,10 @@
 // Copy shared across the whole app. Placeholders like {name} are filled by lib/text.js.
 export const common = {
-    brand: "shovl",
+    brand: "shovll",
     tagline: "break your API before someone else does.",
-    footer: "shovl beta engine: librana",
-    logoAlt: "shovl logo",
-    homeLabel: "shovl home",
+    footer: "shovll beta engine: librana",
+    logoAlt: "shovll logo",
+    homeLabel: "shovll home",
     contactEmail: "brunoeasaranga@gmail.com", // support, password help, account deletion (used by the FAQ)
     loading: "loading...",
 

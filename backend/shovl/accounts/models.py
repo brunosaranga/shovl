@@ -6,7 +6,7 @@ from django.db.models.functions import Lower
 from django.utils import timezone
 
 # ".invalid" is a reserved top-level domain, so a placeholder address can never belong to a real person or receive a real email.
-GUEST_EMAIL_DOMAIN = "guest.shovl.invalid"
+GUEST_EMAIL_DOMAIN = "guest.shovll.invalid"
 
 
 class UserManager(BaseUserManager):
@@ -69,16 +69,16 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=PLAN_FREE,
         help_text="What the account signed up for. Set by hand until billing exists.",
     )
-    # Settings > shovl watch. Off pauses every watch; nothing is deleted, and no new watch
+    # Settings > shovll watch. Off pauses every watch; nothing is deleted, and no new watch
     # starts while it is off.
     watch_enabled = models.BooleanField(
         default=True,
-        help_text="shovl watch on or off for the whole account.",
+        help_text="shovll watch on or off for the whole account.",
     )
     # The bell's mute. Scheduled scans still run and alerts still land in the list, but the
     # badge (and, later, email) stays quiet. Items that need action are never muted.
     notifications_muted = models.BooleanField(default=False)
-    # Set once, the first time the account gets a watch, when the "shovl watch is on"
+    # Set once, the first time the account gets a watch, when the "shovll watch is on"
     # notification goes out. Never cleared, so the announcement never repeats.
     watch_intro_at = models.DateTimeField(null=True, blank=True)
 

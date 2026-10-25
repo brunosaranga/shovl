@@ -2,7 +2,7 @@
 // these are used when a response has no message (or no response came back at all).
 export const errors = {
     generic: "something went wrong. try again.",
-    network: "can't reach shovl right now. check your connection and try again.",
+    network: "can't reach shovll right now. check your connection and try again.",
 
     codes: {
         registration_required: "Create a free account to scan your own domain.",
@@ -13,6 +13,6 @@ export const errors = {
         domain_not_verified: "Verify ownership of this domain before scanning it.",
         tos_required: "Agree to the terms of service before scanning.",
         token_revoked: "This session is no longer valid. Please sign in again.",
-        bad_request: "shovl couldn't use that URL. Include http:// or https://",
+        bad_request: "shovll couldn't use that URL. Include http:// or https://",
     },
 };
