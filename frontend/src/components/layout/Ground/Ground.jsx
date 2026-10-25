@@ -9,6 +9,31 @@ import styles from "./Ground.module.css";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
+// Safari, and every browser on an iPhone or iPad (they all run Apple's WebKit), plays the WebM
+// but drops its transparency, so it would keep the still image. Apple's browsers get the same
+// loop as HEVC with alpha instead, once assets/videos/ground-loop.mp4 exists. Make it on a Mac
+// from the WebM (Homebrew's ffmpeg has Apple's encoder):
+//
+//   ffmpeg -c:v libvpx-vp9 -i ground-loop.webm -c:v hevc_videotoolbox -allow_sw 1 \
+//       -alpha_quality 0.75 -pix_fmt bgra -tag:v hvc1 -b:v 1M -an -movflags +faststart \
+//       ground-loop.mp4
+//
+// (libvpx-vp9 first, as the decoder: ffmpeg's own VP9 decoder drops the alpha; hvc1, or Safari
+// won't play it.) Until the file is there, import.meta.glob finds nothing and Apple's browsers
+// keep the still image, as before. Every other browser keeps the WebM: Chrome on a Mac can play
+// HEVC too, but not its transparency. The sky check below still guards both.
+const HEVC_LOOP = Object.values(
+    import.meta.glob("../../../assets/videos/ground-loop.mp4", { eager: true, query: "?url", import: "default" })
+)[0];
+
+function pickLoop() {
+    const apple = typeof navigator !== "undefined" && navigator.vendor === "Apple Computer, Inc.";
+    if (!apple || !HEVC_LOOP) return groundLoop;
+    return document.createElement("video").canPlayType('video/mp4; codecs="hvc1"') ? HEVC_LOOP : groundLoop;
+}
+
+const LOOP = pickLoop();
+
 // Walking speed. 1 = the speed the video was made at (one loop every 22 s). Small changes
 // (0.8 to 1.2) are fine; for a big change, re-render the video so the motion stays smooth.
 const WALK_RATE = 1;
@@ -63,7 +88,7 @@ function isLoaded(video, eventType) {
 }
 
 // True when the video's sky came through transparent. Safari plays WebM but drops the
-// transparency (the sky turns solid), so it keeps the still image instead.
+// transparency (the sky turns solid): without the HEVC loop it keeps the still image.
 function hasTransparentSky(video) {
     try {
         const canvas = document.createElement("canvas");
@@ -84,7 +109,8 @@ function hasTransparentSky(video) {
 // On pages marked `ground: "still"` in routes.jsx (the scan page) the walk slows to a halt,
 // and it picks up again from the same spot on the next page.
 // Visitors who ask for reduced motion, and browsers that can't show the transparency
-// (or won't autoplay), keep the still image.
+// (or won't autoplay: an iPhone in Low Power Mode), keep the still image. Apple's browsers
+// play the HEVC version of the loop when there is one (HEVC_LOOP above).
 //
 // The ground loads first (lib/groundFirst.js): index.html paints the still image before the
 // app arrives (#ground-boot), this component takes over from it, and tells the rest of the
@@ -153,7 +179,7 @@ export default function Ground() {
                 <video
                     ref={videoRef}
                     className={styles.video}
-                    src={groundLoop}
+                    src={LOOP}
                     muted
                     loop
                     playsInline

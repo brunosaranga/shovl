@@ -91,8 +91,11 @@
 
 /* ---- body ------------------------------------------------------------------- */
 
+/* flex-basis auto, not flex: 1 (0%): the dialog has no fixed height, and Safari sizes a
+   0% basis from nothing, so the list collapsed to its padding. auto starts from the
+   content, then shrinks to fit max-height and scrolls, in every browser. */
 .body {
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;

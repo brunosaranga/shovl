@@ -10,7 +10,8 @@ import styles from "./LaunchPanel.module.css";
 //   the consent tick (only when nobody is signed in: ticking it is what creates the guest session),
 //   how many scans are left, any reason the scan couldn't start, and (for anyone not
 //   registered) one-click practice targets that fill the URL box.
-// Desktop: the card floats just above the button. Mobile: just below it.
+// Desktop: the card floats just above the button. Mobile: just below it, in the page's flow,
+// so a short phone screen scrolls to it instead of hiding it under the navbar.
 export default function LaunchPanel({
     onLaunch,
     busy,

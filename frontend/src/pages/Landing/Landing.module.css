@@ -11,3 +11,15 @@
     top: 140px;
     margin-top: 20px;
 }
+
+/* Phones: the landing joins the page's flow, so <main> (the one thing that scrolls, see
+   Layout.module.css) can scroll it when a short screen can't fit the card under "dig deeper".
+   Same positions as before; the padding lets the card's last line clear the bottom navbar,
+   with a little room. On a tall phone everything fits and nothing scrolls. */
+@media (max-width: 768px) {
+    .landing {
+        position: static;
+        height: auto;
+        padding-bottom: calc(var(--nav-height) + 32px);
+    }
+}
