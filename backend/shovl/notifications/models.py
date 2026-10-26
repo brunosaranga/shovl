@@ -18,7 +18,7 @@ class Notification(models.Model):
     KIND_NOW_WATCHING = "now_watching"
     KIND_ALERT = "alert"
     KIND_CHOICES = [
-        (KIND_WATCH_ON, "shovll watch is on (once per account)"),
+        (KIND_WATCH_ON, "murindzi is on (once per account)"),
         (KIND_NOW_WATCHING, "Now watching another API"),
         (KIND_ALERT, "A watched API got worse"),
     ]

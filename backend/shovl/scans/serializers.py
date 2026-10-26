@@ -40,7 +40,7 @@ class ScanDetailSerializer(ScanSerializer):
       comparison  "since your last scan" (scans/compare.py), or null when there is nothing to
                   compare with or the scan did not complete
       feedback    the answer to "was this report useful?", or null
-      watch       shovll watch's badge for this scan's API (watch/services.py, scan_watch_state),
+      watch       murindzi's badge for this scan's API (watch/services.py, scan_watch_state),
                   or null for practice targets and guests
     The list endpoint leaves all three out: they cost a query or two per scan.
     """

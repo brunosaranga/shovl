@@ -51,7 +51,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate_tos_agreed(self, value):
         if not value:
             raise serializers.ValidationError(
-                "You must agree to the terms of service to use shovll."
+                "You must agree to the terms of service to use xikomu."
             )
         return value
 
@@ -86,7 +86,7 @@ class UpgradeSerializer(serializers.Serializer):
     def validate_tos_agreed(self, value):
         if not value:
             raise serializers.ValidationError(
-                "You must agree to the terms of service to use shovll."
+                "You must agree to the terms of service to use xikomu."
             )
         return value
 

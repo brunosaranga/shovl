@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { accountsApi, onSessionExpired } from "../lib/api";
 import { clearSession, readSession, writeSession } from "../lib/session";
 
-// Who is using shovll right now, and the actions that change it.
+// Who is using xikomu right now, and the actions that change it.
 //
 //   status:  "anonymous" | "guest" | "registered"
 //   user:    the /accounts/me/ response ({ id, email, is_guest, allowance }) once loaded

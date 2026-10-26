@@ -6,7 +6,7 @@ Scan allowance for the beta.
 
     A scan counts from the moment it starts, paused time included. Scans that failed, were interrupted or were stopped do not count, but every attempt couunts toward a higher hard ceiling, so failures cannot be used for unlimited free scanning. Staff accounts are exempt.
 
-    Scheduled scans (shovll watch, trigger "watch") are left out of everything here: the allowance, the ceiling and the stale-scan sweep. Their limit is the plan (accounts/plans.py), and the watch runner looks after its own unfinished scans.
+    Scheduled scans (murindzi, trigger "watch") are left out of everything here: the allowance, the ceiling and the stale-scan sweep. Their limit is the plan (accounts/plans.py), and the watch runner looks after its own unfinished scans.
 
     Change the nu,bers below, nothing else needs to move.
 """

@@ -123,7 +123,7 @@ class ResolveTests(SimpleTestCase):
             self.assertEqual(reason_of(lambda: http.resolve_public("mixed.test", 80)), "private")
 
     def test_unknown_name(self):
-        self.assertEqual(reason_of(lambda: http.resolve_public("no-such-host-shovll.invalid", 80)), "dns")
+        self.assertEqual(reason_of(lambda: http.resolve_public("no-such-host-xikomu.invalid", 80)), "dns")
 
     def test_ipv4_is_preferred(self):
         with FakeNetwork({"dual.test": [["2606:4700:4700::1111", PUBLIC]]}, []):
@@ -389,7 +389,7 @@ class TlsPinningTests(SimpleTestCase):
                 "prompt = no\n"
                 "x509_extensions = v3_ca\n"
                 "[dn]\n"
-                "CN = Shovll Test CA\n"
+                "CN = Xikomu Test CA\n"
                 "[v3_ca]\n"
                 "subjectKeyIdentifier = hash\n"
                 "authorityKeyIdentifier = keyid:always\n"
@@ -464,7 +464,7 @@ class PreflightTests(SimpleTestCase):
                 self.assertIsNone(self.failure("https://example.test/"), status)
 
     def test_an_unknown_name_fails_the_scan(self):
-        self.assertEqual(self.failure("https://no-such-host-shovll.invalid/"), "dns")
+        self.assertEqual(self.failure("https://no-such-host-xikomu.invalid/"), "dns")
 
 
 @mock.patch.dict(os.environ, {"SHOVL_ALLOW_PRIVATE_TARGETS": "1"})
@@ -561,8 +561,9 @@ class FileVerificationTests(SimpleTestCase):
     def test_a_redirect_to_another_site_does_not_verify(self):
         ok, net = self.verify([fake_response(302, {"Location": "https://evil.test/"})])
         self.assertFalse(ok)
-        # The new file name, then the old one, both on example.test; never the other site.
+        # The newest file name, then the two older ones, all on example.test; never the other site.
         self.assertEqual([sent_to(request) for request in net.sent], [
+            ("example.test", f"/xikomu-verify-{self.TOKEN}.txt"),
             ("example.test", f"/shovll-verify-{self.TOKEN}.txt"),
             ("example.test", f"/shovl-verify-{self.TOKEN}.txt"),
         ])
@@ -570,13 +571,21 @@ class FileVerificationTests(SimpleTestCase):
     def test_the_new_file_name_verifies_without_trying_the_old_one(self):
         ok, net = self.verify([fake_response(body=self.TOKEN.encode())])
         self.assertTrue(ok)
-        self.assertEqual([sent_to(request) for request in net.sent], [("example.test", f"/shovll-verify-{self.TOKEN}.txt")])
+        self.assertEqual([sent_to(request) for request in net.sent], [("example.test", f"/xikomu-verify-{self.TOKEN}.txt")])
 
-    def test_a_domain_verified_with_the_old_file_name_still_verifies(self):
-        # Verified before the rename to shovll: the file is still under the old name.
+    def test_a_domain_verified_under_shovll_still_verifies(self):
+        # Verified before the rename to xikomu: the file is still under the shovll name.
         ok, net = self.verify([fake_response(404, body=b"nope"), fake_response(body=self.TOKEN.encode())])
         self.assertTrue(ok)
-        self.assertEqual(sent_to(net.sent[1]), ("example.test", f"/shovl-verify-{self.TOKEN}.txt"))
+        self.assertEqual(len(net.sent), 2)
+        self.assertEqual(sent_to(net.sent[1]), ("example.test", f"/shovll-verify-{self.TOKEN}.txt"))
+
+    def test_a_domain_verified_under_shovl_still_verifies(self):
+        # Verified before the rename to shovll: the file is still under the first name.
+        ok, net = self.verify([fake_response(404, body=b"nope"), fake_response(404, body=b"nope"),
+                               fake_response(body=self.TOKEN.encode())])
+        self.assertTrue(ok)
+        self.assertEqual(sent_to(net.sent[2]), ("example.test", f"/shovl-verify-{self.TOKEN}.txt"))
 
     def test_a_same_site_redirect_is_followed(self):
         self.assertTrue(self.verify([fake_response(301, {"Location": "https://www.example.test/shovl.txt"}),

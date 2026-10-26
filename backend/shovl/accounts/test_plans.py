@@ -1,5 +1,5 @@
 """
-Plans (accounts/plans.py), the account fields shovll watch adds, and the accounts admin.
+Plans (accounts/plans.py), the account fields murindzi adds, and the accounts admin.
 
 Run with:  DJANGO_DEBUG=1 python manage.py test accounts
 """

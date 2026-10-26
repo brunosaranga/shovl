@@ -1,12 +1,11 @@
-// Built into the page bundle (?inline) rather than downloaded separately: the logo is on every
-// page, and as its own file it left an empty gap (or the alt text) until the file arrived.
-import shovllLogo from "../../../assets/logos/shovl-logo.svg?inline";
+import LogoImage from "../LogoImage/LogoImage";
 import { useContent } from "../../../hooks/useContent";
 import styles from "./Logo.module.css";
 
 // variant:
-//   mark    → just the hand-and-shovel icon (navbar)
-//   lockup  → "shovll" wordmark + icon (auth page, mobile landing header)
+//   mark    → just the pickaxe (navbar)
+//   lockup  → "xikomu" wordmark + pickaxe (auth page, mobile landing header)
+// The pickaxe itself, in the right colours for the theme, is ui/LogoImage.
 export default function Logo({ variant = "mark", as: Heading = "h1" }) {
     const { common } = useContent();
 
@@ -14,10 +13,10 @@ export default function Logo({ variant = "mark", as: Heading = "h1" }) {
         return (
             <div className={styles.lockup}>
                 <Heading className={styles.wordmark}>{common.brand}</Heading>
-                <img className={styles.lockupMark} src={shovllLogo} alt="" width="41" height="41" />
+                <LogoImage className={styles.lockupMark} width="41" height="41" />
             </div>
         );
     }
 
-    return <img className={styles.mark} src={shovllLogo} alt={common.logoAlt} width="40" height="40" />;
+    return <LogoImage className={styles.mark} alt={common.logoAlt} width="40" height="40" />;
 }

@@ -19,7 +19,7 @@ import { landing } from "../src/content/en/landing.js";
 import { legal } from "../src/content/en/legal.js";
 import { pricing } from "../src/content/en/pricing.js";
 
-const SITE = "https://shovll.com";
+const SITE = "https://xikomu.com";
 const DIST = join(dirname(fileURLToPath(import.meta.url)), "..", "dist");
 
 const PAGES = [

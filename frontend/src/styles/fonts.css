@@ -1,6 +1,6 @@
-/* The site's three fonts, served by shovll itself instead of Google Fonts, so a visit sends
+/* The site's three fonts, served by xikomu itself instead of Google Fonts, so a visit sends
    nothing to a third party (see the privacy page). Latin and Latin Extended only: every
-   language shovll shows, Portuguese included. Each file loads only when a character in its
+   language xikomu shows, Portuguese included. Each file loads only when a character in its
    range is on the page. The files and their licences (SIL Open Font License 1.1, which allows
    bundling them with the site) are in assets/fonts/, taken from the Fontsource packages:
    @fontsource/arbutus, @fontsource/inter and @fontsource/jetbrains-mono, version 5.3.0.

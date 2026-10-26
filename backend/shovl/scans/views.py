@@ -142,7 +142,7 @@ def mark_failed(scan, reason, message):
 
 def start_watch(scan_id):
     """
-    shovll watch: a manual scan just completed, so start watching its API if it qualifies
+    murindzi: a manual scan just completed, so start watching its API if it qualifies
     (watch/services.py). A problem here is logged and never fails the scan.
     """
     try:
@@ -262,11 +262,11 @@ NOT_COMPLETE = {'detail': 'Only a finished scan has a report.', 'code': 'scan_no
 
 
 def pdf_filename(scan):
-    """shovll-report-<host>-<date>-<id>.pdf, in plain ASCII so every browser keeps it."""
+    """xikomu-report-<host>-<date>-<id>.pdf, in plain ASCII so every browser keeps it."""
     host = (urlparse(scan.target_url).hostname or 'api').lower()
     host = re.sub(r'[^a-z0-9.-]+', '-', host).strip('.-')[:60] or 'api'
     day = (scan.completed_at or scan.created_at).strftime('%Y-%m-%d')
-    return f'shovll-report-{host}-{day}-{scan.pk}.pdf'
+    return f'xikomu-report-{host}-{day}-{scan.pk}.pdf'
 
 
 def site_address():

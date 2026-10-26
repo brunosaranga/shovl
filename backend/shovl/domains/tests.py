@@ -1,7 +1,8 @@
 """
-DNS verification (domains/verification.py): the TXT record under the new name, _shovll-verify,
-and, for domains verified before the rename, the old one, _shovl-verify. The file method's
-tests live in scanner/tests.py (FileVerificationTests), next to the request helper they use.
+DNS verification (domains/verification.py): the TXT record under the newest name, _xikomu-verify,
+and, for domains verified before a rename, the older ones, _shovll-verify and _shovl-verify. The
+file method's tests live in scanner/tests.py (FileVerificationTests), next to the request helper
+they use.
 
 Run with:  DJANGO_DEBUG=1 python manage.py test domains
 """
@@ -13,6 +14,12 @@ from django.test import SimpleTestCase
 from domains import verification
 
 TOKEN = "abc123token"
+
+ALL_NAMES = [
+    "_xikomu-verify.example.com",
+    "_shovll-verify.example.com",
+    "_shovl-verify.example.com",
+]
 
 
 def resolver(records):
@@ -35,20 +42,31 @@ class DnsVerificationTests(SimpleTestCase):
             return verification.verify_dns("example.com", TOKEN), asked
 
     def test_the_new_record_name_verifies(self):
+        ok, asked = self.check({"_xikomu-verify.example.com": [TOKEN]})
+        self.assertTrue(ok)
+        self.assertEqual(asked, ["_xikomu-verify.example.com"])
+
+    def test_a_domain_verified_under_shovll_still_verifies(self):
         ok, asked = self.check({"_shovll-verify.example.com": [TOKEN]})
         self.assertTrue(ok)
-        self.assertEqual(asked, ["_shovll-verify.example.com"])
+        self.assertEqual(asked, ALL_NAMES[:2])
 
-    def test_a_domain_verified_with_the_old_record_name_still_verifies(self):
+    def test_a_domain_verified_under_shovl_still_verifies(self):
         ok, asked = self.check({"_shovl-verify.example.com": [TOKEN]})
         self.assertTrue(ok)
-        self.assertEqual(asked, ["_shovll-verify.example.com", "_shovl-verify.example.com"])
+        self.assertEqual(asked, ALL_NAMES)
 
     def test_no_record_does_not_verify(self):
-        self.assertFalse(self.check({})[0])
+        ok, asked = self.check({})
+        self.assertFalse(ok)
+        self.assertEqual(asked, ALL_NAMES)
 
     def test_a_record_with_another_token_does_not_verify(self):
-        self.assertFalse(self.check({"_shovll-verify.example.com": ["someone-else"], "_shovl-verify.example.com": ["nope"]})[0])
+        self.assertFalse(self.check({name: ["someone-else"] for name in ALL_NAMES})[0])
 
     def test_a_lookalike_record_name_does_not_count(self):
-        self.assertFalse(self.check({"shovll-verify.example.com": [TOKEN], "_shovll.example.com": [TOKEN]})[0])
+        self.assertFalse(self.check({
+            "xikomu-verify.example.com": [TOKEN],
+            "_xikomu.example.com": [TOKEN],
+            "_xikomu-verify.example.com.evil.test": [TOKEN],
+        })[0])

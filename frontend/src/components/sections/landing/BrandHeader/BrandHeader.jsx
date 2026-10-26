@@ -2,7 +2,7 @@ import Logo from "../../../ui/Logo/Logo";
 import { useContent } from "../../../../hooks/useContent";
 import styles from "./BrandHeader.module.css";
 
-// Mobile-only header: "shovll" lockup + tagline.
+// Mobile-only header: "xikomu" lockup + tagline.
 export default function BrandHeader() {
     const { common } = useContent();
     return (

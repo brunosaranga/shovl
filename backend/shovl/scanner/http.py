@@ -30,7 +30,7 @@ from requests.adapters import HTTPAdapter
 
 from . import config
 
-USER_AGENT = "shovll-scanner/1.0 (API security self-check)"
+USER_AGENT = "xikomu-scanner/1.0 (API security self-check)"
 
 # Not worth starting a new request with less than this left in the budget.
 MIN_TIME_LEFT = 0.5

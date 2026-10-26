@@ -37,11 +37,12 @@ def is_practice_target(url: str) -> bool:
     )
 
 # The DNS record and the file carry the product's name, which changed from shovl to shovll on
-# 25 Oct 2026. The verify page shows the new names; domains verified before the change keep
-# their old record or file and still pass, including the re-check before every scheduled scan
-# (watch/runner.py), which would otherwise put them back to pending. New name first.
-RECORD_PREFIXES = ("_shovll-verify", "_shovl-verify")
-FILE_PREFIXES = ("shovll-verify-", "shovl-verify-")
+# 25 Oct 2026 and from shovll to xikomu on 26 Oct 2026. The verify page shows the newest names;
+# domains verified before a change keep their old record or file and still pass, including the
+# re-check before every scheduled scan (watch/runner.py), which would otherwise put them back to
+# pending. Newest name first.
+RECORD_PREFIXES = ("_xikomu-verify", "_shovll-verify", "_shovl-verify")
+FILE_PREFIXES = ("xikomu-verify-", "shovll-verify-", "shovl-verify-")
 
 
 def verify_dns(hostname: str, token: str) -> bool:

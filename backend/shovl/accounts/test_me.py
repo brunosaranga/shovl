@@ -1,5 +1,5 @@
 """
-GET and PATCH /api/accounts/me/: the plan and the two shovll watch switches.
+GET and PATCH /api/accounts/me/: the plan and the two murindzi switches.
 
 Run with:  DJANGO_DEBUG=1 python manage.py test accounts
 """

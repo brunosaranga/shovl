@@ -1,5 +1,5 @@
 export const report = {
-    meta: "report | shovll",
+    meta: "report | xikomu",
     pageTitle: "report",
 
     loading: "loading report...",
@@ -14,15 +14,15 @@ export const report = {
 
     rerun: "re-run scan",
 
-    // shovll watch, under the report's top strip (sections/report/WatchBadge). The API says
+    // murindzi, under the report's top strip (sections/report/WatchBadge). The API says
     // which state the scan's API is in (status + reason) and which button to offer (action).
     watch: {
-        info: "what is shovll watch?",
+        info: "what is murindzi?",
         states: {
             watching: "this API is being watched",
             verification: "watch paused: verification no longer passes",
             failures: "watch paused: the last 3 scheduled scans failed",
-            account_off: "shovll watch is off for your account",
+            account_off: "murindzi is off for your account",
             turned_off: "not watched: you turned this API off",
             not_started: "not watched yet",
             plan_full_one: "not watched: your plan watches one API",
@@ -31,7 +31,7 @@ export const report = {
             unverified: "not watched: verify this domain first",
         },
         // Inside the (i).
-        about: "shovll watch re-scans this API every {days} days and tells you when something gets worse.",
+        about: "murindzi re-scans this API every {days} days and tells you when something gets worse.",
         next: "next scan: {date}.",
         record: "leave the verification record in place: if it disappears for a few hours, the domain goes back to pending and the watch pauses.",
         settings: "turn it off any time in settings.",
@@ -93,7 +93,7 @@ export const report = {
     // "was this report useful?" at the bottom of a finished report. All of it is optional.
     feedback: {
         title: "was this report useful?",
-        lead: "optional. one click helps decide what shovll does next.",
+        lead: "optional. one click helps decide what xikomu does next.",
         yes: "yes",
         no: "not really",
         skip: "skip",
@@ -108,7 +108,7 @@ export const report = {
             count: "{n}/{max}",
         },
         pay: {
-            question: "would you pay for shovll to scan your API every week and email you when something changes?",
+            question: "would you pay for xikomu to scan your API every week and email you when something changes?",
             yes: "yes",
             maybe: "maybe",
             no: "no",
@@ -140,7 +140,7 @@ export const report = {
 
     coverage: {
         partial: "based on {run} of {total} checks.",
-        incomplete: "0 of {total} checks completed — shovll couldn't assess this target. re-run the scan.",
+        incomplete: "0 of {total} checks completed — xikomu couldn't assess this target. re-run the scan.",
         notRunTitle: "checks that could not run:",
     },
 

@@ -79,14 +79,14 @@ SEVERITY_LABEL = {
 # Plain words for someone who isn't a developer (same wording as the FAQ).
 SEVERITY_MEANING = [
     ("HIGH", "strong evidence of a real problem, like an invalid token getting through."),
-    ("MEDIUM", "something is open to anyone, and shovll can't tell whether that's on purpose."),
+    ("MEDIUM", "something is open to anyone, and xikomu can't tell whether that's on purpose."),
     ("LOW", "a minor issue, or something that couldn't be verified or assessed."),
     ("PASS", "the check found nothing wrong."),
     ("ERROR", "the check didn't finish, which says nothing about the API."),
 ]
 
 LIMITS_NOTE = (
-    "shovll runs six automated checks from the outside. it is not a penetration test: "
+    "xikomu runs six automated checks from the outside. it is not a penetration test: "
     "business-logic flaws and anything behind complicated logins still need a person to look."
 )
 
@@ -114,11 +114,11 @@ SHADOW = 4  # points: the hard offset shadow under every box
 # ---- fonts -------------------------------------------------------------------------------
 FONT_DIR = Path(__file__).resolve().parent / "fonts"
 FONTS = {
-    "display": ("Helvetica-Bold", "ShovllDisplay", "Arbutus-Regular.ttf"),
-    "sans": ("Helvetica", "ShovllSans", "Inter-Regular.ttf"),
-    "sans-bold": ("Helvetica-Bold", "ShovllSans-Bold", "Inter-Bold.ttf"),
-    "mono": ("Courier", "ShovllMono", "JetBrainsMono-Regular.ttf"),
-    "mono-bold": ("Courier-Bold", "ShovllMono-Bold", "JetBrainsMono-Bold.ttf"),
+    "display": ("Helvetica-Bold", "XikomuDisplay", "Arbutus-Regular.ttf"),
+    "sans": ("Helvetica", "XikomuSans", "Inter-Regular.ttf"),
+    "sans-bold": ("Helvetica-Bold", "XikomuSans-Bold", "Inter-Bold.ttf"),
+    "mono": ("Courier", "XikomuMono", "JetBrainsMono-Regular.ttf"),
+    "mono-bold": ("Courier-Bold", "XikomuMono-Bold", "JetBrainsMono-Bold.ttf"),
 }
 
 
@@ -257,7 +257,7 @@ def badge(severity, size=7.5):
 
 
 class Masthead(Flowable):
-    """'shovll' on the left, what this is on the right, a heavy rule underneath."""
+    """'xikomu' on the left, what this is on the right, a heavy rule underneath."""
 
     def __init__(self, right_lines):
         super().__init__()
@@ -272,7 +272,7 @@ class Masthead(Flowable):
         c = self.canv
         c.setFillColor(INK)
         c.setFont(F["display"], 34)
-        c.drawString(0, 16, "shovll")
+        c.drawString(0, 16, "xikomu")
         c.setFont(F["mono"], 8.5)
         y = 36
         for line in self.right_lines:
@@ -284,7 +284,7 @@ class Masthead(Flowable):
         c.setFillColor(NEON)
         c.setStrokeColor(INK)
         c.setLineWidth(0.8)
-        word_width = pdfmetrics.stringWidth("shovll", F["display"], 34)
+        word_width = pdfmetrics.stringWidth("xikomu", F["display"], 34)
         c.rect(word_width + 6, 30, chip_width, 11, stroke=1, fill=1)
         c.setFillColor(INK)
         c.setFont(F["mono-bold"], 7)
@@ -339,11 +339,11 @@ def risk_explanation(risk, summary):
         return ("the worst finding is something open to anyone, which may or may not be on purpose. "
                 "go through the medium findings and decide which ones should be closed.")
     if risk == "LOW" and problems:
-        return "nothing serious found. the low findings are minor issues or things shovll couldn't fully verify."
+        return "nothing serious found. the low findings are minor issues or things xikomu couldn't fully verify."
     if risk == "LOW":
         return "every check that ran passed."
     if risk == "INCOMPLETE":
-        return "no check could finish, so shovll can't say anything about this API yet. run the scan again."
+        return "no check could finish, so xikomu can't say anything about this API yet. run the scan again."
     return "no overall score was saved for this scan."
 
 
@@ -637,7 +637,7 @@ def build_pdf(results, *, scan_id, target_url="", comparison=None, site="", gene
     if meta.get("verbose"):
         story += raw_section(findings)
 
-    footer_left = "made with shovll beta" + (f" · {clean(site)}" if site else "")
+    footer_left = "made with xikomu beta" + (f" · {clean(site)}" if site else "")
     footer_right = f"scan #{scan_id} · generated {format_time(generated_at.isoformat())}"
 
     buffer = io.BytesIO()
@@ -648,10 +648,10 @@ def build_pdf(results, *, scan_id, target_url="", comparison=None, site="", gene
         rightMargin=MARGIN_X,
         topMargin=MARGIN_TOP,
         bottomMargin=MARGIN_BOTTOM,
-        title=f"shovll report: {host}"[:200],
-        author="shovll",
+        title=f"xikomu report: {host}"[:200],
+        author="xikomu",
         subject="API security report",
-        creator="shovll beta",
+        creator="xikomu beta",
     )
     doc.build(story, canvasmaker=_canvas_maker(footer_left, footer_right))
     return buffer.getvalue()

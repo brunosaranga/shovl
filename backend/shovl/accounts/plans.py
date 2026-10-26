@@ -31,7 +31,7 @@ PRO_WATCH_CADENCE_DAYS = 7
 @dataclass(frozen=True)
 class Plan:
     name: str
-    # How many APIs shovll watch keeps scanning. None = no limit
+    # How many APIs murindzi keeps scanning. None = no limit
     watch_slots: int | None
     # Time between two scheduled scans of one API
     watch_cadence: timedelta

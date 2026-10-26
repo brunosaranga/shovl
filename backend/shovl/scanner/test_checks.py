@@ -540,7 +540,7 @@ def run_misconfig(response, url="https://api.example.com"):
 
 class MisconfigTests(SimpleTestCase):
     def test_a_server_name_without_a_version_is_not_a_finding(self):
-        # What a CDN or host sets in front of almost every API (shovll's own scan, 25 Oct 2026)
+        # What a CDN or host sets in front of almost every API (shovll's own scan, 25 Oct 2026, before the rename to xikomu)
         for server in ("cloudflare", "nginx", "Apache", "AmazonS3", "Google Frontend"):
             with self.subTest(server=server):
                 result = run_misconfig(headers_reply(Server=server))

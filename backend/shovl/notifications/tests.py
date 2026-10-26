@@ -77,7 +77,7 @@ class AnnouncementTests(TestCase):
         services.watch_after_scan(scan_of(self.user))
         item = Notification.objects.get()
         self.assertEqual(item.kind, Notification.KIND_WATCH_ON)
-        self.assertEqual(item.title, f"shovll watch is on for {HOST}/v1")
+        self.assertEqual(item.title, f"murindzi is on for {HOST}/v1")
         self.assertIn("tells you when something gets worse", item.summary)
         self.assertIn("every 30 days", item.summary)
         self.assertIn("settings", item.summary)
@@ -381,3 +381,65 @@ class AdminPageTests(TestCase):
             with self.subTest(page=name):
                 self.assertEqual(self.client.get(reverse(name)).status_code, 200)
         self.assertContains(self.client.get(reverse("admin:domains_domain_changelist")), HOST)
+
+
+class RenameMigrationTests(TestCase):
+    """notifications/migrations/0004: announcements stored under an old name now say murindzi."""
+
+    def rewrite(self):
+        import importlib
+
+        from django.apps import apps
+
+        migration = importlib.import_module("notifications.migrations.0004_rewrite_watch_on_text")
+        migration.forwards(apps, None)
+
+    def make(self, kind, title, summary=""):
+        return Notification.objects.create(user=self.user, kind=kind, title=title, summary=summary)
+
+    def setUp(self):
+        self.user = registered()
+
+    def test_old_announcements_are_rewritten(self):
+        shovll = self.make(
+            Notification.KIND_WATCH_ON,
+            f"shovll watch is on for {HOST}/v1",
+            "shovll watch re-scans your API on a schedule and tells you when something gets worse.",
+        )
+        shovl = self.make(Notification.KIND_WATCH_ON, f"shovl watch is on for {HOST}/v1")
+        self.rewrite()
+        shovll.refresh_from_db()
+        shovl.refresh_from_db()
+        self.assertEqual(shovll.title, f"murindzi is on for {HOST}/v1")
+        self.assertTrue(shovll.summary.startswith("murindzi re-scans your API"))
+        self.assertEqual(shovl.title, f"murindzi is on for {HOST}/v1")
+
+    def test_other_kinds_and_new_text_are_left_alone(self):
+        alert = self.make(Notification.KIND_ALERT, "shovll watch found something", "kept as it was")
+        current = self.make(Notification.KIND_WATCH_ON, f"murindzi is on for {HOST}/v1")
+        self.rewrite()
+        alert.refresh_from_db()
+        current.refresh_from_db()
+        self.assertEqual(alert.title, "shovll watch found something")
+        self.assertEqual(current.title, f"murindzi is on for {HOST}/v1")
+
+    def test_a_full_length_title_still_fits(self):
+        long_title = "shovl watch is on for " + "a" * (200 - len("shovl watch is on for ") - 1) + "…"
+        self.assertEqual(len(long_title), 200)
+        item = self.make(Notification.KIND_WATCH_ON, long_title)
+        self.rewrite()
+        item.refresh_from_db()
+        self.assertLessEqual(len(item.title), 200)
+        self.assertTrue(item.title.startswith("murindzi is on for "))
+        self.assertTrue(item.title.endswith("…"))
+
+    def test_every_earlier_name_becomes_murindzi(self):
+        items = [
+            self.make(Notification.KIND_WATCH_ON, f"{name} is on for {HOST}/v1", f"{name} re-scans your API.")
+            for name in ("shovl watch", "shovll watch", "xikomu watch")
+        ]
+        self.rewrite()
+        for item in items:
+            item.refresh_from_db()
+            self.assertEqual(item.title, f"murindzi is on for {HOST}/v1")
+            self.assertEqual(item.summary, "murindzi re-scans your API.")

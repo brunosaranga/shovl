@@ -1,7 +1,7 @@
 export const auth = {
     meta: {
-        signin: "sign in | shovll",
-        register: "register | shovll",
+        signin: "sign in | xikomu",
+        register: "register | xikomu",
     },
 
     intro: {
@@ -23,7 +23,7 @@ export const auth = {
     },
 
     // [label](/path) becomes a link (opens in a new tab here).
-    consent: "I own or have explicit permission to test any URL I submit to shovll, and I accept the [terms](/terms) and [privacy policy](/privacy)",
+    consent: "I own or have explicit permission to test any URL I submit to xikomu, and I accept the [terms](/terms) and [privacy policy](/privacy)",
 
     submit: {
         signin: "Sign In",

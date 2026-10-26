@@ -1,14 +1,14 @@
 // The pricing page (pages/Pricing). Keep it in step with the code: the scan allowance in
-// scans/limits.py, shovll watch's slots and cadence in accounts/plans.py, and the price with
+// scans/limits.py, murindzi's slots and cadence in accounts/plans.py, and the price with
 // the terms (content/en/legal.js, section 6). In notes and `early`: [label](/path) is a link,
 // {email} the support address.
 export const pricing = {
-    meta: "pricing | shovll",
+    meta: "pricing | xikomu",
     // Search results and link previews (scripts/seo-pages.mjs). Keep it in step with the plans.
     description:
-        "Start free: 5 scans a day, PDF reports and shovll watch on one API. Pro, opening soon at $19 a month, watches 5 APIs every week.",
+        "Start free: 5 scans a day, PDF reports and scheduled re-scans of one API with murindzi. Pro, opening soon at $19 a month, watches 5 APIs every week.",
     title: "pricing",
-    lead: "start free. go Pro when shovll watch becomes part of how you ship.",
+    lead: "start free. go Pro when murindzi becomes part of how you ship.",
     perMonth: "/ month",
     current: "your plan",
 
@@ -21,7 +21,7 @@ export const pricing = {
                 "5 scans every 24 hours",
                 "your own verified domains, plus practice targets",
                 "PDF reports and \"since your last scan\"",
-                "shovll watch on 1 API: every week during the beta, every month after",
+                "murindzi re-scans 1 API: every week during the beta, every month after",
                 "alerts in the bell",
             ],
             cta: {
@@ -36,7 +36,7 @@ export const pricing = {
             soon: "soon",
             features: [
                 "everything in Free",
-                "shovll watch on 5 APIs, every week",
+                "murindzi re-scans 5 APIs, every week",
                 "email alerts when something gets worse (coming soon)",
             ],
             cta: "opening soon",

@@ -40,8 +40,8 @@ class BuildPdfTests(SimpleTestCase):
 
     def test_the_sites_fonts_are_used(self):
         # Falling back to Helvetica would mean reporter/fonts/ went missing.
-        self.assertEqual(generator.F["display"], "ShovllDisplay")
-        self.assertEqual(generator.F["mono"], "ShovllMono")
+        self.assertEqual(generator.F["display"], "XikomuDisplay")
+        self.assertEqual(generator.F["mono"], "XikomuMono")
         pdf = build_pdf(results(*["PASS"] * 6), scan_id=1)
         # Embedded subsets carry each font's own name.
         for face in (b"Arbutus", b"Inter", b"JetBrainsMono"):
@@ -151,7 +151,7 @@ class PdfDownloadTests(TestCase):
         self.assertEqual(response["Content-Type"], "application/pdf")
         self.assertRegex(
             response["Content-Disposition"],
-            rf'^attachment; filename="shovll-report-api\.example\.com-\d{{4}}-\d{{2}}-\d{{2}}-{self.scan.pk}\.pdf"$',
+            rf'^attachment; filename="xikomu-report-api\.example\.com-\d{{4}}-\d{{2}}-\d{{2}}-{self.scan.pk}\.pdf"$',
         )
         self.assertEqual(response["Cache-Control"], "no-store")
         self.assertTrue(response.content.startswith(b"%PDF-"))

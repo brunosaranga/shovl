@@ -1,5 +1,5 @@
 export const dashboard = {
-    meta: "dashboard | shovll",
+    meta: "dashboard | xikomu",
     pageTitle: "dashboard",
 
     stats: {
@@ -21,8 +21,8 @@ export const dashboard = {
 
     row: {
         toggle: "show scan details",
-        watch: "watch", // a scheduled scan, run by shovll watch
-        watchTitle: "a scheduled scan by shovll watch: it didn't count against your allowance",
+        watch: "murindzi", // a scheduled scan, run by murindzi
+        watchTitle: "a scheduled scan by murindzi: it didn't count against your allowance",
         summary: "scan summary",
         counts: "{HIGH} high · {MEDIUM} medium · {LOW} low · {PASS} passed",
         coverage: "based on {run} of {total} checks.",

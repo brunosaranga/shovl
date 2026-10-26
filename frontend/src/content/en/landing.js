@@ -1,8 +1,8 @@
 export const landing = {
-    meta: "shovll | break your API before someone else does",
+    meta: "xikomu | break your API before someone else does",
     // The page's main heading, for search engines and screen readers (hidden on screen: the
     // wordmark and tagline say it visually). index.html holds the landing's description.
-    heading: "shovll: break your API before someone else does",
+    heading: "xikomu: break your API before someone else does",
 
     url: {
         label: "URL:",
@@ -22,7 +22,7 @@ export const landing = {
 
     // Shown next to the button when nobody is signed in: ticking it creates the guest session.
     // [label](/path) becomes a link (opens in a new tab here).
-    consent: "I own or have explicit permission to test URLs I submit to shovll, and I accept the [terms](/terms) and [privacy policy](/privacy).",
+    consent: "I own or have explicit permission to test URLs I submit to xikomu, and I accept the [terms](/terms) and [privacy policy](/privacy).",
     consentRequired: "tick the box first: only scan APIs you're allowed to test.",
     invalidUrl: "that doesn't look like a URL. try something like api.example.com",
 

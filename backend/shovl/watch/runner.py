@@ -1,5 +1,5 @@
 """
-shovll watch's runner: one pass over the watches that are due.
+murindzi's runner: one pass over the watches that are due.
 The run_watches command (Render's cron job) calls run_pass().
 
 One pass:

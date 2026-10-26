@@ -52,7 +52,7 @@ class DomainVerifyView(APIView):
             domain.verified = True
             domain.verified_at = timezone.now()
             domain.save()
-            # shovll watch: watches paused by rule A start again.
+            # murindzi: watches paused by rule A start again.
             domain_verified_again(domain)
             return Response({"status": "verified"})
         
@@ -63,7 +63,7 @@ class DomainVerifyView(APIView):
 
 
 # The unverified cache: domains added on the verify page but never verified (also the ones
-# shovll watch's rule A put back to pending). Verified domains can't be removed here yet.
+# murindzi's rule A put back to pending). Verified domains can't be removed here yet.
 DOMAIN_NOT_FOUND = {"detail": "Domain not found.", "code": "not_found"}
 DOMAIN_VERIFIED = {
     "detail": "Verified domains can't be removed here yet.",

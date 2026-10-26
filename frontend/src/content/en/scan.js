@@ -1,6 +1,6 @@
 // The scan-running page and its live terminal.
 export const scan = {
-    meta: "scanning | shovll",
+    meta: "scanning | xikomu",
 
     title: "digging deeper...",
     targeting: "Targeting: {target}",
@@ -21,7 +21,7 @@ export const scan = {
     },
 
     terminal: {
-        boot: [">> initializing shovll engine...", ">> establishing secure tunnel..."],
+        boot: [">> initializing xikomu engine...", ">> establishing secure tunnel..."],
         running: ">> [{time}] running {check}...",
         result: ">> {check} -> [{severity}] {detail}",
         error: ">> ERROR in {check}: {message}",

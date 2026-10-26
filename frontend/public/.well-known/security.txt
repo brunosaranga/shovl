@@ -1,4 +1,4 @@
-Contact: mailto:security@shovll.com
+Contact: mailto:security@xikomu.com
 Expires: 2027-10-01T00:00:00.000Z
 Preferred-Languages: en, pt
-Canonical: https://shovll.com/.well-known/security.txt
+Canonical: https://xikomu.com/.well-known/security.txt

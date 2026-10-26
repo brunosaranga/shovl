@@ -551,7 +551,7 @@ class CommandTests(RunnerTestCase):
     def test_the_first_line_gives_the_cadences(self):
         with self.settings(SHOVL_WATCH_FREE_CADENCE_DAYS=7):
             first = self.call().splitlines()[0]
-        self.assertEqual(first, "shovll watch: free plan every 7 days, pro every 7 days")
+        self.assertEqual(first, "murindzi: free plan every 7 days, pro every 7 days")
         self.assertIn("free plan every 30 days", self.call("--dry-run"))
 
     def test_watches_brought_forward_are_counted(self):

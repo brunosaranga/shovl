@@ -78,7 +78,7 @@ INSTALLED_APPS = [
     "accounts", # Phase 3
     "domains", # Phase 3
     "scans", # Phase 3
-    "watch", # shovll watch: scheduled scans
+    "watch", # murindzi: scheduled scans
     "notifications", # the bell
     "corsheaders",
     "rest_framework",
@@ -109,7 +109,7 @@ REST_FRAMEWORK = {
 
 # Only the real frontend may call the API. In development that is the Vite
 # server. In production set CORS_ALLOWED_ORIGINS to the frontend's address,
-# for example https://shovll.example.com (no trailing slash).
+# for example https://xikomu.example.com (no trailing slash).
 CORS_ALLOWED_ORIGINS = env_list(
     "CORS_ALLOWED_ORIGINS",
     "http://localhost:5173,http://127.0.0.1:5173" if DEBUG else "",
@@ -299,7 +299,7 @@ if SHOVL_API_RATE_LIMIT_PER_MINUTE < 0:
 # to disk. On unless switched off with SHOVL_PDF_REPORTS=0 (the report page then says so).
 SHOVL_PDF_REPORTS = os.getenv("SHOVL_PDF_REPORTS", "1") == "1"
 
-# shovll watch: days between two scheduled scans of one API on the free plan (accounts/plans.py).
+# murindzi: days between two scheduled scans of one API on the free plan (accounts/plans.py).
 # 30 by default; set WATCH_FREE_CADENCE_DAYS=7 for the beta, and delete it to go back.
 try:
     SHOVL_WATCH_FREE_CADENCE_DAYS = int(os.getenv("WATCH_FREE_CADENCE_DAYS", "30"))

@@ -1,0 +1,8 @@
+/* Only the copy for the current theme shows (index.html sets data-theme on <html> before the
+   first paint, so the wrong one never flashes). Two classes beat the one-class size and
+   display rules that Logo and Spinner pass in, whatever order the stylesheets load in.
+   The visible copy keeps whatever display those rules give it. */
+:global(:root:not([data-theme="dark"])) .logo.forDark,
+:global(:root[data-theme="dark"]) .logo.forLight {
+    display: none;
+}

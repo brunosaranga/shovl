@@ -1,5 +1,5 @@
 /* ==========================================================================
-   tokens.css: the single source of truth for the shovll design system.
+   tokens.css: the single source of truth for the xikomu design system.
 
    Layer 1: raw palette  (--ink-950, --neon-500…)  → never used in components
    Layer 2: semantic     (--surface, --text, --accent, --sev-high…) → what components use

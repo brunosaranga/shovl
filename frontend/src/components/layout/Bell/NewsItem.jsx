@@ -7,7 +7,7 @@ import { formatAgo } from "../../../lib/text";
 import BellRow from "./BellRow";
 import styles from "./BellModal.module.css";
 
-// A stored item: "shovll watch is on", "now watching ...", or an alert when a watched API got
+// A stored item: "murindzi is on", "now watching ...", or an alert when a watched API got
 // worse. Opening it marks it read; unread ones carry a "new" chip. An alert shows the risk
 // before → after and each check that changed, with a button to its report.
 export default function NewsItem({ item }) {

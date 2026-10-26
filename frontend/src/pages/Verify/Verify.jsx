@@ -19,7 +19,7 @@ import styles from "./Verify.module.css";
 //   scan:         { url, ...scan options } from the landing page or sign-in. Once verified,
 //                 the scan starts.
 //   verify only:  { verifyOnly: true, hostname, from } from the bell ("verify domain"). Once
-//                 verified, back to `from`; no scan starts. A domain shovll watch's rule A put
+//                 verified, back to `from`; no scan starts. A domain murindzi's rule A put
 //                 back to pending gets its paused watches restarted by the backend.
 // No ambiance on this page (routes.jsx); errors still play the error cue.
 export default function Verify() {
@@ -47,8 +47,9 @@ export default function Verify() {
     if (!options && !verifyOnly) return <Navigate to="/" replace />;
     if (practice) return <Navigate to="/scan/running" state={options} replace />;
 
-    // _shovll-verify since the rename (domains/verification.py still accepts the old _shovl-verify).
-    const recordName = `_shovll-verify.${hostname}`;
+    // _xikomu-verify since the rename on 26 Oct 2026 (domains/verification.py still accepts the
+    // older _shovll-verify and _shovl-verify, so domains verified before keep passing).
+    const recordName = `_xikomu-verify.${hostname}`;
 
     return (
         <>

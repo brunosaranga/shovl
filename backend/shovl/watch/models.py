@@ -25,11 +25,11 @@ def watch_key(url):
 
 class Watch(models.Model):
     """
-    One API that shovll watch scans on a schedule, for one account.
+    One API that murindzi scans on a schedule, for one account.
 
     A watch runs when all of these hold:
 
-        the account's switch is on         user.watch_enabled (Settings > shovll watch)
+        the account's switch is on         user.watch_enabled (Settings > murindzi)
         the account still wants this API   active (off = turned off, or swapped for another)
         it fits the plan                   among the account's first N active watches by
                                            activated_at, N from accounts/plans.py. Worked out
