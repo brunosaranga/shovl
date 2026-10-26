@@ -14,7 +14,9 @@
 
 .graphic {
     position: absolute;
-    bottom: 100px;
+    /* The pickaxe strikes into the wordmark: its head rests on the letters, its handle rises
+       above them. (The old shovel stood lower, its blade hidden behind the card.) */
+    bottom: 310px;
     left: 50%;
     transform: translateX(-50%);
     pointer-events: none;
@@ -22,6 +24,26 @@
     justify-content: center;
     /* z-index: 0; */
     z-index: var(--backdrop);
+}
+
+.pickaxe {
+    /* Natural size 292 x 285. On shorter screens it shrinks so the handle stays clear of the
+       knob labels above it: the handle is the same colour as their text in both themes, so
+       crossing them would hide the words. Below 780px of height there's no room at all. */
+    height: min(285px, calc(100vh - 624px));
+    width: auto;
+}
+
+@media (max-height: 780px) {
+    .graphic {
+        display: none;
+    }
+}
+
+/* The copy for the current theme shows (index.html sets data-theme before the first paint). */
+:global(:root:not([data-theme="dark"])) .pickaxe.forDark,
+:global(:root[data-theme="dark"]) .pickaxe.forLight {
+    display: none;
 }
 
 .wordmarkWrap {
@@ -53,7 +75,7 @@
         bottom: 30px;
     }
 
-    .shovel {
+    .pickaxe {
         height: 250px;
         width: auto;
     }
