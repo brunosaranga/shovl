@@ -1,8 +1,27 @@
-/* Only the copy for the current theme shows (index.html sets data-theme on <html> before the
-   first paint, so the wrong one never flashes). Two classes beat the one-class size and
-   display rules that Logo and Spinner pass in, whatever order the stylesheets load in.
-   The visible copy keeps whatever display those rules give it. */
-:global(:root:not([data-theme="dark"])) .logo.forDark,
-:global(:root[data-theme="dark"]) .logo.forLight {
+/* Only the right copy shows (index.html sets data-theme on <html> before the first paint, so the
+   wrong one never flashes). Every rule here only hides: the visible copy keeps whatever display
+   the size classes from Logo and Spinner give it. The selectors carry two or more classes, so
+   they beat those one-class rules whatever order the stylesheets load in. */
+
+/* On the page: the copy for the theme. */
+:global(:root:not([data-theme="dark"])) .logo:not(.inverseMobile).forDark,
+:global(:root[data-theme="dark"]) .logo:not(.inverseMobile).forLight {
     display: none;
+}
+
+/* inverseMobile: a logo that sits on the phone navbar. That bar is the inverse colour (dark in
+   the light theme, white in the dark one; layout/Navbar), so on phones it takes the other copy.
+   Same breakpoint as the navbar. */
+@media (min-width: 769px) {
+    :global(:root:not([data-theme="dark"])) .logo.inverseMobile.forDark,
+    :global(:root[data-theme="dark"]) .logo.inverseMobile.forLight {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    :global(:root:not([data-theme="dark"])) .logo.inverseMobile.forLight,
+    :global(:root[data-theme="dark"]) .logo.inverseMobile.forDark {
+        display: none;
+    }
 }

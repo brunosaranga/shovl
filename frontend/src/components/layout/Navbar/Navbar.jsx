@@ -16,7 +16,7 @@ export default function Navbar({ slotRef }) {
     return (
         <nav className={styles.navbar}>
             <Link to="/" className={styles.home} aria-label={common.homeLabel}>
-                <Logo variant="mark" />
+                <Logo variant="mark" inverseOnMobile />
             </Link>
 
             <div className={styles.center} ref={slotRef} />

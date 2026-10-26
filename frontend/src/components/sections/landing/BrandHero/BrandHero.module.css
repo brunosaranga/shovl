@@ -16,14 +16,15 @@
     position: absolute;
     /* The pickaxe strikes into the wordmark: its head rests on the letters, its handle rises
        above them. (The old shovel stood lower, its blade hidden behind the card.) */
-    bottom: 310px;
-    left: 50%;
+    bottom: 50px;
+    left: 0;
     transform: translateX(-50%);
     pointer-events: none;
     display: flex;
     justify-content: center;
     /* z-index: 0; */
-    z-index: var(--backdrop);
+    z-index: var(--z-backdrop);
+    visibility: hidden;
 }
 
 .pickaxe {

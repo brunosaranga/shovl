@@ -3,10 +3,10 @@ import { useContent } from "../../../hooks/useContent";
 import styles from "./Logo.module.css";
 
 // variant:
-//   mark    → just the pickaxe (navbar)
+//   mark    → just the pickaxe (navbar; inverseOnMobile there, since the phone bar is inverse)
 //   lockup  → "xikomu" wordmark + pickaxe (auth page, mobile landing header)
 // The pickaxe itself, in the right colours for the theme, is ui/LogoImage.
-export default function Logo({ variant = "mark", as: Heading = "h1" }) {
+export default function Logo({ variant = "mark", as: Heading = "h1", inverseOnMobile = false }) {
     const { common } = useContent();
 
     if (variant === "lockup") {
@@ -18,5 +18,13 @@ export default function Logo({ variant = "mark", as: Heading = "h1" }) {
         );
     }
 
-    return <LogoImage className={styles.mark} alt={common.logoAlt} width="40" height="40" />;
+    return (
+        <LogoImage
+            className={styles.mark}
+            alt={common.logoAlt}
+            width="40"
+            height="40"
+            inverseOnMobile={inverseOnMobile}
+        />
+    );
 }
