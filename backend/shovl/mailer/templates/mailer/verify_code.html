@@ -1,0 +1,18 @@
+{% extends "mailer/base.html" %}
+
+{% block preheader %}Your {{ brand }} code is {{ code }}. It works for {{ minutes }} minutes.{% endblock %}
+
+{% block content %}
+<h1 style="margin:0 0 12px 0;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:22px;line-height:1.25;color:#0e0018;">confirm your email</h1>
+<p style="margin:0 0 16px 0;">Type this code on {{ brand }} to confirm this address:</p>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px 0;">
+<tr>
+<td style="background:#f4f1ea;border:2px solid #0e0018;padding:12px 20px;">
+<span style="font-family:'Courier New',Courier,monospace;font-size:32px;font-weight:700;letter-spacing:8px;color:#0e0018;">{{ code }}</span>
+</td>
+</tr>
+</table>
+<p style="margin:0;">It works for {{ minutes }} minutes, and only the newest code works. Nobody from {{ brand }} will ever ask you for it.</p>
+{% endblock %}
+
+{% block reason %}<p style="margin:0;">You're getting this because a {{ brand }} account asked to confirm this address. If that wasn't you, ignore this email: without the code nothing is confirmed{% if deadline %}, and the account is deleted after 7 days{% endif %}.</p>{% endblock %}

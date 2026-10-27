@@ -1,0 +1,7 @@
+{% extends "mailer/base.txt" %}{% block content %}confirm your email
+
+Type this code on {{ brand }} to confirm this address:
+
+    {{ code }}
+
+It works for {{ minutes }} minutes, and only the newest code works. Nobody from {{ brand }} will ever ask you for it.{% endblock %}{% block reason %}You're getting this because a {{ brand }} account asked to confirm this address. If that wasn't you, ignore this email: without the code nothing is confirmed{% if deadline %}, and the account is deleted after 7 days{% endif %}.{% endblock %}

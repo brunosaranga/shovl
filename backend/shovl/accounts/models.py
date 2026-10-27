@@ -22,9 +22,19 @@ class UserManager(BaseUserManager):
         return self.get(**{self.model.USERNAME_FIELD: self.normalize_email(username)})
 
     def create_user(self, email, password=None, **extra_fields):
+        """
+        Accounts made here count as confirmed (email_confirmed_at = now), because this is
+        trusted code: createsuperuser, the shell, tests. The two ways in from the internet
+        say otherwise explicitly: sign-up (accounts/serializers.py) passes
+        email_confirmed_at=None, and guests are never confirmed.
+        """
         email = self.normalize_email(email)
         if not email:
             raise ValueError('Email is required')
+        if extra_fields.get("is_guest"):
+            extra_fields["email_confirmed_at"] = None
+        else:
+            extra_fields.setdefault("email_confirmed_at", timezone.now())
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -60,6 +70,17 @@ class User(AbstractBaseUser, PermissionsMixin):
     tos_agreed    = models.BooleanField(default=False)
     tos_agreed_at = models.DateTimeField(null=True, blank=True)
     date_joined   = models.DateTimeField(default=timezone.now)
+
+    # When the owner proved the address is theirs, by typing the code xikomu emailed to it
+    # (accounts/confirmation.py). Empty: not confirmed yet. Until then the account can't add or
+    # scan its own domains, use murindzi or change settings (accounts/permissions.py), and the
+    # only email it gets is the code.
+    email_confirmed_at = models.DateTimeField(null=True, blank=True)
+    # An account that signs up (or turns a guest into an account) must confirm by then, or the
+    # daily cleanup deletes it (purge_guests), which frees an address someone took without
+    # owning it. Empty for accounts that existed before confirmation did: they confirm at their
+    # next visit and are never deleted for it. Cleared once confirmed.
+    confirm_by = models.DateTimeField(null=True, blank=True)
 
     # What the account signed up for. What it gets right now is accounts/plans.py's
     # effective_plan(), which also looks at billing: never read this field to decide a feature.
@@ -100,6 +121,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+    @property
+    def email_confirmed(self):
+        return self.email_confirmed_at is not None
+
     def clean(self):
         super().clean()
         # Lowercase before the admin's uniqueness checks run, so they compare like with like.
@@ -109,3 +134,37 @@ class User(AbstractBaseUser, PermissionsMixin):
         # Every path that stores an account ends here: the API, the manager and the admin.
         self.email = UserManager.normalize_email(self.email)
         super().save(*args, **kwargs)
+
+
+class EmailCode(models.Model):
+    """
+    A 6-digit code emailed to an account (accounts/confirmation.py). Only the newest code of a
+    purpose works, and only for the address it was sent to. Stored as a keyed hash, never the
+    digits. Deleted when it's used, replaced, or by the daily cleanup once expired.
+
+    Password reset (a later step) will add its own purpose here.
+    """
+
+    PURPOSE_CONFIRM = "confirm"
+    PURPOSE_CHOICES = [
+        (PURPOSE_CONFIRM, "confirm email"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="email_codes")
+    purpose = models.CharField(max_length=20, choices=PURPOSE_CHOICES)
+    # mailer.services.address_hash() of the address the code went to: a code sent before the
+    # address changed doesn't confirm the new one.
+    sent_to = models.CharField(max_length=64)
+    code_hash = models.CharField(max_length=64)
+    attempts = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(default=timezone.now)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        ordering = ["-created_at", "-pk"]
+        indexes = [
+            models.Index(fields=["user", "purpose", "-created_at"], name="emailcode_user_purpose"),
+        ]
+
+    def __str__(self):
+        return f"{self.get_purpose_display()} code for account {self.user_id}"

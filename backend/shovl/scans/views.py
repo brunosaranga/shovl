@@ -15,7 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlparse
 import json, logging, re, time
 
-from accounts.permissions import REGISTRATION_REQUIRED_MESSAGE
+from accounts.permissions import account_block
 from . import controls
 from .compare import comparison_for
 from .limits import AllowanceExceeded, start_scan
@@ -172,9 +172,12 @@ class ScanCreateView(APIView):
             return Response({"error": error}, status=status.HTTP_400_BAD_REQUEST)
 
         # Guests may only scan practice targets. Anything else needs a real
-        # account. Checked before any domain lookup or network activity.
-        if request.user.is_guest and not is_practice_target(target_url):
-            return Response(REGISTRATION_REQUIRED_MESSAGE, status=status.HTTP_403_FORBIDDEN)
+        # account with a confirmed email. Checked before any domain lookup or
+        # network activity.
+        if not is_practice_target(target_url):
+            block = account_block(request.user)
+            if block:
+                return Response(block, status=status.HTTP_403_FORBIDDEN)
         
         # Check ToS agreement
         if not request.user.tos_agreed:
@@ -448,10 +451,13 @@ class ScanStreamView(APIView):
             return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
         parsed = urlparse(target_url)
 
-        # Guests may only scan practice targets. This has to be answered here,
-        # before streaming starts, because a started stream is already a 200.
-        if request.user.is_guest and not is_practice_target(target_url):
-            return Response(REGISTRATION_REQUIRED_MESSAGE, status=status.HTTP_403_FORBIDDEN)
+        # Guests may only scan practice targets, and so may accounts whose email
+        # isn't confirmed yet. This has to be answered here, before streaming
+        # starts, because a started stream is already a 200.
+        if not is_practice_target(target_url):
+            block = account_block(request.user)
+            if block:
+                return Response(block, status=status.HTTP_403_FORBIDDEN)
 
         if not request.user.tos_agreed:
             return Response(

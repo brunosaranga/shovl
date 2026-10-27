@@ -33,3 +33,13 @@ class GuestCreationThrottle(AnonRateThrottle):
                 remote_addr, forwarded, ident, proxies,
             )
         return ident
+
+class AccountCreationThrottle(GuestCreationThrottle):
+    """
+    Limits how many accounts one network address can sign up. Every sign-up emails a code,
+    so without this a script could spend xikomu's daily email allowance (and fill strangers'
+    inboxes) by signing up with other people's addresses. Same address rules as guests.
+    """
+
+    scope = 'account_creation'
+    rate = '20/hour'            # per address, rolling window; generous for shared networks

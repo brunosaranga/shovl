@@ -100,11 +100,13 @@ REST_FRAMEWORK = {
     ),
     # Per person, for the views that set throttle_scope (scans/views.py). Counted in the
     # shared cache below, so every gunicorn process sees the same numbers.
-    #   pdf       building a PDF takes a moment of the server's time
-    #   feedback  answers to "was this report useful?"
+    #   pdf           building a PDF takes a moment of the server's time
+    #   feedback      answers to "was this report useful?"
+    #   email_change  fixing the address before it's confirmed (it checks the password)
     "DEFAULT_THROTTLE_RATES": {
         "pdf": "30/hour",
         "feedback": "60/hour",
+        "email_change": "10/hour",
     },
 }
 

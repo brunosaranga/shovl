@@ -6,6 +6,7 @@ from django.db import IntegrityError, transaction
 from django.utils import timezone
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+from .confirmation import CONFIRM_WITHIN
 from .tokens import TOKEN_VERSION_CLAIM
 from .transfer import transfer_guest_scans
 
@@ -15,6 +16,7 @@ User = get_user_model()
 PASSWORD_MAX_LENGTH = 128
 
 EMAIL_TAKEN_MESSAGE = "An account with this email already exists. Sign in instead."
+EMAIL_IN_USE_MESSAGE = "Another account already uses this address."
 
 
 def check_password_strength(password, email):
@@ -62,11 +64,15 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         try:
             with transaction.atomic():
+                now = timezone.now()
                 return User.objects.create_user(
                     email=validated_data["email"],
                     password=validated_data["password"],
                     tos_agreed=True,
-                    tos_agreed_at=timezone.now(),
+                    tos_agreed_at=now,
+                    # Not confirmed until the code we email is typed (accounts/confirmation.py).
+                    email_confirmed_at=None,
+                    confirm_by=now + CONFIRM_WITHIN,
                 )
         except IntegrityError:
             # Someone registered the same address between the check above and the save.
@@ -108,11 +114,15 @@ class UpgradeSerializer(serializers.Serializer):
     def upgrade(self, user):
         data = self.validated_data
 
+        now = timezone.now()
         user.email = data["email"]
         user.set_password(data["password"])
         user.is_guest = False
         user.tos_agreed = True
-        user.tos_agreed_at = timezone.now()
+        user.tos_agreed_at = now
+        # Not confirmed until the code we email is typed (accounts/confirmation.py).
+        user.email_confirmed_at = None
+        user.confirm_by = now + CONFIRM_WITHIN
         # Signs out the guest token (and any copy of it). The view then issues a
         # fresh pair carrying the new version.
         user.token_version += 1
@@ -121,7 +131,7 @@ class UpgradeSerializer(serializers.Serializer):
             with transaction.atomic():
                 user.save(update_fields=[
                     "email", "password", "is_guest", "tos_agreed", "tos_agreed_at",
-                    "token_version",
+                    "token_version", "email_confirmed_at", "confirm_by",
                 ])
         except IntegrityError:
             # Someone else took the email between the check above and the save.
@@ -152,4 +162,30 @@ class LoginSerializer(TokenObtainPairSerializer):
         # A missing, expired or unusable token just means nothing to transfer.
         transfer_guest_scans(self.initial_data.get('guest_token'), self.user)
 
+        # Lets the frontend go straight to the code screen, before /me/ answers.
+        data['email_confirmed'] = self.user.email_confirmed_at is not None
         return data
+
+
+class ChangeEmailSerializer(serializers.Serializer):
+    """
+    Fixes the address of an account that isn't confirmed yet (a typo at sign-up). The password
+    is asked again, so a token left signed in somewhere can't move the account to another
+    address. The view passes the request in the context.
+    """
+    email = serializers.EmailField(max_length=254)
+    password = serializers.CharField(write_only=True, max_length=PASSWORD_MAX_LENGTH)
+
+    def validate_password(self, value):
+        if not self.context["request"].user.check_password(value):
+            raise serializers.ValidationError("That password isn't right.")
+        return value
+
+    def validate_email(self, value):
+        value = User.objects.normalize_email(value)
+        user = self.context["request"].user
+        if value == user.email:
+            raise serializers.ValidationError("That's already the address on this account.")
+        if User.objects.filter(email__iexact=value).exclude(pk=user.pk).exists():
+            raise serializers.ValidationError(EMAIL_IN_USE_MESSAGE)
+        return value

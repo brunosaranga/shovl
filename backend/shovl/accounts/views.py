@@ -1,22 +1,31 @@
 # from django.shortcuts import render
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.utils import timezone
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import Throttled
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from scans.limits import scans_remaining
 
-from .permissions import IsRegisteredUser
+from . import confirmation
+from .permissions import REGISTRATION_REQUIRED_MESSAGE, IsRegisteredUser
 from .plans import effective_plan
-from .serializers import RegisterSerializer, UpgradeSerializer, LoginSerializer
-from .throttles import GuestCreationThrottle
+from .serializers import (
+    ChangeEmailSerializer,
+    EMAIL_IN_USE_MESSAGE,
+    LoginSerializer,
+    RegisterSerializer,
+    UpgradeSerializer,
+)
+from .throttles import AccountCreationThrottle, GuestCreationThrottle
 from .tokens import issue_tokens
 
 
@@ -37,9 +46,20 @@ class LoginView(TokenObtainPairView):
 
 
 class RegisterView(generics.CreateAPIView):
+    """
+    POST /api/accounts/register/   {"email", "password", "tos_agreed": true}
+
+    Creates the account (unconfirmed) and emails the first code. The account exists even if
+    that email fails: the code screen can ask for another.
+    """
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [AccountCreationThrottle]
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        confirmation.start(user)
 
 
 class TooManySessions(Throttled):
@@ -124,11 +144,14 @@ class UpgradeView(APIView):
             serializer.is_valid(raise_exception=True)
             serializer.upgrade(user)
 
+        # After the transaction, so the row lock isn't held while the email goes out.
+        confirmation.start(user)
+
         # The upgrade raised the account's token version, so the guest token no
         # longer works. These are the only tokens that do.
         access, refresh = issue_tokens(user)
         return Response(
-            {'access': access, 'refresh': refresh, 'is_guest': False},
+            {'access': access, 'refresh': refresh, 'is_guest': False, 'email_confirmed': False},
             status=status.HTTP_200_OK,
         )
 
@@ -157,6 +180,11 @@ def me_data(user):
         # Settings: murindzi on or off, and the bell's mute.
         'watch_enabled': user.watch_enabled,
         'notifications_muted': user.notifications_muted,
+        # False until the code is typed (accounts/confirmation.py); always false for guests.
+        'email_confirmed': user.email_confirmed_at is not None,
+        # What the code screen needs, or null once confirmed (and for guests):
+        # {"confirm_by", "code_sent_at", "code_expires_at", "attempts_left", "resend_in"}
+        'confirmation': confirmation.state(user),
     }
 
 
@@ -188,3 +216,140 @@ class MeView(APIView):
         if changes:
             user.save(update_fields=list(changes))
         return Response(me_data(user))
+
+
+# ---------- confirming the email address (accounts/confirmation.py) ----------
+
+def support_hint():
+    address = getattr(settings, 'EMAIL_REPLY_TO', '')
+    return f' If it keeps happening, write to {address}.' if address else ''
+
+
+def send_problem(outcome):
+    """The (status, body) to answer with when a code wasn't sent, or None if it was."""
+    if outcome.status == confirmation.SENT:
+        return None
+    if outcome.status == confirmation.COOLDOWN:
+        seconds = outcome.retry_after
+        return status.HTTP_429_TOO_MANY_REQUESTS, {
+            'detail': f'Wait {seconds} second{"s" if seconds != 1 else ""} before asking for another code.',
+            'code': 'code_cooldown',
+            'retry_after': seconds,
+        }
+    if outcome.status == confirmation.LIMITED:
+        return status.HTTP_429_TOO_MANY_REQUESTS, {
+            'detail': "That's as many codes as we can send for now. Try again tomorrow." + support_hint(),
+            'code': 'code_limit',
+        }
+    if outcome.status == confirmation.ADDRESS_LIMIT:
+        return status.HTTP_429_TOO_MANY_REQUESTS, {
+            'detail': "That's as many different addresses as one account can try in a day. Try again tomorrow." + support_hint(),
+            'code': 'address_limit',
+        }
+    if outcome.status == confirmation.ALREADY:
+        return status.HTTP_400_BAD_REQUEST, {
+            'detail': 'This address is already confirmed.',
+            'code': 'already_confirmed',
+        }
+    return status.HTTP_503_SERVICE_UNAVAILABLE, {
+        'detail': "We couldn't send the code just now. Try again in a few minutes." + support_hint(),
+        'code': 'email_failed',
+    }
+
+
+class ConfirmationView(APIView):
+    """Shared by the three views below: signed-in accounts only, never guests."""
+
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+        if request.user.is_guest:
+            self.permission_denied(request, message=REGISTRATION_REQUIRED_MESSAGE)
+
+
+class EmailCodeView(ConfirmationView):
+    """
+    POST /api/accounts/email/code/   (no body)
+
+    Emails a new code to the account's address, replacing the previous one. 200 with the same
+    body as GET /me/; otherwise 429 code_cooldown (with retry_after), 429 code_limit,
+    503 email_failed, or 400 already_confirmed.
+    """
+
+    def post(self, request):
+        problem = send_problem(confirmation.send_code(request.user))
+        if problem:
+            return Response(problem[1], status=problem[0])
+        return Response(me_data(request.user))
+
+
+class EmailConfirmView(ConfirmationView):
+    """
+    POST /api/accounts/email/confirm/   {"code": "123456"}
+
+    200 with the same body as GET /me/ once confirmed (also if it already was). Otherwise 400
+    with a code: code_invalid (not 6 digits, not counted as a try), code_wrong (with
+    attempts_left), code_used_up (that was the last try) or code_expired (none waiting).
+    """
+
+    def post(self, request):
+        data = request.data if isinstance(request.data, dict) else {}
+        outcome = confirmation.check_code(request.user, data.get('code'))
+
+        if outcome.status in (confirmation.CONFIRMED, confirmation.ALREADY):
+            return Response(me_data(request.user))
+        if outcome.status == confirmation.INVALID:
+            body = {'detail': 'Type the 6 digits from the email.', 'code': 'code_invalid'}
+        elif outcome.status == confirmation.WRONG:
+            left = outcome.attempts_left
+            body = {
+                'detail': f"That code isn't right. {left} {'try' if left == 1 else 'tries'} left.",
+                'code': 'code_wrong',
+                'attempts_left': left,
+            }
+        elif outcome.status == confirmation.USED_UP:
+            body = {
+                'detail': "That code isn't right, and it was the last try. Ask for a new code.",
+                'code': 'code_used_up',
+            }
+        else:
+            body = {'detail': 'That code has expired. Ask for a new one.', 'code': 'code_expired'}
+        return Response(body, status=status.HTTP_400_BAD_REQUEST)
+
+
+class EmailChangeView(ConfirmationView):
+    """
+    POST /api/accounts/email/change/   {"email": "...", "password": "..."}
+
+    For an account that isn't confirmed yet: fixes its address and emails a code to the new
+    one. Field errors are 400 {"email": [...]} / {"password": [...]}. Once the address has
+    changed the answer is 200 with the same body as GET /me/, plus "code_sent" and, when the
+    code didn't go out, "send_problem" ({"detail", "code"}).
+    """
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'email_change'
+
+    def post(self, request):
+        user = request.user
+        if user.email_confirmed_at is not None:
+            return Response(send_problem(confirmation.Outcome(confirmation.ALREADY))[1], status=400)
+
+        serializer = ChangeEmailSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+
+        old_email = user.email
+        try:
+            outcome = confirmation.change_address(user, serializer.validated_data['email'])
+        except IntegrityError:
+            # Another account took the address between the check and the save.
+            user.email = old_email
+            return Response({'email': [EMAIL_IN_USE_MESSAGE]}, status=status.HTTP_400_BAD_REQUEST)
+
+        if outcome.status == confirmation.ADDRESS_LIMIT:
+            problem = send_problem(outcome)
+            return Response(problem[1], status=problem[0])
+
+        problem = send_problem(outcome)
+        body = me_data(user)
+        body['code_sent'] = problem is None
+        body['send_problem'] = problem[1] if problem else None
+        return Response(body)

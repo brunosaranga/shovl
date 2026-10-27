@@ -157,12 +157,15 @@ def send_email(kind, to, context=None, user=None):
 
     # Rendering errors are bugs (a missing template, a typo), so they are not caught here:
     # the tests render every kind.
-    values = {**base_context(), **(context or {}), "subject": kind.subject}
+    values = {**base_context(), **(context or {})}
+    # Only the kind's own {placeholders} are filled (mailer/kinds.py): server-made values.
+    subject = kind.subject.format_map(values)
+    values["subject"] = subject
     text = render_to_string(f"mailer/{kind.template}.txt", values)
     html = render_to_string(f"mailer/{kind.template}.html", values)
 
     message = EmailMultiAlternatives(
-        subject=kind.subject,
+        subject=subject,
         body=text,
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[address],
