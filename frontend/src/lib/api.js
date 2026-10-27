@@ -80,6 +80,15 @@ export const accountsApi = {
     me: () => client.get("/accounts/me/"),
     // The two switches only: { watch_enabled?, notifications_muted? }. Returns the /me/ body.
     updateMe: (body) => client.patch("/accounts/me/", body),
+
+    // Confirming the email (backend accounts/confirmation.py). All three answer with the /me/ body.
+    //   sendCode:     a new code to the account's address. 429 { code: "code_cooldown", retry_after }
+    //                 | 429 code_limit | 503 email_failed
+    //   confirmEmail: 400 { code: code_invalid | code_wrong (attempts_left) | code_used_up | code_expired }
+    //   changeEmail:  fixes a typo; field errors { email, password }; 200 adds code_sent, send_problem
+    sendCode: () => client.post("/accounts/email/code/"),
+    confirmEmail: (code) => client.post("/accounts/email/confirm/", { code }),
+    changeEmail: (body) => client.post("/accounts/email/change/", body), // { email, password }
 };
 
 export const domainsApi = {

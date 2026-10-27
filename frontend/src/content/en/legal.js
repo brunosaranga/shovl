@@ -81,6 +81,7 @@ export const legal = {
                 h: "4. accounts",
                 body: [
                     "Use a real email address, keep your password to yourself, and tell us at {email} if you think someone else has used your account. You're responsible for what happens under it.",
+                    "Confirm your email address with the 6-digit code we send you. Until then the account can't scan your own domains or use murindzi, and an account that isn't confirmed within 7 days of signing up is deleted, with its scans.",
                     "A guest session is an account without an email address. It's deleted with its scans 30 days after it was created, unless you register or sign in from it first.",
                     "You can ask us to delete your account at any time by emailing {email} from the address you signed up with. That deletes your scans, domains and watched APIs too (see the [privacy policy](/privacy)).",
                 ],
@@ -166,12 +167,14 @@ export const legal = {
                 body: [
                     [
                         "Your account: your email address, your password (only as a one-way hash, which can't be read back), when you accepted the terms, your plan and your settings. To run your account.",
+                        "Email confirmation: the 6-digit codes we email you, only as a one-way hash. To make sure the address is yours before xikomu does anything with it. Deleted once used or replaced, and within a day once expired. An account that signs up and isn't confirmed within 7 days is deleted, with its scans.",
                         "Guest sessions: an account without an email address, and its scans. To let you try xikomu without signing up. Deleted 30 days after it was created.",
                         "Your domains: the hostnames you add, their verification codes and whether they're verified. To make sure you only scan what you control.",
                         "Your scans: the addresses you scan, the options you chose and the results. With \"verbose\" on, results include the raw responses your API sent back, so they contain whatever your API returned. For your reports, \"since your last scan\" and PDF downloads (built when you ask, never stored).",
                         "murindzi: the APIs being watched, their schedule, and the notifications in your bell. To run scheduled scans and tell you what they found.",
                         "Report feedback: your answers and comment under a report, with a copy of the report's summary. To improve xikomu. If the scan is deleted, the answer stays, without your account or the scanned address.",
-                        "Network addresses: when a guest session is created, your IP address is counted for up to an hour, to limit how many sessions one network can create. Our hosting provider also keeps short-lived server logs (IP address, time, request) for security and fixing errors.",
+                        "Network addresses: when a guest session or an account is created, your IP address is counted for up to an hour, to limit how many one network can create. Our hosting provider also keeps short-lived server logs (IP address, time, request) for security and fixing errors.",
+                        "Emails we send you: a record of each one (what kind, when, and whether it went out), with your address only as a one-way hash. To stay within our sending limits and find delivery problems. Deleted after 90 days.",
                         "Emails you send us: your address and your message, to reply.",
                     ],
                 ],
@@ -195,7 +198,7 @@ export const legal = {
                     [
                         "Render hosts the site and the API, in Frankfurt, Germany.",
                         "Neon hosts the database, in Frankfurt, Germany.",
-                        "GitHub runs the daily job that deletes expired guest sessions.",
+                        "GitHub runs the daily job that deletes expired guest sessions and accounts that were never confirmed.",
                         "Cloudflare forwards the emails you send to our xikomu.com addresses, like {email}, to Gmail (Google), where they're read and answered.",
                         "Brevo, in France, delivers the emails we send from our xikomu.com addresses. It counts how many are opened and which links are clicked, without recording who opened or clicked them.",
                         "Paddle, once Pro is on sale, handles payments as the merchant of record. Paddle collects your payment details itself; we receive your name, email, country and subscription status, never your card number.",
@@ -216,6 +219,9 @@ export const legal = {
                     [
                         "Your account, domains, scans, watched APIs and notifications: until you delete your account.",
                         "Guest sessions and their scans: 30 days.",
+                        "Accounts that never confirm their email, and their scans: 7 days after signing up.",
+                        "Email codes: until used or replaced; expired ones within a day.",
+                        "The record of emails we send: 90 days.",
                         "Report feedback: kept without your account or the scanned address once its scan is gone.",
                         "Server logs: a short time, set by our hosting provider.",
                         "Payment records, once payments exist: as long as tax law requires.",

@@ -137,8 +137,12 @@ export const faq = {
                     a: "there's no reset yet. email {email} from the address you signed up with and we'll sort it out.",
                 },
                 {
+                    q: "why do I have to confirm my email?",
+                    a: "so xikomu only ever emails people who asked for it, and nobody can sign up with an address that isn't theirs. until it's confirmed, the account can't scan your own domains or use murindzi. an account that isn't confirmed within 7 days of signing up is deleted, with its scans. no code? check spam, or ask for a new one on the same screen. each code works for 15 minutes.",
+                },
+                {
                     q: "does xikomu send emails?",
-                    a: "not during the beta: murindzi's alerts land in the bell. if you write to {email}, Bruno, who runs xikomu, replies personally, from that address. xikomu itself sends no automated emails yet, so any automated email claiming to be from xikomu isn't from us.",
+                    a: "only one so far: the 6-digit code that confirms your address, from hello@xikomu.com. murindzi's alerts still land in the bell. if you write to {email}, Bruno, who runs xikomu, replies personally, from that address. xikomu never asks for your password or your code by email.",
                 },
                 {
                     q: "can I delete my account?",
@@ -150,7 +154,7 @@ export const faq = {
                 },
                 {
                     q: "where is my data stored?",
-                    a: "on servers in Frankfurt, Germany: your email, a hashed password, your domains, your scan results, the APIs murindzi scans for you, the bell's notifications, and any answer you give under a report. guest sessions and their scans are deleted after 30 days. when a scan is deleted, an answer given under it stays, without your account or the scanned address.",
+                    a: "on servers in Frankfurt, Germany: your email, a hashed password, your domains, your scan results, the APIs murindzi scans for you, the bell's notifications, and any answer you give under a report. guest sessions and their scans are deleted after 30 days, and accounts that never confirm their email after 7. when a scan is deleted, an answer given under it stays, without your account or the scanned address.",
                 },
             ],
         },

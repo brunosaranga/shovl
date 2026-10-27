@@ -1,0 +1,30 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 360px;
+    padding: 20px;
+    background: var(--surface);
+    border: var(--border-2);
+    box-shadow: var(--shadow-4);
+}
+
+.title {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.error {
+    color: var(--danger);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}

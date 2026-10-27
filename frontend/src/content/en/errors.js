@@ -14,5 +14,15 @@ export const errors = {
         tos_required: "Agree to the terms of service before scanning.",
         token_revoked: "This session is no longer valid. Please sign in again.",
         bad_request: "xikomu couldn't use that URL. Include http:// or https://",
+        // Confirming the email (the code screen). The backend sends its own wording first.
+        email_unconfirmed: "Confirm your email first: type the 6-digit code we sent you.",
+        code_invalid: "Type the 6 digits from the email.",
+        code_wrong: "That code isn't right.",
+        code_used_up: "That code isn't right, and it was the last try. Ask for a new code.",
+        code_expired: "That code has expired. Ask for a new one.",
+        code_cooldown: "Wait a moment before asking for another code.",
+        code_limit: "That's as many codes as we can send for now. Try again tomorrow.",
+        address_limit: "That's as many different addresses as one account can try in a day.",
+        email_failed: "We couldn't send the code just now. Try again in a few minutes.",
     },
 };

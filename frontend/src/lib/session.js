@@ -1,5 +1,6 @@
 // Where the sign-in token lives between visits. Nothing else touches localStorage
-// for auth. Shape: { access: "<jwt>", isGuest: true | false }
+// for auth. Shape: { access: "<jwt>", isGuest: true | false, confirmed: true | false }
+// (confirmed: the account's email is confirmed; older sessions don't have it, see SessionContext).
 //
 // Storage can be unavailable (private mode, blocked site data), so every access is
 // wrapped: the app still works for the visit, it just won't remember the session.

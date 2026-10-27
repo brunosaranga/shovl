@@ -54,7 +54,8 @@ export function useScanLauncher() {
         };
 
         if (!isPracticeTarget(target)) {
-            if (status === "registered") {
+            // An unconfirmed account goes to the code screen first (AccessGate), then on here.
+            if (status === "registered" || status === "unconfirmed") {
                 navigate("/verify", { state: pendingScan });
             } else {
                 navigate("/signin", { state: { mode: "register", notice: "registerForOwnDomain", pendingScan } });

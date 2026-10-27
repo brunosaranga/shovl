@@ -16,7 +16,8 @@ import styles from "./Navbar.module.css";
 //               "faq" (desktop has the "?" button in the corner instead)
 //   nobody:     "sign in"
 //   guest:      "save your scans" (register) and "sign in" (both keep their scans)
-//   registered: "log out"
+//   registered: "log out"; so does an unconfirmed account, which sees no pages here (they all
+//               lead to the code screen until it's confirmed) and no bell
 // Nobody signed in on desktop: no menu, the avatar goes straight to /signin.
 // On mobile they get the menu too, or the FAQ would be out of reach.
 // Guests get no "log out": dropping a guest token would lose their scans.

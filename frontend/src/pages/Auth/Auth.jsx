@@ -28,8 +28,10 @@ export default function Auth() {
     const state = location.state || {};
     const [mode, setMode] = useState(state.mode === "register" ? "register" : "signin");
 
-    // Registered (already, or just now after the form succeeded): move on.
-    if (status === "registered") {
+    // Signed in (already, or just now after the form succeeded): move on. An account whose
+    // email isn't confirmed yet is sent on to the code screen by the page it lands on
+    // (AccessGate), which then brings it back to this destination.
+    if (status === "registered" || status === "unconfirmed") {
         const next = destination(state);
         return <Navigate to={next.to} state={next.state} replace />;
     }

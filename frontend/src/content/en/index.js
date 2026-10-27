@@ -3,6 +3,7 @@ import { nav } from "./nav";
 import { landing } from "./landing";
 import { auth } from "./auth";
 import { verify } from "./verify";
+import { confirm } from "./confirm";
 import { scan } from "./scan";
 import { report } from "./report";
 import { dashboard } from "./dashboard";
@@ -20,6 +21,7 @@ export const en = {
     landing,
     auth,
     verify,
+    confirm,
     scan,
     report,
     dashboard,

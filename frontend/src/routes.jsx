@@ -4,6 +4,7 @@ import AccessGate from "./components/layout/AccessGate/AccessGate";
 import Landing from "./pages/Landing/Landing";
 import Auth from "./pages/Auth/Auth";
 import Verify from "./pages/Verify/Verify";
+import ConfirmEmail from "./pages/ConfirmEmail/ConfirmEmail";
 import ScanRunning from "./pages/ScanRunning/ScanRunning";
 import Report from "./pages/Report/Report";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -18,6 +19,8 @@ import Legal from "./pages/Legal/Legal";
 //   public      → anyone
 //   session     → a guest or a registered account (guests can scan practice targets)
 //   registered  → registered accounts only (guests are sent to register)
+//   unconfirmed → only an account whose email isn't confirmed yet: the code screen. Such an
+//                 account is sent there from every page that isn't public (AccessGate).
 // menuKey: shows the page in the account menu; the label lives in content/en/nav.js.
 // ambiance: false keeps the ambiance loop off on that page (lib/sound.js); every other
 //   page, the 404 included, plays it.
@@ -30,6 +33,7 @@ import Legal from "./pages/Legal/Legal";
 export const pageRoutes = [
     { path: "/", element: <Landing />, access: "public" },
     { path: "/signin", element: <Auth />, access: "public" },
+    { path: "/confirm-email", element: <ConfirmEmail />, access: "unconfirmed", content: "over-ground" },
     { path: "/verify", element: <Verify />, access: "registered", ambiance: false, content: "over-ground" },
     { path: "/scan/running", element: <ScanRunning />, access: "session", ambiance: false, ground: "still" },
     { path: "/scan/:scanId/report", element: <Report />, access: "session", content: "over-ground" },
@@ -45,9 +49,10 @@ export const pageRoutes = [
 export const menuRoutes = pageRoutes.filter((route) => route.menuKey);
 
 const ALLOWED = {
-    public: ["anonymous", "guest", "registered"],
+    public: ["anonymous", "guest", "unconfirmed", "registered"],
     session: ["guest", "registered"],
     registered: ["registered"],
+    unconfirmed: ["unconfirmed"],
 };
 
 /** Can someone with this session status open a route with this access level? */

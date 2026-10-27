@@ -1,0 +1,72 @@
+.status {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    color: var(--text);
+    opacity: 0.8;
+}
+
+.intro {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.title {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    color: var(--text);
+    margin: 0 0 4px 0;
+    line-height: 1.1;
+}
+
+.lead {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text);
+}
+
+.badge {
+    color: var(--accent);
+    background: var(--terminal);
+    padding: 2px 8px;
+    overflow-wrap: anywhere;
+    /* A long address wraps on phones: each line keeps its own padding. */
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+}
+
+.note {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-muted);
+    border-left: 4px solid var(--accent);
+    padding-left: 10px;
+}
+
+.links {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.help {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text);
+}
+
+@media (max-width: 768px) {
+    .title {
+        font-size: 34px;
+        letter-spacing: -1px;
+    }
+
+    .lead {
+        font-size: 13px;
+    }
+}
