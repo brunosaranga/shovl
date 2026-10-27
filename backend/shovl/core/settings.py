@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     "scans", # Phase 3
     "watch", # murindzi: scheduled scans
     "notifications", # the bell
+    "mailer", # email: everything xikomu sends goes through mailer/services.py
     "corsheaders",
     "rest_framework",
 ]
@@ -309,6 +310,35 @@ if SHOVL_WATCH_FREE_CADENCE_DAYS < 1:
     raise ImproperlyConfigured("WATCH_FREE_CADENCE_DAYS must be at least 1.")
 
 
+# Email (mailer/). Sent through Brevo's HTTPS API with django-anymail: Render's free plan blocks
+# the SMTP ports. With BREVO_API_KEY set, email is really sent (also on your own machine, which
+# is how `python manage.py send_test_email you@example.com` checks a new key). Without it,
+# development prints emails in the terminal and production sends nothing (check --deploy then
+# stops the deploy: mailer/checks.py).
+BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
+if BREVO_API_KEY:
+    EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+    ANYMAIL = {"BREVO_API_KEY": BREVO_API_KEY}
+elif DEBUG:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.dummy.EmailBackend"
+MAILER_ENABLED = bool(BREVO_API_KEY) or DEBUG
+# Who emails come from, and where replies go. The sender's domain must be the one
+# authenticated in Brevo (xikomu.com).
+DEFAULT_FROM_EMAIL = os.getenv("EMAIL_FROM", "xikomu <hello@xikomu.com>")
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+EMAIL_REPLY_TO = os.getenv("EMAIL_REPLY_TO", "support@xikomu.com")
+# At most this many emails sent in any 24 hours, all kinds together (mailer/services.py).
+# Brevo's free plan allows 300 a day, and replies sent from Gmail through Brevo count too.
+try:
+    EMAIL_DAILY_CAP = int(os.getenv("EMAIL_DAILY_CAP", "250"))
+except ValueError:
+    raise ImproperlyConfigured("EMAIL_DAILY_CAP must be a whole number.")
+if EMAIL_DAILY_CAP < 0:
+    raise ImproperlyConfigured("EMAIL_DAILY_CAP can't be negative (0 stops all email).")
+
+
 # Production behind the host's HTTPS proxy.
 if not DEBUG:
     # The host terminates HTTPS and says so in this header.
@@ -324,8 +354,8 @@ if not DEBUG:
     SILENCED_SYSTEM_CHECKS = ["security.W005", "security.W021"]
 
 
-# Errors go to the host's log stream (with DEBUG off Django would otherwise only email
-# them, and no email is set up).
+# Errors go to the host's log stream (with DEBUG off Django would otherwise email them to
+# ADMINS, which isn't set: nobody gets error emails).
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -339,5 +369,6 @@ LOGGING = {
     "loggers": {
         "django.request": {"handlers": ["console"], "level": "ERROR", "propagate": False},
         "accounts": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "mailer": {"handlers": ["console"], "level": "INFO", "propagate": False},
     },
 }

@@ -1,0 +1,5 @@
+{% extends "mailer/base.txt" %}{% block content %}sending works
+
+This is a test email from {{ brand }}. If you can read it, email is set up: {{ brand }} can send verification codes, murindzi alerts and password resets.{% if site_url %}
+
+Open {{ brand }}: {{ site_url }}{% endif %}{% endblock %}{% block reason %}You're getting this because someone ran {{ brand }}'s email test with this address.{% endblock %}

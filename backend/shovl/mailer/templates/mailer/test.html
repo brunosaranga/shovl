@@ -1,0 +1,19 @@
+{% extends "mailer/base.html" %}
+
+{% block preheader %}If you can read this, xikomu can send email.{% endblock %}
+
+{% block content %}
+<h1 style="margin:0 0 12px 0;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:22px;line-height:1.25;color:#0e0018;">sending works</h1>
+<p style="margin:0 0 20px 0;">This is a test email from {{ brand }}. If you can read it, email is set up: {{ brand }} can send verification codes, murindzi alerts and password resets.</p>
+{% if site_url %}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td style="background:#4aff00;border:2px solid #0e0018;">
+<a href="{{ site_url }}" style="display:inline-block;padding:10px 18px;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:15px;color:#0e0018;text-decoration:none;">open {{ brand }}</a>
+</td>
+</tr>
+</table>
+{% endif %}
+{% endblock %}
+
+{% block reason %}<p style="margin:0;">You're getting this because someone ran {{ brand }}'s email test with this address.</p>{% endblock %}

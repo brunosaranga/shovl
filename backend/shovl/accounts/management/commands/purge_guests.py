@@ -6,12 +6,16 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
 
+from mailer.models import SentEmail
 from scans.limits import IN_PROGRESS, STALE_AFTER
 from scans.models import Scan
 
 User = get_user_model()
 
 BATCH_SIZE = 500
+
+# The record of emails sent (mailer/models.py, SentEmail) is kept this long, then deleted here.
+EMAIL_LOG_DAYS = 90
 
 
 # PDFs live here (see scans/views.py). Nothing outside this folder is ever deleted.
@@ -20,7 +24,7 @@ REPORTS_DIR = Path('reports')
 
 class Command(BaseCommand):
     help = (
-        'Delete guest accounts older than --days (default 30), with their scans and PDF files. Registered users are never touched. Run it daily.'
+        'Delete guest accounts older than --days (default 30), with their scans and PDF files, and email log entries older than 90 days. Registered users are never touched. Run it daily.'
     )
 
     def add_arguments(self, parser):
@@ -70,9 +74,16 @@ class Command(BaseCommand):
                         except OSError as exc:
                             self.stderr.write(f'Could not remove {pdf}: {exc}')
 
+        old_emails = SentEmail.objects.filter(created_at__lt=now - timedelta(days=EMAIL_LOG_DAYS))
+        if dry_run:
+            email_count = old_emails.count()
+        else:
+            email_count, _ = old_emails.delete()
+
         verb = 'Would delete' if dry_run else 'Deleted'
         self.stdout.write(f'Cutoff: guests created before {cutoff:%Y-%m-%d %H:%M} UTC')
         self.stdout.write(f'{verb} {guest_count} guests, {scan_count} scans, {pdf_count} PDF files')
+        self.stdout.write(f'{verb} {email_count} email log entries older than {EMAIL_LOG_DAYS} days')
 
 
 

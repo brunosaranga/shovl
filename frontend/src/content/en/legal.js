@@ -18,7 +18,7 @@ export const operator = {
     description: "an individual based in Maputo, Mozambique",
 };
 
-const UPDATED = "last updated: 26 October 2026";
+const UPDATED = "last updated: 27 October 2026";
 
 export const legal = {
     operator,
@@ -197,7 +197,7 @@ export const legal = {
                         "Neon hosts the database, in Frankfurt, Germany.",
                         "GitHub runs the daily job that deletes expired guest sessions.",
                         "Cloudflare forwards the emails you send to our xikomu.com addresses, like {email}, to Gmail (Google), where they're read and answered.",
-                        "Brevo, in France, delivers the replies we write in Gmail, so they come from our xikomu.com address.",
+                        "Brevo, in France, delivers the emails we send from our xikomu.com addresses. It counts how many are opened and which links are clicked, without recording who opened or clicked them.",
                         "Paddle, once Pro is on sale, handles payments as the merchant of record. Paddle collects your payment details itself; we receive your name, email, country and subscription status, never your card number.",
                     ],
                     "When you run a scan, our servers send the requests to the address you chose, so the scanned API sees our servers, not you.",

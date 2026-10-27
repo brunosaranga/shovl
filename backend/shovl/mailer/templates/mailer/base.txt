@@ -1,0 +1,11 @@
+{% autoescape off %}{% comment %}
+    The plain-text part of every xikomu email (no HTML escaping: this is not HTML). Kinds fill
+    in "content" and "reason". Only values xikomu controls go in here, never text a visitor typed.
+{% endcomment %}{% block content %}{% endblock %}
+
+--
+{% block reason %}{% endblock %}
+{{ brand }} · break your API before someone else does{% if site_url %}
+{{ site_url }}{% endif %}{% if support_email %}
+Questions? Reply to this email or write to {{ support_email }}.{% endif %}
+{% endautoescape %}
