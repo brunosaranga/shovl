@@ -218,17 +218,23 @@ def check_code(user, raw):
         if not usable(row, user, now):
             return Outcome(EXPIRED)
 
-        if constant_time_compare(row.code_hash, code_hash(user, code)):
-            User.objects.filter(pk=user.pk).update(email_confirmed_at=now, confirm_by=None)
-            user.email_confirmed_at = now
-            user.confirm_by = None
-            EmailCode.objects.filter(user=user, purpose=EmailCode.PURPOSE_CONFIRM).delete()
-            return Outcome(CONFIRMED)
+        if not constant_time_compare(row.code_hash, code_hash(user, code)):
+            row.attempts += 1
+            row.save(update_fields=["attempts"])
+            left = MAX_ATTEMPTS - row.attempts
+            return Outcome(WRONG, attempts_left=left) if left else Outcome(USED_UP)
 
-        row.attempts += 1
-        row.save(update_fields=["attempts"])
-        left = MAX_ATTEMPTS - row.attempts
-        return Outcome(WRONG, attempts_left=left) if left else Outcome(USED_UP)
+        User.objects.filter(pk=user.pk).update(email_confirmed_at=now, confirm_by=None)
+        user.email_confirmed_at = now
+        user.confirm_by = None
+        EmailCode.objects.filter(user=user, purpose=EmailCode.PURPOSE_CONFIRM).delete()
+
+    # The box ticked at sign-up now counts (waitlist/). Outside the transaction, and it never
+    # raises, so the launch list can't hold up confirming.
+    from waitlist.services import account_confirmed
+
+    account_confirmed(user)
+    return Outcome(CONFIRMED)
 
 
 def address_allowed(user, new_email, now=None):

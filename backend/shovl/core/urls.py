@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/scans/', include("scans.urls")),
     path('api/watches/', include("watch.urls")),
     path('api/notifications/', include("notifications.urls")),
+    path('api/waitlist/', include("waitlist.urls")),
 ]

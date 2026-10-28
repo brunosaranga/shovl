@@ -183,4 +183,9 @@ def reset_password(email, raw_code, new_password):
             fields += ["email_confirmed_at", "confirm_by"]
         user.save(update_fields=fields)
         EmailCode.objects.filter(user=user).delete()
+
+    # A reset proves the address too: a box ticked at sign-up now counts (waitlist/).
+    from waitlist.services import account_confirmed
+
+    account_confirmed(user)
     return Outcome(DONE, user=user)

@@ -1,4 +1,5 @@
 # from django.shortcuts import render
+import logging
 from datetime import timedelta
 
 from django.conf import settings
@@ -38,6 +39,7 @@ from .tokens import issue_tokens
 
 
 User = get_user_model()
+logger = logging.getLogger("accounts")
 
 # Guests only get an access token (the frontend doesn't store a refresh token), so it has to last long enough for them to come back to their dashboard
 GUEST_TOKEN_LIKETIME = timedelta(days=30)
@@ -46,6 +48,20 @@ GUEST_TOKEN_LIKETIME = timedelta(days=30)
 
 
 # Create your views here.
+
+def join_waitlist(user):
+    """
+    The box ticked at sign-up: a pending entry on the launch list, confirmed by the account's
+    own code (waitlist.services.account_confirmed). Never stops the sign-up.
+    """
+    from waitlist.models import WaitlistEntry
+    from waitlist.services import join
+
+    try:
+        join(user.email, None, WaitlistEntry.SOURCE_REGISTRATION, account=user)
+    except Exception:
+        logger.exception("Couldn't add account %s to the launch list", user.pk)
+
 
 class LoginView(TokenObtainPairView):
     # Same email + password sign-in as before. It also accepts an optional `guest_token` in the body and moves that guest's scans onto the account.
@@ -67,6 +83,8 @@ class RegisterView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save()
+        if serializer.validated_data.get("waitlist"):
+            join_waitlist(user)
         confirmation.start(user)
 
 
@@ -152,6 +170,8 @@ class UpgradeView(APIView):
             serializer.is_valid(raise_exception=True)
             serializer.upgrade(user)
 
+        if serializer.validated_data.get("waitlist"):
+            join_waitlist(user)
         # After the transaction, so the row lock isn't held while the email goes out.
         confirmation.start(user)
 

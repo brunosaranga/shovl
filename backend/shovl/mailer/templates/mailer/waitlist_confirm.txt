@@ -1,0 +1,8 @@
+{% extends "mailer/base.txt" %}{% block content %}one email when {{ brand }} launches?
+
+Someone, hopefully you, asked to hear when {{ brand }} officially launches. Confirm and you'll get one email that day. Nothing else, and you can remove yourself any time.{% if confirm_url %}
+
+Confirm: {{ confirm_url }}{% endif %}
+
+The link works for {{ hours }} hours.{% endblock %}{% block reason %}You're getting this because this address was typed into {{ brand }}'s launch list form. If that wasn't you, ignore this email: nothing is sent unless the button is pressed, and the request is deleted in 7 days.{% if leave_url %}
+Delete it now: {{ leave_url }}{% endif %}{% endblock %}

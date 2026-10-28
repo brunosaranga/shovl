@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from accounts.models import EmailCode
 from mailer.models import SentEmail
+from waitlist.services import expired as waitlist_expired
 from scans.limits import IN_PROGRESS, STALE_AFTER
 from scans.models import Scan
 
@@ -30,7 +31,8 @@ class Command(BaseCommand):
     help = (
         'Delete guest accounts older than --days (default 30), and accounts that signed up but '
         'never confirmed their email by their deadline (7 days), with their scans and PDF files; '
-        'also email log entries older than 90 days and expired email codes. Confirmed accounts, '
+        'also email log entries older than 90 days, expired email codes, launch list requests '
+        'never confirmed within 7 days and the launch list a month after its email. Confirmed accounts, '
         'staff, and accounts from before email confirmation existed are never touched. Run it daily.'
     )
 
@@ -54,12 +56,17 @@ class Command(BaseCommand):
 
         old_emails = SentEmail.objects.filter(created_at__lt=now - timedelta(days=EMAIL_LOG_DAYS))
         old_codes = EmailCode.objects.filter(expires_at__lt=now - timedelta(days=EMAIL_CODE_DAYS))
+        list_pending, list_launched = waitlist_expired(now)
         if dry_run:
             email_count = old_emails.count()
             code_count = old_codes.count()
+            pending_count = list_pending.count()
+            launched_count = list_launched.count()
         else:
             email_count, _ = old_emails.delete()
             code_count, _ = old_codes.delete()
+            pending_count, _ = list_pending.delete()
+            launched_count, _ = list_launched.delete()
 
         self.stdout.write(f'Cutoff: guests created before {cutoff:%Y-%m-%d %H:%M} UTC')
         self.stdout.write(f'{verb} {guests[0]} guests, {guests[1]} scans, {guests[2]} PDF files')
@@ -69,6 +76,10 @@ class Command(BaseCommand):
         )
         self.stdout.write(f'{verb} {email_count} email log entries older than {EMAIL_LOG_DAYS} days')
         self.stdout.write(f'{verb} {code_count} expired email codes')
+        self.stdout.write(
+            f'{verb} {pending_count} unconfirmed launch list requests older than 7 days, '
+            f'{launched_count} entries emailed at launch over 30 days ago'
+        )
 
     def purge(self, eligible, dry_run):
         """

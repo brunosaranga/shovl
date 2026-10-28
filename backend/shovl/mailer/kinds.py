@@ -8,7 +8,7 @@ the text part for clients that don't show HTML). A subject is fixed text, or fil
 with a value the server made itself (the {code} it generated, a headline it wrote from the
 recipient's own watched APIs): never text someone else typed.
 
-Kinds still to come: waitlist_confirm and launch (the launch waitlist).
+The launch list (waitlist/) has two: waitlist_confirm and launch.
 """
 from dataclasses import dataclass
 from datetime import timedelta
@@ -55,6 +55,23 @@ KINDS = {
             template="password_reset",
             per_address=5,
             window=timedelta(hours=24),
+        ),
+        # The launch list's double opt-in (waitlist/services.py). Nothing anyone typed is in it.
+        # One a day to one address (the list itself also stops at 3 in total).
+        Kind(
+            name="waitlist_confirm",
+            subject="xikomu: confirm you want the launch email",
+            template="waitlist_confirm",
+            per_address=1,
+            window=timedelta(hours=24),
+        ),
+        # The launch email itself, once per confirmed address (send_launch_email).
+        Kind(
+            name="launch",
+            subject="xikomu has launched",
+            template="launch",
+            per_address=1,
+            window=timedelta(days=365),
         ),
         # murindzi's alerts: one email per account per runner pass, listing every watched API
         # that got worse or was paused in it (notifications/emails.py). The runner passes

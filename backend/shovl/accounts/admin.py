@@ -79,4 +79,8 @@ class UserAdmin(admin.ModelAdmin):
             email_confirmed_at=timezone.now(), confirm_by=None
         )
         EmailCode.objects.filter(user__in=ids, purpose=EmailCode.PURPOSE_CONFIRM).delete()
+        from waitlist.services import account_confirmed
+
+        for user in User.objects.filter(pk__in=ids):
+            account_confirmed(user)
         self.message_user(request, f"{updated} account(s) marked as confirmed.", messages.SUCCESS)

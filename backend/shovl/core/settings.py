@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     "watch", # murindzi: scheduled scans
     "notifications", # the bell
     "mailer", # email: everything xikomu sends goes through mailer/services.py
+    "waitlist", # the launch list (double opt-in)
     "corsheaders",
     "rest_framework",
 ]

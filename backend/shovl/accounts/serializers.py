@@ -39,10 +39,12 @@ class RegisterSerializer(serializers.ModelSerializer):
     # (case-insensitive) replaces DRF's automatic one (exact match only).
     email = serializers.EmailField(max_length=254)
     password = serializers.CharField(write_only=True, max_length=PASSWORD_MAX_LENGTH)
+    # The unticked "email me once when xikomu launches" box (waitlist/). Never stored on the account.
+    waitlist = serializers.BooleanField(required=False, default=False, write_only=True)
 
     class Meta:
         model = User
-        fields = ["email", "password", "tos_agreed"]
+        fields = ["email", "password", "tos_agreed", "waitlist"]
 
     def validate_email(self, value):
         value = User.objects.normalize_email(value)
@@ -88,6 +90,8 @@ class UpgradeSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, max_length=PASSWORD_MAX_LENGTH)
     tos_agreed = serializers.BooleanField()
+    # The unticked "email me once when xikomu launches" box (waitlist/).
+    waitlist = serializers.BooleanField(required=False, default=False)
 
     def validate_tos_agreed(self, value):
         if not value:

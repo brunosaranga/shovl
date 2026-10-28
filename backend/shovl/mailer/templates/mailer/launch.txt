@@ -1,0 +1,8 @@
+{% extends "mailer/base.txt" %}{% comment %}DRAFT: write the launch announcement below, then delete this line. send_launch_email refuses to send while it's here.{% endcomment %}{% block content %}{% if first_name %}{{ first_name }}, {% endif %}{{ brand }} has launched
+
+You asked to hear when {{ brand }} officially launched. Today's the day.
+
+[What's new, what it costs, and anything else for launch day goes here.]{% if site_url %}
+
+Open {{ brand }}: {{ site_url }}{% endif %}{% endblock %}{% block reason %}You're getting this because you asked for one email when {{ brand }} launched. This is it: the list is deleted in a month, and nothing else is sent from it.{% if leave_url %}
+Remove me now: {{ leave_url }}{% endif %}{% endblock %}

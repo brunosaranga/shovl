@@ -1,0 +1,20 @@
+{% extends "mailer/base.html" %}
+
+{% block preheader %}Confirm you want one email when {{ brand }} launches. If it wasn't you, ignore this.{% endblock %}
+
+{% block content %}
+<h1 style="margin:0 0 12px 0;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:22px;line-height:1.25;color:#0e0018;">one email when {{ brand }} launches?</h1>
+<p style="margin:0 0 16px 0;">Someone, hopefully you, asked to hear when {{ brand }} officially launches. Confirm and you'll get one email that day. Nothing else, and you can remove yourself any time.</p>
+{% if confirm_url %}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px 0;">
+<tr>
+<td style="background:#4aff00;border:2px solid #0e0018;">
+<a href="{{ confirm_url }}" style="display:inline-block;padding:10px 18px;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:15px;color:#0e0018;text-decoration:none;">confirm</a>
+</td>
+</tr>
+</table>
+{% endif %}
+<p style="margin:0;">The link works for {{ hours }} hours.</p>
+{% endblock %}
+
+{% block reason %}<p style="margin:0;">You're getting this because this address was typed into {{ brand }}'s launch list form. If that wasn't you, ignore this email: nothing is sent unless the button is pressed, and the request is deleted in 7 days.{% if leave_url %} <a href="{{ leave_url }}" style="color:#0e0018;">Delete it now</a>.{% endif %}</p>{% endblock %}

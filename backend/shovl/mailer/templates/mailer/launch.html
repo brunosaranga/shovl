@@ -1,0 +1,21 @@
+{% extends "mailer/base.html" %}
+{% comment %}DRAFT: write the launch announcement below, then delete this line. send_launch_email refuses to send while it's here.{% endcomment %}
+
+{% block preheader %}{{ brand }} is out of beta.{% endblock %}
+
+{% block content %}
+<h1 style="margin:0 0 12px 0;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:22px;line-height:1.25;color:#0e0018;">{% if first_name %}{{ first_name }}, {% endif %}{{ brand }} has launched</h1>
+<p style="margin:0 0 16px 0;">You asked to hear when {{ brand }} officially launched. Today's the day.</p>
+<p style="margin:0 0 20px 0;">[What's new, what it costs, and anything else for launch day goes here.]</p>
+{% if site_url %}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td style="background:#4aff00;border:2px solid #0e0018;">
+<a href="{{ site_url }}" style="display:inline-block;padding:10px 18px;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:15px;color:#0e0018;text-decoration:none;">open {{ brand }}</a>
+</td>
+</tr>
+</table>
+{% endif %}
+{% endblock %}
+
+{% block reason %}<p style="margin:0;">You're getting this because you asked for one email when {{ brand }} launched. This is it: the list is deleted in a month, and nothing else is sent from it.{% if leave_url %} <a href="{{ leave_url }}" style="color:#0e0018;">Remove me now</a>.{% endif %}</p>{% endblock %}
