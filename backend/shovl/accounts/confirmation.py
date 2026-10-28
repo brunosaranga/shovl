@@ -74,10 +74,13 @@ def new_code():
     return f"{secrets.randbelow(10 ** CODE_DIGITS):0{CODE_DIGITS}d}"
 
 
-def code_hash(user, code):
-    return salted_hmac(
-        "accounts.EmailCode.code_hash", f"{user.pk}:{code}", algorithm="sha256"
-    ).hexdigest()
+def code_hash(user, code, purpose=EmailCode.PURPOSE_CONFIRM):
+    """
+    A keyed hash of one account's code. The purpose is part of what's hashed (confirmation
+    codes keep their original form), so a code can only ever match a row of its own purpose.
+    """
+    value = f"{user.pk}:{code}" if purpose == EmailCode.PURPOSE_CONFIRM else f"{user.pk}:{purpose}:{code}"
+    return salted_hmac("accounts.EmailCode.code_hash", value, algorithm="sha256").hexdigest()
 
 
 def clean_code(raw):

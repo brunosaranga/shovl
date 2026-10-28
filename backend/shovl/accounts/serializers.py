@@ -189,3 +189,25 @@ class ChangeEmailSerializer(serializers.Serializer):
         if User.objects.filter(email__iexact=value).exclude(pk=user.pk).exists():
             raise serializers.ValidationError(EMAIL_IN_USE_MESSAGE)
         return value
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=254)
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    """
+    The second step of a reset: the address, the code from the email and the new password.
+    The password's strength is checked first, so a weak password never uses up a try of the
+    code. `guest_token`, as on sign-in, moves a guest's scans to the account once it's in.
+    """
+    email = serializers.EmailField(max_length=254)
+    code = serializers.CharField(max_length=20, allow_blank=True)
+    password = serializers.CharField(write_only=True, max_length=PASSWORD_MAX_LENGTH)
+    guest_token = serializers.CharField(required=False, allow_blank=True)
+
+    def validate(self, attrs):
+        attrs["email"] = User.objects.normalize_email(attrs["email"])
+        check_password_strength(attrs["password"], attrs["email"])
+        return attrs
+

@@ -8,8 +8,7 @@ the text part for clients that don't show HTML). A subject is fixed text, or fil
 with a value the server made itself (the {code} it generated, a headline it wrote from the
 recipient's own watched APIs): never text someone else typed.
 
-Kinds still to come, each with its own step: password_reset, waitlist_confirm and launch
-(the launch waitlist).
+Kinds still to come: waitlist_confirm and launch (the launch waitlist).
 """
 from dataclasses import dataclass
 from datetime import timedelta
@@ -45,6 +44,15 @@ KINDS = {
             name="verify_code",
             subject="xikomu: your code is {code}",
             template="verify_code",
+            per_address=5,
+            window=timedelta(hours=24),
+        ),
+        # A forgotten password (accounts/reset.py). Unlike the confirmation code, the code is
+        # NOT in the subject: subjects show on lock screens, and this one changes a password.
+        Kind(
+            name="password_reset",
+            subject="xikomu: reset your password",
+            template="password_reset",
             per_address=5,
             window=timedelta(hours=24),
         ),

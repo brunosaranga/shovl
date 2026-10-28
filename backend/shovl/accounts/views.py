@@ -15,17 +15,25 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from scans.limits import scans_remaining
 
-from . import confirmation
+from . import confirmation, reset
 from .permissions import REGISTRATION_REQUIRED_MESSAGE, IsRegisteredUser
 from .plans import effective_plan
 from .serializers import (
     ChangeEmailSerializer,
     EMAIL_IN_USE_MESSAGE,
     LoginSerializer,
+    PasswordResetRequestSerializer,
+    PasswordResetSerializer,
     RegisterSerializer,
     UpgradeSerializer,
 )
-from .throttles import AccountCreationThrottle, GuestCreationThrottle
+from .throttles import (
+    AccountCreationThrottle,
+    GuestCreationThrottle,
+    PasswordResetConfirmThrottle,
+    PasswordResetThrottle,
+)
+from .transfer import transfer_guest_scans
 from .tokens import issue_tokens
 
 
@@ -355,3 +363,88 @@ class EmailChangeView(ConfirmationView):
         body['code_sent'] = problem is None
         body['send_problem'] = problem[1] if problem else None
         return Response(body)
+
+
+# ---------- forgotten password (accounts/reset.py) ----------
+
+RESET_SENT = "If an account uses this address, we've emailed it a code. It works for 15 minutes."
+
+
+class PasswordResetRequestView(APIView):
+    """
+    POST /api/accounts/password/reset/   {"email": "..."}   (signed out)
+
+    Emails a reset code. 200 {"detail", "resend_in"} whether or not the address has an
+    account; 429 code_cooldown (with retry_after) or code_limit, 503 email_failed. Those three
+    can only happen to a real account (see the note in accounts/reset.py).
+    """
+    permission_classes = [permissions.AllowAny]
+    # A stale sign-in token in the header must never get in the way.
+    authentication_classes = []
+    throttle_classes = [PasswordResetThrottle]
+
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        outcome = reset.request_code(serializer.validated_data["email"])
+        if outcome.status in (reset.SENT, reset.NO_ACCOUNT):
+            seconds = int(reset.RESEND_AFTER.total_seconds())
+            return Response({"detail": RESET_SENT, "resend_in": seconds})
+        if outcome.status == reset.COOLDOWN:
+            problem = send_problem(confirmation.Outcome(confirmation.COOLDOWN, retry_after=outcome.retry_after))
+        elif outcome.status == reset.LIMITED:
+            problem = send_problem(confirmation.Outcome(confirmation.LIMITED))
+        else:
+            problem = send_problem(confirmation.Outcome(confirmation.FAILED))
+        return Response(problem[1], status=problem[0])
+
+
+class PasswordResetView(APIView):
+    """
+    POST /api/accounts/password/reset/confirm/
+         {"email", "code", "password", "guest_token"?}   (signed out)
+
+    Sets the new password if the code is right, signs out every other session, and signs this
+    one in: 200 {"access", "refresh", "is_guest": false, "email_confirmed": true}. Otherwise
+    400 {"password": [...]} (too weak; the code isn't tried), or a code problem: code_invalid,
+    code_wrong (with attempts_left), code_used_up or code_expired. An address without an
+    account answers code_expired.
+    """
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+    throttle_classes = [PasswordResetConfirmThrottle]
+
+    def post(self, request):
+        serializer = PasswordResetSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        outcome = reset.reset_password(data["email"], data["code"], data["password"])
+
+        if outcome.status == reset.DONE:
+            user = outcome.user
+            # Only now that the code proved who this is, like a correct password on sign-in.
+            transfer_guest_scans(data.get("guest_token"), user)
+            access, refresh = issue_tokens(user)
+            return Response({"access": access, "refresh": refresh, "is_guest": False, "email_confirmed": True})
+
+        if outcome.status == reset.INVALID:
+            body = {"detail": "Type the 6 digits from the email.", "code": "code_invalid"}
+        elif outcome.status == reset.WRONG:
+            left = outcome.attempts_left
+            body = {
+                "detail": f"That code isn't right. {left} {'try' if left == 1 else 'tries'} left.",
+                "code": "code_wrong",
+                "attempts_left": left,
+            }
+        elif outcome.status == reset.USED_UP:
+            body = {
+                "detail": "That code isn't right, and it was the last try. Ask for a new code.",
+                "code": "code_used_up",
+            }
+        else:
+            body = {
+                "detail": "That code has expired, or it isn't for this address. Ask for a new one.",
+                "code": "code_expired",
+            }
+        return Response(body, status=status.HTTP_400_BAD_REQUEST)
+

@@ -145,16 +145,18 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class EmailCode(models.Model):
     """
-    A 6-digit code emailed to an account (accounts/confirmation.py). Only the newest code of a
-    purpose works, and only for the address it was sent to. Stored as a keyed hash, never the
-    digits. Deleted when it's used, replaced, or by the daily cleanup once expired.
-
-    Password reset (a later step) will add its own purpose here.
+    A 6-digit code emailed to an account: confirming its address (accounts/confirmation.py) or
+    resetting its password (accounts/reset.py). Only the newest code of a purpose works, and
+    only for the address it was sent to; a code of one purpose never works for the other.
+    Stored as a keyed hash, never the digits. Deleted when it's used, replaced, or by the daily
+    cleanup once expired.
     """
 
     PURPOSE_CONFIRM = "confirm"
+    PURPOSE_RESET = "reset"
     PURPOSE_CHOICES = [
         (PURPOSE_CONFIRM, "confirm email"),
+        (PURPOSE_RESET, "reset password"),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="email_codes")

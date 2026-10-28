@@ -43,3 +43,24 @@ class AccountCreationThrottle(GuestCreationThrottle):
 
     scope = 'account_creation'
     rate = '20/hour'            # per address, rolling window; generous for shared networks
+
+
+class PasswordResetThrottle(GuestCreationThrottle):
+    """
+    Limits how many reset codes one network address can ask for, whatever the addresses: the
+    form works signed out, so without this a script could use it to send xikomu's email to
+    strangers. Each address and account has its own limits too (accounts/reset.py).
+    """
+
+    scope = 'password_reset'
+    rate = '10/hour'
+
+
+class PasswordResetConfirmThrottle(GuestCreationThrottle):
+    """
+    Limits how many reset attempts (code + new password) one network address can make. Each
+    code also stops working after 5 wrong tries (accounts/reset.py).
+    """
+
+    scope = 'password_reset_confirm'
+    rate = '30/hour'

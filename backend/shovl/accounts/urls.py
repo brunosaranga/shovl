@@ -7,6 +7,8 @@ from .views import (
     GuestSessionView,
     LoginView,
     MeView,
+    PasswordResetRequestView,
+    PasswordResetView,
     RegisterView,
     UpgradeView,
 )
@@ -22,4 +24,7 @@ urlpatterns = [
     path("email/code/", EmailCodeView.as_view(), name="email_code"),
     path("email/confirm/", EmailConfirmView.as_view(), name="email_confirm"),
     path("email/change/", EmailChangeView.as_view(), name="email_change"),
+    # A forgotten password, with a 6-digit code (accounts/reset.py). Both work signed out.
+    path("password/reset/", PasswordResetRequestView.as_view(), name="password_reset"),
+    path("password/reset/confirm/", PasswordResetView.as_view(), name="password_reset_confirm"),
 ]
