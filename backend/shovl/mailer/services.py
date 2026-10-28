@@ -125,7 +125,10 @@ def base_context():
     }
 
 
-def send_email(kind, to, context=None, user=None):
+def send_email(kind, to, context=None, user=None, headers=None):
+    """
+    headers: extra email headers, for example List-Unsubscribe on murindzi's alerts.
+    """
     kind = KINDS[kind]  # an unknown kind is a programming error, not a delivery problem
     address = normalize(to)
     to_hash = address_hash(address)
@@ -170,6 +173,7 @@ def send_email(kind, to, context=None, user=None):
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[address],
         reply_to=[settings.EMAIL_REPLY_TO] if settings.EMAIL_REPLY_TO else None,
+        headers=headers or None,
     )
     message.attach_alternative(html, "text/html")
     message.tags = [kind.name]  # shown in Brevo's logs; other backends ignore it

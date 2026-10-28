@@ -1,0 +1,30 @@
+{% extends "mailer/base.html" %}
+
+{% block preheader %}{{ headline }}.{% endblock %}
+
+{% block content %}
+<h1 style="margin:0 0 6px 0;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:22px;line-height:1.25;color:#0e0018;">murindzi found something</h1>
+<p style="margin:0 0 20px 0;">{% if items|length == 1 %}One of the APIs you watch needs a look.{% else %}{{ items|length }} things need a look.{% endif %}</p>
+{% for item in items %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px 0;">
+<tr>
+<td style="border:2px solid #0e0018;border-left:8px solid {% if item.kind == 'worse' %}#fd3737{% else %}#fdc500{% endif %};padding:14px 16px;">
+<p style="margin:0 0 4px 0;font-family:'Courier New',Courier,monospace;font-size:15px;font-weight:700;color:#0e0018;word-break:break-all;">{{ item.where }}</p>
+<p style="margin:0 0 6px 0;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:14px;color:#0e0018;">{% if item.kind == 'worse' %}got worse{% elif item.kind == 'domain' %}paused: verification no longer passes{% else %}paused: the last 3 scheduled scans failed{% endif %}</p>
+<p style="margin:0 0 12px 0;font-size:15px;line-height:1.5;">{{ item.summary }}</p>
+{% if item.link %}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td style="background:#4aff00;border:2px solid #0e0018;">
+<a href="{{ item.link }}" style="display:inline-block;padding:8px 14px;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:14px;color:#0e0018;text-decoration:none;">{{ item.action }}</a>
+</td>
+</tr>
+</table>
+{% endif %}
+</td>
+</tr>
+</table>
+{% endfor %}
+{% endblock %}
+
+{% block reason %}<p style="margin:0;">You're getting this because murindzi watches these APIs for your {{ brand }} account.{% if off_url %} <a href="{{ off_url }}" style="color:#0e0018;">Turn these emails off</a>, or change it in {% if settings_url %}<a href="{{ settings_url }}" style="color:#0e0018;">settings</a>{% else %}settings{% endif %}.{% endif %} Muting the bell stops them too.</p>{% endblock %}

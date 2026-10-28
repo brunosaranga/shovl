@@ -94,6 +94,7 @@ class Command(BaseCommand):
         summary = runner.run_pass(budget_seconds=options["budget"])
         for outcome in summary.outcomes:
             self.stdout.write(describe(outcome))
+        self.stdout.write(f"murindzi emails: {summary.emails}")
         self.stdout.write(
             f"run_watches: {summary.due} due, "
             f"{summary.count('complete')} complete "

@@ -30,6 +30,7 @@ from scanner.report import format_report
 from scans.compare import RANK, comparison_for
 from scans.models import ACTIVE_STATUSES, TRIGGER_WATCH, Scan
 
+from notifications.emails import EmailTally, send_watch_emails
 from notifications.services import record_outcome
 
 from . import services
@@ -68,6 +69,8 @@ class PassSummary:
     stale: int = 0
     pulled: int = 0
     outcomes: list = field(default_factory=list)
+    # murindzi's alert emails, sent once the pass is over (notifications/emails.py).
+    emails: EmailTally = field(default_factory=EmailTally)
 
     def count(self, result):
         return sum(1 for o in self.outcomes if o.result == result)
@@ -374,4 +377,7 @@ def run_pass(budget_seconds=BUDGET_SECONDS, clock=time.monotonic,
             record_outcome(outcome)
         except Exception:
             logger.exception("No notification for watch %s", watch.pk)
+
+    # Then the emails: one per account, everything the pass found for it. Never raises.
+    summary.emails = send_watch_emails(summary.outcomes)
     return summary

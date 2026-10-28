@@ -160,7 +160,7 @@ class UpgradeView(APIView):
 
 
 # What PATCH /api/accounts/me/ may change. Everything else (email, plan, staff...) is ignored.
-ACCOUNT_SWITCHES = ('watch_enabled', 'notifications_muted')
+ACCOUNT_SWITCHES = ('watch_enabled', 'notifications_muted', 'email_alerts')
 
 
 def me_data(user):
@@ -177,9 +177,10 @@ def me_data(user):
             'watch_slots': plan.watch_slots,
             'watch_cadence_days': plan.watch_cadence.days,
         },
-        # Settings: murindzi on or off, and the bell's mute.
+        # Settings: murindzi on or off, the bell's mute, and murindzi's emails.
         'watch_enabled': user.watch_enabled,
         'notifications_muted': user.notifications_muted,
+        'email_alerts': user.email_alerts,
         # False until the code is typed (accounts/confirmation.py); always false for guests.
         'email_confirmed': user.email_confirmed_at is not None,
         # What the code screen needs, or null once confirmed (and for guests):
@@ -190,8 +191,9 @@ def me_data(user):
 
 class MeView(APIView):
     """
-    GET   /api/accounts/me/   the account, its allowance, its plan and its two switches.
-    PATCH /api/accounts/me/   {"watch_enabled": bool, "notifications_muted": bool}, either or both.
+    GET   /api/accounts/me/   the account, its allowance, its plan and its three switches.
+    PATCH /api/accounts/me/   {"watch_enabled": bool, "notifications_muted": bool,
+                              "email_alerts": bool}, any of them.
                               Registered accounts only. Returns the same body as GET.
     """
 

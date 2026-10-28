@@ -4,12 +4,12 @@ one address may receive it. mailer/services.py refuses any kind that isn't liste
 nothing can be emailed by accident.
 
 The templates are mailer/templates/mailer/<template>.html and <template>.txt (both are sent:
-the text part for clients that don't show HTML). A subject is fixed text, or names a value
-the server made itself in {braces}, such as the {code} it generated: never anything a visitor
-typed.
+the text part for clients that don't show HTML). A subject is fixed text, or fills {braces}
+with a value the server made itself (the {code} it generated, a headline it wrote from the
+recipient's own watched APIs): never text someone else typed.
 
-Kinds still to come, each with its own step: watch_alert (murindzi), password_reset,
-waitlist_confirm and launch (the launch waitlist).
+Kinds still to come, each with its own step: password_reset, waitlist_confirm and launch
+(the launch waitlist).
 """
 from dataclasses import dataclass
 from datetime import timedelta
@@ -46,6 +46,16 @@ KINDS = {
             subject="xikomu: your code is {code}",
             template="verify_code",
             per_address=5,
+            window=timedelta(hours=24),
+        ),
+        # murindzi's alerts: one email per account per runner pass, listing every watched API
+        # that got worse or was paused in it (notifications/emails.py). The runner passes
+        # hourly, so a bad day could mean many; at most 10 a day to one address.
+        Kind(
+            name="watch_alert",
+            subject="xikomu: {headline}",
+            template="watch_alert",
+            per_address=10,
             window=timedelta(hours=24),
         ),
     ]

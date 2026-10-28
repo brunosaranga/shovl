@@ -99,6 +99,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     # The bell's mute. Scheduled scans still run and alerts still land in the list, but the
     # badge (and, later, email) stays quiet. Items that need action are never muted.
     notifications_muted = models.BooleanField(default=False)
+    # Settings > murindzi: email the alerts too (notifications/emails.py), to a confirmed
+    # address only. The mute above silences them as well; this switch stops only the emails.
+    # The "turn off these emails" link in every alert clears it.
+    email_alerts = models.BooleanField(
+        default=True,
+        help_text="Email murindzi's alerts (when the bell isn't muted).",
+    )
     # Set once, the first time the account gets a watch, when the "murindzi is on"
     # notification goes out. Never cleared, so the announcement never repeats.
     watch_intro_at = models.DateTimeField(null=True, blank=True)

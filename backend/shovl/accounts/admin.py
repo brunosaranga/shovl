@@ -36,6 +36,7 @@ class UserAdmin(admin.ModelAdmin):
         "gets",
         "watch_enabled",
         "notifications_muted",
+        "email_alerts",
         "watch_intro_at",
         "is_active",
         "is_guest",

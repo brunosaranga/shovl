@@ -1,0 +1,11 @@
+{% extends "mailer/base.txt" %}{% block content %}murindzi found something
+
+{% if items|length == 1 %}One of the APIs you watch needs a look.{% else %}{{ items|length }} things need a look.{% endif %}
+{% for item in items %}
+{{ item.where }}
+{% if item.kind == 'worse' %}got worse{% elif item.kind == 'domain' %}paused: verification no longer passes{% else %}paused: the last 3 scheduled scans failed{% endif %}
+{{ item.summary }}{% if item.link %}
+{{ item.action|capfirst }}: {{ item.link }}{% endif %}
+{% endfor %}{% endblock %}{% block reason %}You're getting this because murindzi watches these APIs for your {{ brand }} account.{% if off_url %}
+Turn these emails off: {{ off_url }}{% endif %}
+You can also change it in settings. Muting the bell stops them too.{% endblock %}

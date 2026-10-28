@@ -10,11 +10,11 @@ The mute is the account's notifications_muted (PATCH /api/accounts/me/).
 """
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from . import services
+from . import emails, services
 from .models import Notification
 from .serializers import NotificationSerializer
 
@@ -72,3 +72,30 @@ class ReadAllView(APIView):
             user=request.user, read_at__isnull=True
         ).update(read_at=timezone.now())
         return Response({"marked": marked})
+
+
+class EmailOffView(APIView):
+    """
+    POST /api/notifications/email-off/   {"token": "..."}   (no sign-in needed)
+
+    The "turn these emails off" link in murindzi's alert emails opens a page on the site
+    (/email-off), which sends its token here once the person clicks. A genuine token turns
+    off that account's alert emails (User.email_alerts) and answers 200 {"done": true};
+    anything else 400 {"code": "link_invalid"}. It never says which account, or whether it
+    was already off.
+    """
+    permission_classes = [AllowAny]
+    # A stale sign-in token in the header must never get in the way of this.
+    authentication_classes = []
+
+    def post(self, request):
+        data = request.data if isinstance(request.data, dict) else {}
+        if emails.turn_off(data.get("token")):
+            return Response({"done": True})
+        return Response(
+            {
+                "detail": "This link isn't valid. You can turn murindzi's emails off in settings.",
+                "code": "link_invalid",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
