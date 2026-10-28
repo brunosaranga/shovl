@@ -103,7 +103,8 @@ function WatchRow({ watch, accountOn, onChange }) {
 }
 
 // Settings → murindzi: the account's switch (do scheduled scans run at all), the plan's
-// line, the bell's mute (are you told), then each watched API with its own switch.
+// line, the bell's mute (are you told), the alert emails, then each watched API with its own
+// switch. Muting also stops the emails, so the email row says so while muted.
 //   watches:  GET /api/watches/, or null while loading
 //   onChange: reloads Settings' lists and the bell; returns a promise
 export default function WatchSettings({ watches, onChange }) {
@@ -111,11 +112,12 @@ export default function WatchSettings({ watches, onChange }) {
     const copy = settings.watch;
     const { user, refreshUser } = useSession();
     const { setMuted } = useNotifications();
-    const [busy, setBusy] = useState(null); // "watch" | "mute" | null
+    const [busy, setBusy] = useState(null); // "watch" | "mute" | "email" | null
     const [problem, setProblem] = useState(null);
 
     const accountOn = Boolean(user?.watch_enabled);
     const muted = Boolean(user?.notifications_muted);
+    const emailOn = Boolean(user?.email_alerts);
     const plan = user?.plan;
 
     const flip = async (which, request) => {
@@ -133,6 +135,12 @@ export default function WatchSettings({ watches, onChange }) {
         flip("watch", async () => {
             await accountsApi.updateMe({ watch_enabled: next });
             await Promise.all([refreshUser(), onChange()]);
+        });
+
+    const setEmailOn = (next) =>
+        flip("email", async () => {
+            await accountsApi.updateMe({ email_alerts: next });
+            await refreshUser();
         });
 
     let planText = common.loading;
@@ -183,6 +191,24 @@ export default function WatchSettings({ watches, onChange }) {
                     onText={copy.on}
                     offText={copy.off}
                     busy={busy === "mute"}
+                    disabled={!user}
+                />
+            </div>
+
+            <div className={styles.row}>
+                <div className={styles.rowText}>
+                    <span className={styles.label}>{copy.email}</span>
+                    <span className={styles.note}>
+                        {muted ? copy.emailMuted : fill(copy.emailNote, { email: user?.email || common.loading })}
+                    </span>
+                </div>
+                <Switch
+                    checked={emailOn}
+                    onChange={setEmailOn}
+                    label={copy.email}
+                    onText={copy.on}
+                    offText={copy.off}
+                    busy={busy === "email"}
                     disabled={!user}
                 />
             </div>

@@ -31,7 +31,14 @@ export function wakeApi() {
 // Endpoints that must never carry the stored token, and whose 401 means
 // "wrong credentials", not "session expired". An old token in the header would
 // otherwise make Django reject the request before the view even runs.
-const NO_AUTH = ["/accounts/login/", "/accounts/register/", "/accounts/guest/", "/accounts/token/refresh/"];
+const NO_AUTH = [
+    "/accounts/login/",
+    "/accounts/register/",
+    "/accounts/guest/",
+    "/accounts/token/refresh/",
+    // The "turn these emails off" link works signed out, from any browser.
+    "/notifications/email-off/",
+];
 // Sends the guest token, but a 401 is handled by the caller (SessionContext.register).
 const OWN_401 = ["/accounts/upgrade/"];
 
@@ -78,7 +85,7 @@ export const accountsApi = {
     register: (body) => client.post("/accounts/register/", body), // { email, password, tos_agreed }
     upgrade: (body) => client.post("/accounts/upgrade/", body), // guest token in the header
     me: () => client.get("/accounts/me/"),
-    // The two switches only: { watch_enabled?, notifications_muted? }. Returns the /me/ body.
+    // The switches only: { watch_enabled?, notifications_muted?, email_alerts? }. Returns the /me/ body.
     updateMe: (body) => client.patch("/accounts/me/", body),
 
     // Confirming the email (backend accounts/confirmation.py). All three answer with the /me/ body.
@@ -118,6 +125,8 @@ export const notificationsApi = {
     bell: (before) => client.get("/notifications/", { params: before ? { before } : undefined }),
     read: (id) => client.post(`/notifications/${id}/read/`),
     readAll: () => client.post("/notifications/read-all/"),
+    // The link in murindzi's emails (page /email-off). 200 { done } | 400 { code: "link_invalid" }
+    emailOff: (token) => client.post("/notifications/email-off/", { token }),
 };
 
 export const scansApi = {

@@ -18,7 +18,7 @@ export const operator = {
     description: "an individual based in Maputo, Mozambique",
 };
 
-const UPDATED = "last updated: 27 October 2026";
+const UPDATED = "last updated: 28 October 2026";
 
 export const legal = {
     operator,
@@ -171,7 +171,7 @@ export const legal = {
                         "Guest sessions: an account without an email address, and its scans. To let you try xikomu without signing up. Deleted 30 days after it was created.",
                         "Your domains: the hostnames you add, their verification codes and whether they're verified. To make sure you only scan what you control.",
                         "Your scans: the addresses you scan, the options you chose and the results. With \"verbose\" on, results include the raw responses your API sent back, so they contain whatever your API returned. For your reports, \"since your last scan\" and PDF downloads (built when you ask, never stored).",
-                        "murindzi: the APIs being watched, their schedule, and the notifications in your bell. To run scheduled scans and tell you what they found.",
+                        "murindzi: the APIs being watched, their schedule, the notifications in your bell, and whether you want them by email. To run scheduled scans and tell you what they found: in the bell, and by email unless you turn that off or mute the bell.",
                         "Report feedback: your answers and comment under a report, with a copy of the report's summary. To improve xikomu. If the scan is deleted, the answer stays, without your account or the scanned address.",
                         "Network addresses: when a guest session or an account is created, your IP address is counted for up to an hour, to limit how many one network can create. Our hosting provider also keeps short-lived server logs (IP address, time, request) for security and fixing errors.",
                         "Emails we send you: a record of each one (what kind, when, and whether it went out), with your address only as a one-way hash. To stay within our sending limits and find delivery problems. Deleted after 90 days.",

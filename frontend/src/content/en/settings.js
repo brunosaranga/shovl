@@ -8,7 +8,7 @@ export const settings = {
         email: "Email",
     },
 
-    // murindzi: the account switch, the bell's mute and the watched APIs.
+    // murindzi: the account switch, the bell's mute, the emails and the watched APIs.
     watch: {
         title: "murindzi",
         switchLabel: "murindzi",
@@ -21,7 +21,10 @@ export const settings = {
         one: "1 API",
         many: "{n} APIs",
         mute: "Mute the bell",
-        muteNote: "news still lands in the bell; the badge only counts what needs you.",
+        muteNote: "news still lands in the bell; the badge only counts what needs you, and no alert emails go out.",
+        email: "Email me alerts",
+        emailNote: "when a watched API gets worse, or murindzi has to pause, we email {email}.",
+        emailMuted: "the bell is muted, so no alert emails go out until you unmute it.",
         listTitle: "watched APIs",
         empty: "no watched APIs yet. scanning one of your verified domains starts one.",
         status: {

@@ -24,5 +24,6 @@ export const errors = {
         code_limit: "That's as many codes as we can send for now. Try again tomorrow.",
         address_limit: "That's as many different addresses as one account can try in a day.",
         email_failed: "We couldn't send the code just now. Try again in a few minutes.",
+        link_invalid: "This link isn't valid. You can turn murindzi's emails off in settings.",
     },
 };

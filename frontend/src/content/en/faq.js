@@ -101,7 +101,7 @@ export const faq = {
                 },
                 {
                     q: "when do I get an alert?",
-                    a: "when a scheduled scan finds a new problem, a check that got worse, or a higher risk score than the scan before it. the alert in the bell lists what changed and opens the report. no change, no alert: the scan still shows on your dashboard.",
+                    a: "when a scheduled scan finds a new problem, a check that got worse, or a higher risk score than the scan before it. the alert in the bell lists what changed and opens the report, and we email it to you too, one email per check-up however many APIs it covers. we also email when murindzi has to pause a watch. no change, no alert: the scan still shows on your dashboard.",
                 },
                 {
                     q: "why should I keep the verification record?",
@@ -109,7 +109,7 @@ export const faq = {
                 },
                 {
                     q: "how do I turn it off?",
-                    a: "in settings, under murindzi: one switch stops every scheduled scan, and each watched API has its own. \"mute the bell\" keeps the scans running but stops news from adding to the bell's count. things that need you, like a paused watch, still count.",
+                    a: "in settings, under murindzi: one switch stops every scheduled scan, and each watched API has its own. \"mute the bell\" keeps the scans running but stops news from adding to the bell's count, and stops the alert emails. things that need you, like a paused watch, still count. to stop only the emails, turn off \"email me alerts\", or use the link at the bottom of any alert email.",
                 },
                 {
                     q: "what's the unverified cache?",
@@ -142,7 +142,7 @@ export const faq = {
                 },
                 {
                     q: "does xikomu send emails?",
-                    a: "only one so far: the 6-digit code that confirms your address, from hello@xikomu.com. murindzi's alerts still land in the bell. if you write to {email}, Bruno, who runs xikomu, replies personally, from that address. xikomu never asks for your password or your code by email.",
+                    a: "two kinds, both from hello@xikomu.com: the 6-digit code that confirms your address, and murindzi's alerts, when a watched API gets worse or a watch has to pause. turn the alerts off in settings, or with the link in any of them. if you write to {email}, Bruno, who runs xikomu, replies personally, from that address. xikomu never asks for your password or your code by email.",
                 },
                 {
                     q: "can I delete my account?",

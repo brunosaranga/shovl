@@ -6,5 +6,7 @@ Disallow: /settings
 Disallow: /scan/
 Disallow: /verify
 Disallow: /signin
+Disallow: /confirm-email
+Disallow: /email-off
 
 Sitemap: https://xikomu.com/sitemap.xml

@@ -4,6 +4,7 @@ import { landing } from "./landing";
 import { auth } from "./auth";
 import { verify } from "./verify";
 import { confirm } from "./confirm";
+import { emailOff } from "./emailOff";
 import { scan } from "./scan";
 import { report } from "./report";
 import { dashboard } from "./dashboard";
@@ -22,6 +23,7 @@ export const en = {
     auth,
     verify,
     confirm,
+    emailOff,
     scan,
     report,
     dashboard,
