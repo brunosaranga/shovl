@@ -64,6 +64,8 @@
     letter-spacing: -6px;
     user-select: none;
     color: var(--text);
+    padding: 5px;
+    background-color: var(--surface);
 }
 
 @media (max-width: 768px) {
