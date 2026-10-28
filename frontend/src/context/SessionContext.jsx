@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { accountsApi, onSessionExpired } from "../lib/api";
 import { clearSession, readSession, writeSession } from "../lib/session";
+import { markWaitlistSeen } from "../lib/waitlistSeen";
 
 // Who is using xikomu right now, and the actions that change it.
 //
@@ -104,11 +105,12 @@ export function SessionProvider({ children }) {
      * old guest token stops working, so the new token MUST replace it, which save() does.
      */
     const register = useCallback(
-        async ({ email, password }) => {
+        async ({ email, password, waitlist = false }) => {
             const current = readSession();
             if (current?.isGuest) {
                 try {
-                    const { data } = await accountsApi.upgrade({ email, password, tos_agreed: true });
+                    const { data } = await accountsApi.upgrade({ email, password, tos_agreed: true, waitlist });
+                    markWaitlistSeen(); // the sign-up form asked: the after-scan modal won't
                     save({ access: data.access, isGuest: false, confirmed: false });
                     return { upgraded: true };
                 } catch (error) {
@@ -118,7 +120,8 @@ export function SessionProvider({ children }) {
                     setSession(null);
                 }
             }
-            await accountsApi.register({ email, password, tos_agreed: true });
+            await accountsApi.register({ email, password, tos_agreed: true, waitlist });
+            markWaitlistSeen(); // the sign-up form asked: the after-scan modal won't
             const { data } = await accountsApi.login({ email, password });
             save({ access: data.access, isGuest: false, confirmed: data.email_confirmed === true });
             return { upgraded: false };

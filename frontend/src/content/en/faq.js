@@ -142,7 +142,11 @@ export const faq = {
                 },
                 {
                     q: "does xikomu send emails?",
-                    a: "two kinds, both from hello@xikomu.com: the 6-digit code that confirms your address, and murindzi's alerts, when a watched API gets worse or a watch has to pause. turn the alerts off in settings, or with the link in any of them. if you write to {email}, Bruno, who runs xikomu, replies personally, from that address. xikomu never asks for your password or your code by email.",
+                    a: "only ones you asked for, all from hello@xikomu.com: a 6-digit code when you confirm your address or reset your password; murindzi's alerts, when a watched API gets worse or a watch has to pause; and, if you joined the launch list, the link to confirm that and one email on launch day. turn the alerts off in settings, or with the link in any of them. if you write to {email}, Bruno, who runs xikomu, replies personally, from that address. xikomu never asks for your password or your code by email.",
+                },
+                {
+                    q: "will you tell me when xikomu launches?",
+                    a: "if you ask. after your first scan we ask once, and the sign-up form has a box for it. you get one email on launch day and nothing else. you're only on the list once you press the button in the email we send to confirm it (or, if you ticked the box, once you confirm your account). every email from the list has a link to remove yourself, and the list is deleted 30 days after the launch email.",
                 },
                 {
                     q: "can I delete my account?",

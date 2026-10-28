@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PageMeta from "../../components/layout/PageMeta/PageMeta";
 import NavCenter from "../../components/layout/NavCenter/NavCenter";
@@ -15,10 +15,12 @@ import ScanState from "../../components/sections/report/ScanState/ScanState";
 import SinceLastScan from "../../components/sections/report/SinceLastScan/SinceLastScan";
 import ReportFeedback from "../../components/sections/report/ReportFeedback/ReportFeedback";
 import WatchBadge from "../../components/sections/report/WatchBadge/WatchBadge";
+import WaitlistModal from "../../components/sections/report/WaitlistModal/WaitlistModal";
 import { useContent } from "../../hooks/useContent";
 import { usePdfDownload } from "../../hooks/usePdfDownload";
 import { useScanDetail } from "../../hooks/useScans";
 import { useScanOutcomeSound, useSoundCue } from "../../hooks/useSounds";
+import { markWaitlistSeen, waitlistSeen } from "../../lib/waitlistSeen";
 import styles from "./Report.module.css";
 
 // The scan options only add to the report, never hide each other:
@@ -32,6 +34,12 @@ import styles from "./Report.module.css";
 // on a summary view in place, without spending a scan, and "download pdf" works for every
 // finished scan (the API builds it from what was saved). The optional "was this report
 // useful?" question sits at the bottom.
+//
+// The first complete report a browser shows asks, once, "want to hear when xikomu launches?"
+// (WaitlistModal), a moment after it appears. Never again in that browser, whatever the
+// answer; nor after the sign-up form asked the same thing (lib/waitlistSeen.js).
+const WAITLIST_DELAY_MS = 1500;
+
 export default function Report() {
     const { report } = useContent();
     const { scanId } = useParams();
@@ -50,6 +58,17 @@ export default function Report() {
     const summaryFirst = meta?.generate_report === false;
     const view = picked.scanId === scanId && picked.view ? picked.view : summaryFirst ? "summary" : "full";
     const pick = (next) => setPicked({ scanId, view: next });
+
+    const [askLaunch, setAskLaunch] = useState(false);
+    const complete = scan?.status === "complete" && Boolean(results);
+    useEffect(() => {
+        if (!complete || waitlistSeen()) return undefined;
+        const timer = setTimeout(() => {
+            markWaitlistSeen();
+            setAskLaunch(true);
+        }, WAITLIST_DELAY_MS);
+        return () => clearTimeout(timer);
+    }, [complete]);
 
     const reRun = () =>
         navigate("/scan/running", {
@@ -127,6 +146,8 @@ export default function Report() {
                     </>
                 ) : null}
             </PageBody>
+
+            <WaitlistModal open={askLaunch} onClose={() => setAskLaunch(false)} />
         </>
     );
 }

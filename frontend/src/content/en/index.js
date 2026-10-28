@@ -6,6 +6,7 @@ import { verify } from "./verify";
 import { confirm } from "./confirm";
 import { emailOff } from "./emailOff";
 import { reset } from "./reset";
+import { waitlist } from "./waitlist";
 import { scan } from "./scan";
 import { report } from "./report";
 import { dashboard } from "./dashboard";
@@ -26,6 +27,7 @@ export const en = {
     confirm,
     emailOff,
     reset,
+    waitlist,
     scan,
     report,
     dashboard,

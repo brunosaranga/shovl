@@ -7,6 +7,7 @@ import Verify from "./pages/Verify/Verify";
 import ConfirmEmail from "./pages/ConfirmEmail/ConfirmEmail";
 import EmailOff from "./pages/EmailOff/EmailOff";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
+import Waitlist from "./pages/Waitlist/Waitlist";
 import ScanRunning from "./pages/ScanRunning/ScanRunning";
 import Report from "./pages/Report/Report";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -40,6 +41,9 @@ export const pageRoutes = [
     { path: "/email-off", element: <EmailOff />, access: "public", content: "over-ground" },
     // "forgot your password?" on the sign-in tab: works signed out.
     { path: "/reset-password", element: <ResetPassword />, access: "public", content: "over-ground" },
+    // The launch list's email buttons ("confirm", "remove me"): work signed out.
+    { path: "/waitlist/confirm", element: <Waitlist mode="confirm" />, access: "public", content: "over-ground" },
+    { path: "/waitlist/leave", element: <Waitlist mode="leave" />, access: "public", content: "over-ground" },
     { path: "/verify", element: <Verify />, access: "registered", ambiance: false, content: "over-ground" },
     { path: "/scan/running", element: <ScanRunning />, access: "session", ambiance: false, ground: "still" },
     { path: "/scan/:scanId/report", element: <Report />, access: "session", content: "over-ground" },

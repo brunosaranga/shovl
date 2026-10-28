@@ -173,7 +173,8 @@ export const legal = {
                         "Your scans: the addresses you scan, the options you chose and the results. With \"verbose\" on, results include the raw responses your API sent back, so they contain whatever your API returned. For your reports, \"since your last scan\" and PDF downloads (built when you ask, never stored).",
                         "murindzi: the APIs being watched, their schedule, the notifications in your bell, and whether you want them by email. To run scheduled scans and tell you what they found: in the bell, and by email unless you turn that off or mute the bell.",
                         "Report feedback: your answers and comment under a report, with a copy of the report's summary. To improve xikomu. If the scan is deleted, the answer stays, without your account or the scanned address.",
-                        "Network addresses: when a guest session or an account is created, or a password reset is asked for, your IP address is counted for up to an hour, to limit how many one network can make. Our hosting provider also keeps short-lived server logs (IP address, time, request) for security and fixing errors.",
+                        "The launch list, only if you ask to join it: your email address, the first name you give, the exact wording you agreed to and when, whether and when you confirmed, and where you asked (after a scan, or when signing up). To send you one email when xikomu launches, and nothing else. You're only on it once you confirm, with the button in the email we send you or, if you ticked the box when signing up, by confirming your account.",
+                        "Network addresses: when a guest session or an account is created, a password reset is asked for, or the launch list is used, your IP address is counted for up to an hour, to limit how many one network can make. Our hosting provider also keeps short-lived server logs (IP address, time, request) for security and fixing errors.",
                         "Emails we send you: a record of each one (what kind, when, and whether it went out), with your address only as a one-way hash. To stay within our sending limits and find delivery problems. Deleted after 90 days.",
                         "Emails you send us: your address and your message, to reply.",
                     ],
@@ -182,13 +183,13 @@ export const legal = {
             {
                 h: "the legal basis",
                 body: [
-                    "We use your data to provide the service you signed up for (a contract with you), and for our legitimate interests in keeping xikomu secure, preventing abuse and improving it. Once payments exist, we'll also keep payment records because tax law requires it. Nothing here relies on consent, and we don't send marketing emails.",
+                    "We use your data to provide the service you signed up for (a contract with you), and for our legitimate interests in keeping xikomu secure, preventing abuse and improving it. Once payments exist, we'll also keep payment records because tax law requires it. The launch list is the one exception: it relies on your consent, which you can withdraw at any time with the \"remove me\" link in its emails, or by writing to {email}. Apart from that one launch email, we don't send marketing emails.",
                 ],
             },
             {
                 h: "in your browser",
                 body: [
-                    "xikomu keeps a few things in your browser's local storage: your session, your theme and sound settings, and whether you skipped a feedback question. They're needed for the site to work. xikomu doesn't use tracking cookies, analytics or ads, and its fonts are served by xikomu itself, so visiting sends nothing to anyone else.",
+                    "xikomu keeps a few things in your browser's local storage: your session, your theme and sound settings, whether you skipped a feedback question, and whether you were already asked about the launch list. They're needed for the site to work. xikomu doesn't use tracking cookies, analytics or ads, and its fonts are served by xikomu itself, so visiting sends nothing to anyone else.",
                 ],
             },
             {
@@ -198,7 +199,7 @@ export const legal = {
                     [
                         "Render hosts the site and the API, in Frankfurt, Germany.",
                         "Neon hosts the database, in Frankfurt, Germany.",
-                        "GitHub runs the daily job that deletes expired guest sessions and accounts that were never confirmed.",
+                        "GitHub runs the daily job that deletes expired guest sessions, accounts that were never confirmed, and launch list entries that are due.",
                         "Cloudflare forwards the emails you send to our xikomu.com addresses, like {email}, to Gmail (Google), where they're read and answered.",
                         "Brevo, in France, delivers the emails we send from our xikomu.com addresses. It counts how many are opened and which links are clicked, without recording who opened or clicked them.",
                         "Paddle, once Pro is on sale, handles payments as the merchant of record. Paddle collects your payment details itself; we receive your name, email, country and subscription status, never your card number.",
@@ -222,6 +223,7 @@ export const legal = {
                         "Accounts that never confirm their email, and their scans: 7 days after signing up.",
                         "Email codes: until used or replaced; expired ones within a day.",
                         "The record of emails we send: 90 days.",
+                        "The launch list: a request that isn't confirmed is deleted after 7 days; the rest 30 days after the launch email, or as soon as you remove yourself. Deleting your account doesn't take you off it (you asked for it separately): use the link in its emails, or ask us.",
                         "Report feedback: kept without your account or the scanned address once its scan is gone.",
                         "Server logs: a short time, set by our hosting provider.",
                         "Payment records, once payments exist: as long as tax law requires.",

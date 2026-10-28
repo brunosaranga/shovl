@@ -40,6 +40,9 @@ const NO_AUTH = [
     "/notifications/email-off/",
     // A forgotten password: both steps work signed out (/password/reset/ and .../confirm/).
     "/accounts/password/reset/",
+    // The launch list's email buttons work signed out.
+    "/waitlist/confirm/",
+    "/waitlist/leave/",
 ];
 // Sends the guest token, but a 401 is handled by the caller (SessionContext.register).
 const OWN_401 = ["/accounts/upgrade/"];
@@ -137,6 +140,16 @@ export const notificationsApi = {
     readAll: () => client.post("/notifications/read-all/"),
     // The link in murindzi's emails (page /email-off). 200 { done } | 400 { code: "link_invalid" }
     emailOff: (token) => client.post("/notifications/email-off/", { token }),
+};
+
+// The launch list (backend waitlist/).
+//   join: 200 { status: "pending" | "confirmed", detail } whatever the address; 400 field errors
+//         ({ first_name }, { email }, { consent }); 429 too many from this network
+//   confirm / leave: 200 { done } | 400 { code: "link_invalid" } (both work signed out)
+export const waitlistApi = {
+    join: (body) => client.post("/waitlist/", body), // { first_name, email, consent_version, website }
+    confirm: (token) => client.post("/waitlist/confirm/", { token }),
+    leave: (token) => client.post("/waitlist/leave/", { token }),
 };
 
 export const scansApi = {

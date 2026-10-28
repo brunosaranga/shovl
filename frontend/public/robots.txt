@@ -9,5 +9,6 @@ Disallow: /signin
 Disallow: /confirm-email
 Disallow: /email-off
 Disallow: /reset-password
+Disallow: /waitlist/
 
 Sitemap: https://xikomu.com/sitemap.xml

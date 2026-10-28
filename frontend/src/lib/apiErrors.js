@@ -3,7 +3,7 @@
 // Backend messages are plain language, so they are used first; content/en/errors.js
 // fills the gaps.
 
-const FIELD_NAMES = ["email", "password", "hostname", "tos_agreed"];
+const FIELD_NAMES = ["email", "password", "hostname", "tos_agreed", "first_name", "consent"];
 
 function deriveCode(status, body) {
     if (body?.code) return body.code;

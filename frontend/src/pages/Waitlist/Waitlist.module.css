@@ -1,0 +1,47 @@
+.intro {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.title {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    color: var(--text);
+    margin: 0 0 4px 0;
+    line-height: 1.1;
+}
+
+.lead {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text);
+}
+
+.help {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text);
+    /* These lines can scroll over the ground's terrain on shorter screens: the page's own
+       colour behind them keeps them readable there and changes nothing elsewhere. */
+    width: fit-content;
+    max-width: 100%;
+    padding: 2px 6px;
+    margin-left: -6px;
+    background: var(--surface);
+}
+
+@media (max-width: 768px) {
+    .title {
+        font-size: 34px;
+        letter-spacing: -1px;
+    }
+
+    .lead {
+        font-size: 13px;
+    }
+}
