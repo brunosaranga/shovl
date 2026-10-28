@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PageMeta from "../../components/layout/PageMeta/PageMeta";
 import NavCenter from "../../components/layout/NavCenter/NavCenter";
@@ -35,10 +35,14 @@ import styles from "./Report.module.css";
 // finished scan (the API builds it from what was saved). The optional "was this report
 // useful?" question sits at the bottom.
 //
-// The first complete report a browser shows asks, once, "want to hear when xikomu launches?"
-// (WaitlistModal), a moment after it appears. Never again in that browser, whatever the
-// answer; nor after the sign-up form asked the same thing (lib/waitlistSeen.js).
-const WAITLIST_DELAY_MS = 1500;
+// "want to hear when xikomu launches?" (WaitlistModal) waits until the report has been read:
+// it opens once the end of the report (the "was this report useful?" question) has scrolled
+// into view, and never sooner than WAITLIST_MIN_READ_MS after the report appeared (a short
+// summary fits on one screen). Someone who leaves earlier isn't asked; their next report tries
+// again. Once asked, never again in that browser, whatever the answer; nor after the sign-up
+// form asked the same thing (lib/waitlistSeen.js).
+const WAITLIST_MIN_READ_MS = 10000;
+const WAITLIST_AT_END_MS = 800; // a breath after reaching the end, so it doesn't land mid-scroll
 
 export default function Report() {
     const { report } = useContent();
@@ -60,15 +64,32 @@ export default function Report() {
     const pick = (next) => setPicked({ scanId, view: next });
 
     const [askLaunch, setAskLaunch] = useState(false);
+    const reportEnd = useRef(null);
     const complete = scan?.status === "complete" && Boolean(results);
     useEffect(() => {
-        if (!complete || waitlistSeen()) return undefined;
-        const timer = setTimeout(() => {
-            markWaitlistSeen();
-            setAskLaunch(true);
-        }, WAITLIST_DELAY_MS);
-        return () => clearTimeout(timer);
-    }, [complete]);
+        const end = reportEnd.current;
+        if (!complete || !end || waitlistSeen() || typeof IntersectionObserver === "undefined") return undefined;
+        const appeared = Date.now();
+        let timer = null;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (!entries.some((entry) => entry.isIntersecting)) return;
+                observer.disconnect();
+                const wait = Math.max(WAITLIST_AT_END_MS, appeared + WAITLIST_MIN_READ_MS - Date.now());
+                timer = setTimeout(() => {
+                    if (waitlistSeen()) return;
+                    markWaitlistSeen();
+                    setAskLaunch(true);
+                }, wait);
+            },
+            { threshold: 0.25 }
+        );
+        observer.observe(end);
+        return () => {
+            observer.disconnect();
+            clearTimeout(timer);
+        };
+    }, [complete, scanId]);
 
     const reRun = () =>
         navigate("/scan/running", {
@@ -142,7 +163,10 @@ export default function Report() {
                             </>
                         )}
 
-                        <ReportFeedback key={`feedback-${scan.id}`} scanId={scan.id} initial={scan.feedback} />
+                        {/* The end of the report: reaching it is what opens the launch list question. */}
+                        <div ref={reportEnd}>
+                            <ReportFeedback key={`feedback-${scan.id}`} scanId={scan.id} initial={scan.feedback} />
+                        </div>
                     </>
                 ) : null}
             </PageBody>
