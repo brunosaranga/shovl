@@ -38,6 +38,8 @@ const NO_AUTH = [
     "/accounts/token/refresh/",
     // The "turn these emails off" link works signed out, from any browser.
     "/notifications/email-off/",
+    // A forgotten password: both steps work signed out (/password/reset/ and .../confirm/).
+    "/accounts/password/reset/",
 ];
 // Sends the guest token, but a 401 is handled by the caller (SessionContext.register).
 const OWN_401 = ["/accounts/upgrade/"];
@@ -96,6 +98,14 @@ export const accountsApi = {
     sendCode: () => client.post("/accounts/email/code/"),
     confirmEmail: (code) => client.post("/accounts/email/confirm/", { code }),
     changeEmail: (body) => client.post("/accounts/email/change/", body), // { email, password }
+
+    // A forgotten password (backend accounts/reset.py), signed out.
+    //   requestReset: 200 { detail, resend_in } whether or not the address has an account;
+    //                 429 code_cooldown (retry_after) | 429 code_limit | 503 email_failed
+    //   resetPassword: 200 { access, refresh, is_guest, email_confirmed } (signed in);
+    //                  400 { password: [...] } | { code: code_invalid | code_wrong | code_used_up | code_expired }
+    requestReset: (email) => client.post("/accounts/password/reset/", { email }),
+    resetPassword: (body) => client.post("/accounts/password/reset/confirm/", body), // { email, code, password, guest_token? }
 };
 
 export const domainsApi = {

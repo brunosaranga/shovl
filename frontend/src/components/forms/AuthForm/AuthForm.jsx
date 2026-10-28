@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import TextField from "../../ui/TextField/TextField";
 import Checkbox from "../../ui/Checkbox/Checkbox";
 import LinkedText from "../../ui/LinkedText/LinkedText";
@@ -13,9 +14,12 @@ import styles from "./AuthForm.module.css";
 //             A guest is upgraded in place (SessionContext.register) and keeps their scans.
 //   signin:   a guest's scans move to the account they sign in to.
 // On success the session becomes "registered" and the Auth page redirects; no callback needed.
+// Sign in also offers "forgot your password?" (pages/ResetPassword), carrying the address typed
+// so far and where the visitor was going.
 export default function AuthForm({ mode, notice, onSuccess }) {
     const { auth, errors } = useContent();
     const { status, signIn, register } = useSession();
+    const location = useLocation();
     const { play } = useSound();
 
     const [email, setEmail] = useState("");
@@ -76,6 +80,12 @@ export default function AuthForm({ mode, notice, onSuccess }) {
                 hint={isRegister ? auth.fields.passwordHint : undefined}
                 errors={fields.password}
             />
+
+            {!isRegister ? (
+                <Link to="/reset-password" state={{ ...(location.state || {}), email }} className={styles.forgot}>
+                    {auth.forgot}
+                </Link>
+            ) : null}
 
             {isRegister ? <Checkbox label={<LinkedText text={auth.consent} newTab />} checked={consent} onChange={setConsent} /> : null}
 

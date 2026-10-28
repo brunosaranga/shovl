@@ -134,7 +134,7 @@ export const faq = {
                 },
                 {
                     q: "I forgot my password.",
-                    a: "there's no reset yet. email {email} from the address you signed up with and we'll sort it out.",
+                    a: "choose \"forgot your password?\" on the sign-in page. we email a 6-digit code to the address you signed up with, and you pick a new password; it works for 15 minutes. setting it signs you out everywhere else. no email? check spam, or write to {email}.",
                 },
                 {
                     q: "why do I have to confirm my email?",

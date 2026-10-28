@@ -58,6 +58,13 @@
     font-size: 13px;
     line-height: 1.5;
     color: var(--text);
+    /* These lines can scroll over the ground's terrain on shorter screens: the page's own
+       colour behind them keeps them readable there and changes nothing elsewhere. */
+    width: fit-content;
+    max-width: 100%;
+    padding: 2px 6px;
+    margin-left: -6px;
+    background: var(--surface);
 }
 
 @media (max-width: 768px) {

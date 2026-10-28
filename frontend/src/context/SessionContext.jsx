@@ -126,6 +126,22 @@ export function SessionProvider({ children }) {
         [save]
     );
 
+    /**
+     * A forgotten password: the code from the email and a new password. On success the account
+     * is signed in (and every other session it had is signed out by the backend). Like sign-in,
+     * a guest's scans move to the account.
+     */
+    const resetPassword = useCallback(
+        async ({ email, code, password }) => {
+            const current = readSession();
+            const body = { email, code, password };
+            if (current?.isGuest) body.guest_token = current.access;
+            const { data } = await accountsApi.resetPassword(body);
+            save({ access: data.access, isGuest: false, confirmed: data.email_confirmed === true });
+        },
+        [save]
+    );
+
     const signOut = useCallback(() => {
         clearSession();
         setSession(null);
@@ -147,9 +163,10 @@ export function SessionProvider({ children }) {
             startGuestSession,
             signIn,
             register,
+            resetPassword,
             signOut,
         }),
-        [status, user, ended, refreshUser, applyUser, startGuestSession, signIn, register, signOut]
+        [status, user, ended, refreshUser, applyUser, startGuestSession, signIn, register, resetPassword, signOut]
     );
 
     return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

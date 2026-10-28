@@ -25,6 +25,9 @@ export const auth = {
     // [label](/path) becomes a link (opens in a new tab here).
     consent: "I own or have explicit permission to test any URL I submit to xikomu, and I accept the [terms](/terms) and [privacy policy](/privacy)",
 
+    // Under the password on the sign-in tab (pages/ResetPassword).
+    forgot: "forgot your password?",
+
     submit: {
         signin: "Sign In",
         register: "Register",

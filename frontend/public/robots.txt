@@ -8,5 +8,6 @@ Disallow: /verify
 Disallow: /signin
 Disallow: /confirm-email
 Disallow: /email-off
+Disallow: /reset-password
 
 Sitemap: https://xikomu.com/sitemap.xml
