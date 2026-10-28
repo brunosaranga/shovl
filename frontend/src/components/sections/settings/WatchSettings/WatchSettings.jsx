@@ -5,14 +5,11 @@ import { useSession } from "../../../../context/SessionContext";
 import { useContent } from "../../../../hooks/useContent";
 import { accountsApi, watchesApi } from "../../../../lib/api";
 import { describeError } from "../../../../lib/apiErrors";
-import { extractHostname } from "../../../../lib/targets";
+import { extractHostname, maskedTarget } from "../../../../lib/targets";
 import { fill, formatDate } from "../../../../lib/text";
 import Breakable from "../../../ui/Breakable/Breakable";
 import Switch from "../../../ui/Switch/Switch";
 import styles from "./WatchSettings.module.css";
-
-// "api.example.com/v1" for "https://api.example.com/v1/".
-const shortTarget = (url) => String(url || "").replace(/^https?:\/\//i, "").replace(/\/$/, "");
 
 // Which line a watched API gets, most important first.
 function statusOf(watch, accountOn) {
@@ -32,7 +29,8 @@ function WatchRow({ watch, accountOn, onChange }) {
     const [busy, setBusy] = useState(false);
     const [problem, setProblem] = useState(null);
 
-    const target = shortTarget(watch.target_url);
+    // "api.example.com/v1?api_key=•••": query values can be keys (lib/targets.js).
+    const target = maskedTarget(watch.target_url);
     const status = statusOf(watch, accountOn);
     const label =
         status.key === "watching"

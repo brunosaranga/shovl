@@ -45,3 +45,28 @@ export function isPracticeTarget(input) {
     if (!hostname) return false;
     return ACTIVE_PRACTICE_TARGETS.some((target) => hostname === target || hostname.endsWith(`.${target}`));
 }
+
+// How lists show a watched API: host (and port), path, and the query's parameter NAMES with
+// their values masked, "api.example.com/v1?api_key=•••". Query strings often carry keys, and
+// lists end up in screenshots and screen shares. The names stay because two addresses that
+// differ only in their query are two different APIs to murindzi (backend watch/models.py,
+// watch_key). Login details written into an address ("user:pass@host") are left out too.
+export const MASK = "•••";
+
+export function maskedTarget(url) {
+    const raw = String(url || "");
+    let parsed;
+    try {
+        parsed = new URL(raw);
+    } catch {
+        // Not a full address: drop the scheme and whatever follows "?" or "#".
+        return raw.replace(/^https?:\/\//i, "").replace(/[?#].*$/, "").replace(/\/$/, "");
+    }
+    const path = parsed.pathname === "/" ? "" : parsed.pathname.replace(/\/$/, "");
+    const names = parsed.search
+        .slice(1)
+        .split("&")
+        .filter(Boolean)
+        .map((part) => (part.includes("=") ? `${part.split("=")[0]}=${MASK}` : part));
+    return `${parsed.host}${path}${names.length ? `?${names.join("&")}` : ""}`;
+}
