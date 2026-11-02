@@ -1,7 +1,7 @@
 import requests
 import time
 
-from .. import config, http
+from .. import config, evidence, http
 
 BURST_COUNT = 15
 BURST_INTERVAL = 0.1 # seconds between requests
@@ -42,11 +42,18 @@ def run(target_url: str, token: str = None, verbose: bool = False, budget=None) 
         headers = {"Authorization": f"Bearer {token}"} if token else {}
         status_codes = []
         advertised = {}
+        web_page = False
 
         for i in range(BURST_COUNT):
             if i:
                 time.sleep(BURST_INTERVAL)
             r = http.get(target_url, headers=headers, budget=budget, timeout=config.RATE_LIMIT_TIMEOUT)
+            if i == 0:
+                # A website's page (a single-page app, a landing page) rather than API data,
+                # judged the same way as in the authentication check: served (2xx) and HTML.
+                # An HTML error page (a framework's 404) is not a web page here: an API
+                # that answers its errors in HTML still needs its limit.
+                web_page = evidence.is_open(r) and evidence.is_html(r)
             status_codes.append(r.status_code)
             advertised.update(_rate_limit_headers(r))
             if r.status_code == 429:
@@ -63,6 +70,17 @@ def run(target_url: str, token: str = None, verbose: bool = False, budget=None) 
             result["detail"].append(
                 f"No 429 in {sent} requests, but the server advertises a rate limit "
                 f"({_describe(advertised)})"
+            )
+        elif web_page:
+            # A website, often a static one answered from a CDN's cache, where a burst
+            # costs nothing and a per-client limit is rarely possible. The limit belongs
+            # on the API behind it, which this address does not reach. LOW, like the
+            # authentication check's "web page instead of API data".
+            result["severity"] = "LOW"
+            result["detail"].append(
+                f"Returned a web page instead of API data, so rate limiting could not be "
+                f"assessed: {sent} rapid requests got no 429 and no rate-limit headers. "
+                "Rate limits belong on your API, so check that the URL points at an API endpoint"
             )
         else:
             # Not proof that there is no limit: many APIs allow far more than

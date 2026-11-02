@@ -439,14 +439,21 @@ class WriteChecksAreSkippedByDefaultTests(SimpleTestCase):
         )
 
 
-def run_rate_limit(statuses, headers=None, verbose=False):
-    """Answer each request with the next status in `statuses`, then keep repeating the last one."""
+def run_rate_limit(statuses, headers=None, verbose=False, html=False):
+    """
+    Answer each request with the next status in `statuses`, then keep repeating the last one.
+    With html=True every answer is a web page instead of JSON.
+    """
     sent = []
 
     def fake_get(url, headers_=None, **kwargs):
         index = min(len(sent), len(statuses) - 1)
         sent.append(statuses[index])
-        response = reply(statuses[index], {"ok": True})
+        if html:
+            response = reply(statuses[index], kind="text/html; charset=utf-8",
+                             text="<!doctype html><html><body>xikomu</body></html>")
+        else:
+            response = reply(statuses[index], {"ok": True})
         response.headers.update(headers or {})
         return response
 
@@ -525,6 +532,46 @@ class RateLimitTests(SimpleTestCase):
         with mock.patch("scanner.http.get", side_effect=http.ScanRequestError("timeout")):
             result = rate_limit.run(BASE)
         self.assertEqual((result["severity"], result["reason"]), ("ERROR", "timeout"))
+
+    # A website rather than an API (scan #82: a static site answered from a CDN's cache).
+
+    def test_a_web_page_with_no_limit_is_low_not_medium(self):
+        result, sent = run_rate_limit([200], html=True)
+        self.assertEqual(result["severity"], "LOW")
+        self.assertEqual(len(sent), rate_limit.BURST_COUNT)
+        detail = result["detail"][0]
+        self.assertIn("web page instead of API data", detail)
+        self.assertIn(f"{rate_limit.BURST_COUNT} rapid requests", detail)
+        self.assertIn("points at an API endpoint", detail)
+
+    def test_a_web_page_without_the_content_type_is_still_recognised(self):
+        def fake_get(url, **kwargs):
+            return reply(200, kind="", text="<!DOCTYPE html><html></html>")
+
+        with mock.patch("scanner.http.get", side_effect=fake_get), \
+             mock.patch("scanner.checks.rate_limit.time.sleep"):
+            result = rate_limit.run(BASE)
+        self.assertEqual(result["severity"], "LOW")
+
+    def test_a_web_page_that_answers_429_still_passes(self):
+        result, sent = run_rate_limit([200, 200, 429], html=True)
+        self.assertEqual(result["severity"], "PASS")
+        self.assertEqual(len(sent), 3)
+
+    def test_a_web_page_that_advertises_a_limit_still_passes(self):
+        result, _ = run_rate_limit([200], headers={"RateLimit-Limit": "120"}, html=True)
+        self.assertEqual(result["severity"], "PASS")
+
+    def test_an_html_error_page_is_not_a_web_page(self):
+        # An API whose framework answers a 404 in HTML (Django's default page, for example)
+        # still needs its limit: that is how scan #62 found the missing API limit.
+        result, _ = run_rate_limit([404], html=True)
+        self.assertEqual(result["severity"], "MEDIUM")
+
+    def test_api_data_is_still_medium(self):
+        result, _ = run_rate_limit([200])
+        self.assertEqual(result["severity"], "MEDIUM")
+        self.assertNotIn("web page", result["detail"][0])
 
 def headers_reply(**headers):
     response = reply(404, kind="text/html", text="<h1>Not Found</h1>")
