@@ -48,7 +48,7 @@ export const faq = {
                 },
                 {
                     q: "why is my rate limiting medium?",
-                    a: "the test stops at 15 requests, so a higher limit won't show up. advertise your limit in response headers (`RateLimit-*` or `X-RateLimit-*`) and the check passes.",
+                    a: "the test stops at 15 requests, so a higher limit won't show up. advertise your limit in response headers (`RateLimit-*` or `X-RateLimit-*`) and the check passes. if you scanned a website rather than your API, it reads low instead: rate limits belong on the API, so scan the API's address.",
                 },
                 {
                     q: "why does my report say \"based on 5 of 6 checks\"?",
